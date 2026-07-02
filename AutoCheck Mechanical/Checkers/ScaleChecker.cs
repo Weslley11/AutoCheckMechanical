@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using AutoCheckMechanical.Configuration;
-using AutoCheckMechanical.Core;
+﻿using AutoCheckMechanical.Core;
 using AutoCheckMechanical.Helpers;
 using AutoCheckMechanical.Models;
 using SolidWorks.Interop.sldworks;
@@ -39,18 +36,10 @@ namespace AutoCheckMechanical.Checkers
 
                 if (!useSheet)
                 {
-                    double scale = ScaleHelper.GetScale(view);
-
-                    bool allowed = CheckSettings.AllowedScales
-                        .Any(s => Math.Abs(s - scale) < 0.0001);
-
                     AddLog(result, $"Escala da vista : {ScaleHelper.GetScaleText(view)}");
 
-                    if (!allowed)
-                    {
-                        AddError(result,
-                            $"A Flat Pattern não utiliza a escala da folha nem uma escala permitida ({ScaleHelper.GetScaleText(view)}).");
-                    }
+                    AddError(result,
+                        $"A Flat Pattern deve utilizar \"Use Sheet Scale\", e não uma escala manual ({ScaleHelper.GetScaleText(view)}).");
                 }
             }
 

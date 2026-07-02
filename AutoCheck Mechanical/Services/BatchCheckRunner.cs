@@ -78,6 +78,7 @@ namespace AutoCheckMechanical.Services
 
                 CheckContext context = new CheckContext(app, doc);
 
+                item.SheetCount = context.SheetCount;
                 item.Results = engine.Execute(context);
             }
             catch (COMException ex)

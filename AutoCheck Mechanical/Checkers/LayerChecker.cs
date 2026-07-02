@@ -50,8 +50,10 @@ namespace AutoCheckMechanical.Checkers
                 }
                 else if (estaNoLayerPlanificado)
                 {
-                    AddError(result,
-                        $"Vista \"{view.Name}\" não é Flat Pattern mas está no layer {CheckSettings.FlatPatternLayer}.");
+                    string aviso = $"Vista \"{view.Name}\" não é Flat Pattern mas está no layer {CheckSettings.FlatPatternLayer}.";
+
+                    result.AddWarning(aviso);
+                    AddLog(result, "OBSERVAÇÃO: " + aviso);
                 }
             }
 

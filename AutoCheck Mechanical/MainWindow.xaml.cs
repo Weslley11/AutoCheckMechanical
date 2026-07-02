@@ -3,6 +3,7 @@ using AutoCheckMechanical.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -21,6 +22,7 @@ namespace AutoCheckMechanical
 
         private readonly List<BatchFileResult> _batchResults = new List<BatchFileResult>();
         private List<string> _checkerNames;
+        private string _filtroTexto = "";
 
         public MainWindow()
         {
@@ -125,6 +127,7 @@ namespace AutoCheckMechanical
                 {
                     FileName = session.ActiveDocument.GetTitle(),
                     FilePath = session.ActiveDocument.GetPathName(),
+                    SheetCount = context.SheetCount,
                     Results = results
                 });
 
@@ -246,6 +249,23 @@ namespace AutoCheckMechanical
             return _checkerNames;
         }
 
+        private void TxtFiltro_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            _filtroTexto = txtFiltro.Text ?? "";
+            RebuildResultsGrid();
+        }
+
+        private List<BatchFileResult> GetResultadosFiltrados()
+        {
+            if (string.IsNullOrWhiteSpace(_filtroTexto))
+                return _batchResults;
+
+            return _batchResults
+                .Where(x => x.FileName != null &&
+                            x.FileName.IndexOf(_filtroTexto, StringComparison.OrdinalIgnoreCase) >= 0)
+                .ToList();
+        }
+
         private void RebuildResultsGrid()
         {
             gridResults.RowDefinitions.Clear();
@@ -253,11 +273,18 @@ namespace AutoCheckMechanical
             gridResults.Children.Clear();
 
             List<string> checkerNames = GetCheckerNames();
+            List<BatchFileResult> resultados = GetResultadosFiltrados();
+
+            int colFolhas = checkerNames.Count + 1;
+            int colObservacao = checkerNames.Count + 2;
 
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(220) });
 
             foreach (string _ in checkerNames)
                 gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) });
+
+            gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(90) });
+            gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(260) });
 
             gridResults.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
@@ -266,11 +293,14 @@ namespace AutoCheckMechanical
             for (int c = 0; c < checkerNames.Count; c++)
                 AddHeaderCell(checkerNames[c].ToUpper(), c + 1, 0);
 
-            for (int r = 0; r < _batchResults.Count; r++)
+            AddHeaderCell("FOLHAS", colFolhas, 0);
+            AddHeaderCell("OBSERVAÇÃO", colObservacao, 0);
+
+            for (int r = 0; r < resultados.Count; r++)
             {
                 gridResults.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-                BatchFileResult item = _batchResults[r];
+                BatchFileResult item = resultados[r];
                 int rowIndex = r + 1;
 
                 AddFileNameCell(item, 0, rowIndex);
@@ -280,7 +310,70 @@ namespace AutoCheckMechanical
                     CheckResult result = item.Results.Find(x => x.Checker == checkerNames[c]);
                     AddStatusCell(item, result, c + 1, rowIndex);
                 }
+
+                AddSheetCountCell(item, colFolhas, rowIndex);
+                AddObservationCell(item, colObservacao, rowIndex);
             }
+        }
+
+        private void AddSheetCountCell(BatchFileResult item, int column, int row)
+        {
+            Border border = new Border
+            {
+                BorderBrush = (Brush)FindResource("BrushBorder"),
+                BorderThickness = new Thickness(0, 0, 1, 1),
+                Padding = new Thickness(8),
+                Background = Brushes.Transparent,
+                Cursor = Cursors.Hand,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+
+            border.Child = new TextBlock
+            {
+                Text = item.OpenFailed ? "—" : item.SheetCount.ToString(),
+                FontSize = 12,
+                FontWeight = item.SheetCount > 1 ? FontWeights.Bold : FontWeights.Normal,
+                Foreground = item.SheetCount > 1
+                    ? (Brush)FindResource("BrushAccentOrange")
+                    : (Brush)FindResource("BrushTextPrimary")
+            };
+
+            border.MouseLeftButtonUp += (s, e) => ShowFileDetails(item);
+
+            Grid.SetColumn(border, column);
+            Grid.SetRow(border, row);
+            gridResults.Children.Add(border);
+        }
+
+        private void AddObservationCell(BatchFileResult item, int column, int row)
+        {
+            Border border = new Border
+            {
+                BorderBrush = (Brush)FindResource("BrushBorder"),
+                BorderThickness = new Thickness(0, 0, 1, 1),
+                Padding = new Thickness(8),
+                Background = Brushes.Transparent,
+                Cursor = Cursors.Hand
+            };
+
+            List<string> avisos = item.Results.SelectMany(r => r.Warnings).ToList();
+
+            border.Child = new TextBlock
+            {
+                Text = avisos.Count == 0 ? "—" : string.Join(" | ", avisos),
+                FontSize = 12,
+                TextTrimming = TextTrimming.CharacterEllipsis,
+                Foreground = avisos.Count == 0
+                    ? (Brush)FindResource("BrushTextSecondary")
+                    : (Brush)FindResource("BrushAccentOrange")
+            };
+
+            border.ToolTip = avisos.Count == 0 ? null : string.Join("\n", avisos);
+            border.MouseLeftButtonUp += (s, e) => ShowFileDetails(item);
+
+            Grid.SetColumn(border, column);
+            Grid.SetRow(border, row);
+            gridResults.Children.Add(border);
         }
 
         private void AddHeaderCell(string text, int column, int row)
