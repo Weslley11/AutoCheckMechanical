@@ -25,7 +25,7 @@ namespace AutoCheckMechanical.Checkers
 
             foreach (View view in context.Views)
             {
-                bool isFlatPattern = ViewHelper.IsFlatPattern(view);
+                bool isFlatPattern = view.IsFlatPatternView();
                 string layer = ViewHelper.GetLayer(view);
 
                 AddLog(result, $"Vista : {view.Name}");
