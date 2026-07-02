@@ -21,36 +21,49 @@ namespace AutoCheckMechanical.Checkers
                 return result;
             }
 
+            bool flatPatternEncontrada = false;
+
             foreach (View view in context.Views)
             {
-                if (!ViewHelper.IsFlatPattern(view))
-                    continue;
-
+                bool isFlatPattern = ViewHelper.IsFlatPattern(view);
                 string layer = ViewHelper.GetLayer(view);
 
                 AddLog(result, $"Vista : {view.Name}");
                 AddLog(result, $"Layer : {layer}");
 
-                if (string.IsNullOrEmpty(layer))
-                {
-                    AddError(result, "Flat Pattern sem Layer.");
-                    return result;
-                }
+                bool estaNoLayerPlanificado = !string.IsNullOrEmpty(layer) &&
+                    string.Equals(layer, CheckSettings.FlatPatternLayer, StringComparison.OrdinalIgnoreCase);
 
-                if (!string.Equals(layer, CheckSettings.FlatPatternLayer, StringComparison.OrdinalIgnoreCase))
+                if (isFlatPattern)
+                {
+                    flatPatternEncontrada = true;
+
+                    if (string.IsNullOrEmpty(layer))
+                    {
+                        AddError(result, $"Flat Pattern ({view.Name}) sem Layer.");
+                    }
+                    else if (!estaNoLayerPlanificado)
+                    {
+                        AddError(result,
+                            $"Flat Pattern ({view.Name}) com layer incorreta ({layer}).");
+                    }
+                }
+                else if (estaNoLayerPlanificado)
                 {
                     AddError(result,
-                        $"Layer incorreta ({layer})");
-                    return result;
+                        $"Vista \"{view.Name}\" não é Flat Pattern mas está no layer {CheckSettings.FlatPatternLayer}.");
                 }
-
-                result.Message = "Layer correta.";
-
-                return result;
             }
 
-            AddError(result,
-                "Flat Pattern não encontrada.");
+            if (!flatPatternEncontrada)
+            {
+                AddError(result, "Flat Pattern não encontrada.");
+            }
+
+            if (result.Errors.Count == 0)
+            {
+                result.Message = "Layer correta.";
+            }
 
             return result;
         }
