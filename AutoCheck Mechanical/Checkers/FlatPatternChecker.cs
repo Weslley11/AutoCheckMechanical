@@ -21,7 +21,7 @@ namespace AutoCheckMechanical.Checkers
                 return result;
             }
 
-            foreach (View view in DrawingHelper.GetAllViews(context.Drawing))
+            foreach (View view in context.Views)
             {
                 if (!ViewHelper.IsFlatPattern(view))
                     continue;
@@ -31,7 +31,6 @@ namespace AutoCheckMechanical.Checkers
                 AddLog(result, $"Vista: {view.Name}");
                 AddLog(result, $"Configuração: {view.ReferencedConfiguration}");
 
-                // ===== TESTE DAS BEND LINES =====
                 foreach (var bend in ViewHelper.GetBendLinesInfo(view))
                 {
                     AddLog(result, "====================================");
@@ -39,15 +38,10 @@ namespace AutoCheckMechanical.Checkers
 
                     SketchSegment seg = bend.Segment;
 
-                    AddLog(result, $"Tipo Segmento: {seg.GetType()}");
-
-                    System.Type clrType = ((object)seg).GetType();
-
-                    AddLog(result, clrType.FullName);
-
-                    foreach (var m in clrType.GetMethods())
+                    if (seg == null)
                     {
-                        AddLog(result, m.Name);
+                        AddLog(result, "Segmento inválido.");
+                        continue;
                     }
 
                     SketchRelation[] relations = seg.GetRelations() as SketchRelation[];
@@ -67,7 +61,6 @@ namespace AutoCheckMechanical.Checkers
                         }
                     }
                 }
-                // ================================
 
                 return result;
             }

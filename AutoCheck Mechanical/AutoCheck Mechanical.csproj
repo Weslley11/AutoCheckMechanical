@@ -71,13 +71,10 @@
     <Compile Include="Checkers\ScaleChecker.cs" />
     <Compile Include="Configuration\CheckSettings.cs" />
     <Compile Include="Core\CheckerBase.cs" />
-    <Compile Include="Core\Constants.cs" />
-    <Compile Include="Core\Logger.cs" />
     <Compile Include="Helpers\AnnotationHelper.cs" />
     <Compile Include="Helpers\BalloonHelper.cs" />
     <Compile Include="Helpers\BendLineHelper.cs" />
     <Compile Include="Helpers\DimensionHelper.cs" />
-    <Compile Include="Helpers\DrawingAnalysisHelper.cs" />
     <Compile Include="Helpers\DrawingHelper.cs" />
     <Compile Include="Helpers\EdgeHelper.cs" />
     <Compile Include="Helpers\GeometryHelper.cs" />

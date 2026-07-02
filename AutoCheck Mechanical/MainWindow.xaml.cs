@@ -2,8 +2,8 @@
 using AutoCheckMechanical.Core;
 using System;
 using System.Collections.Generic;
+using System.Windows.Input;
 using System.Windows.Media;
-using AutoCheckMechanical.Checkers;
 using AutoCheckMechanical.Models;
 using CheckContextModel = AutoCheckMechanical.Core.CheckContext;
 using AutoCheckMechanical.Services;
@@ -81,42 +81,49 @@ namespace AutoCheckMechanical
 
             CheckEngine engine = new CheckEngine();
 
-            engine.Register(new FlatPatternChecker());
-            engine.Register(new LayerChecker());
-            engine.Register(new ScaleChecker());
-            engine.Register(new DimensionChecker());
-            engine.Register(new BalloonChecker());
+            CheckerManager.Register(engine);
 
-            List<CheckResult> results = engine.Execute(context);
+            btnCheckDrawing.IsEnabled = false;
+            Mouse.OverrideCursor = Cursors.Wait;
 
-            AddLog("--------------------------------");
-
-            foreach (CheckResult result in results)
+            try
             {
-                AddLog(result.Checker);
-
-                if (result.Success)
-                {
-                    AddLog("OK");
-
-                    if (!string.IsNullOrEmpty(result.Message))
-                        AddLog(result.Message);
-                }
-                else
-                {
-                    AddLog("ERRO");
-
-                    foreach (string erro in result.Errors)
-                        AddLog(erro);
-                }
-
-                foreach (string log in result.Logs)
-                    AddLog(log);
+                List<CheckResult> results = engine.Execute(context);
 
                 AddLog("--------------------------------");
-            }
 
-            txtStatus.Text = "Check finalizado.";
+                foreach (CheckResult result in results)
+                {
+                    AddLog(result.Checker);
+
+                    if (result.Success)
+                    {
+                        AddLog("OK");
+
+                        if (!string.IsNullOrEmpty(result.Message))
+                            AddLog(result.Message);
+                    }
+                    else
+                    {
+                        AddLog("ERRO");
+
+                        foreach (string erro in result.Errors)
+                            AddLog(erro);
+                    }
+
+                    foreach (string log in result.Logs)
+                        AddLog(log);
+
+                    AddLog("--------------------------------");
+                }
+
+                txtStatus.Text = "Check finalizado.";
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+                btnCheckDrawing.IsEnabled = true;
+            }
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using SolidWorks.Interop.sldworks;
+﻿using System;
+using AutoCheckMechanical.Configuration;
+using SolidWorks.Interop.sldworks;
 
 namespace AutoCheckMechanical.Helpers
 {
@@ -13,7 +15,7 @@ namespace AutoCheckMechanical.Helpers
         {
             string layer = ViewHelper.GetLayer(view);
 
-            return layer == "L2-Planificado";
+            return string.Equals(layer, CheckSettings.FlatPatternLayer, StringComparison.OrdinalIgnoreCase);
         }
 
         public static bool CheckFlatPattern(View view)

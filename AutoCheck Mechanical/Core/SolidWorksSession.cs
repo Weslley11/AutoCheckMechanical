@@ -36,8 +36,11 @@ namespace AutoCheckMechanical.Core
                 session.ActiveDocument =
                     session.Application.ActiveDoc;
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine(
+                    $"SolidWorksSession.Connect: falha ao conectar ({ex.GetType().Name}): {ex.Message}");
+
                 return session;
             }
 

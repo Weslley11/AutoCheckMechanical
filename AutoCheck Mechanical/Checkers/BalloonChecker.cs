@@ -19,7 +19,7 @@ namespace AutoCheckMechanical.Checkers
                 return result;
             }
 
-            foreach (View view in DrawingHelper.GetAllViews(context.Drawing))
+            foreach (View view in context.Views)
             {
                 if (!view.IsFlatPatternView())
                     continue;

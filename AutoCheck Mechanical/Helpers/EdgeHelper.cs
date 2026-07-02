@@ -50,7 +50,7 @@ namespace AutoCheckMechanical.Helpers
             if (p1 == null || p2 == null)
                 return false;
 
-            return Math.Abs(p1[1] - p2[1]) < 0.000001;
+            return Math.Abs(p1[0] - p2[0]) < 0.000001;
         }
 
         public static bool IsHorizontal(Edge edge)
@@ -61,7 +61,7 @@ namespace AutoCheckMechanical.Helpers
             if (p1 == null || p2 == null)
                 return false;
 
-            return Math.Abs(p1[0] - p2[0]) < 0.000001;
+            return Math.Abs(p1[1] - p2[1]) < 0.000001;
         }
     }
 }

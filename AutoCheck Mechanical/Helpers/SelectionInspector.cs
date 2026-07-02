@@ -48,8 +48,9 @@ namespace AutoCheckMechanical.Helpers
                         result.AddLog($"EntityType = {ent.GetType()}");
                     }
                 }
-                catch
+                catch (System.Runtime.InteropServices.COMException ex)
                 {
+                    result.AddLog($"Erro ao inspecionar entidade: {ex.Message}");
                 }
 
                 result.AddLog("--------------------------------");
