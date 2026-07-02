@@ -367,7 +367,7 @@ namespace AutoCheckMechanical
             int colFolhas = colCheckerStart + checkerNames.Count;
             int colObservacao = colFolhas + 1;
 
-            gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(64) });
+            gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(96) });
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(220) });
 
             foreach (string _ in checkerNames)
@@ -376,7 +376,7 @@ namespace AutoCheckMechanical
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(90) });
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(260) });
 
-            gridResults.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            gridResults.RowDefinitions.Add(new RowDefinition { Height = new GridLength(40) });
 
             AddHeaderCell("PRÉVIA", colPreview, 0);
             AddHeaderCell("ARQUIVO", colArquivo, 0, centralizado: false);
@@ -389,7 +389,7 @@ namespace AutoCheckMechanical
 
             for (int r = 0; r < resultados.Count; r++)
             {
-                gridResults.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+                gridResults.RowDefinitions.Add(new RowDefinition { Height = new GridLength(72) });
 
                 BatchFileResult item = resultados[r];
                 int rowIndex = r + 1;
@@ -437,10 +437,11 @@ namespace AutoCheckMechanical
             {
                 BorderBrush = (Brush)FindResource("BrushBorder"),
                 BorderThickness = new Thickness(0, 0, 1, 1),
-                Padding = new Thickness(6),
+                Padding = new Thickness(4),
                 Background = Brushes.Transparent,
                 Cursor = Cursors.Hand,
                 HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
                 ClipToBounds = true
             };
 
@@ -451,16 +452,18 @@ namespace AutoCheckMechanical
                 border.Child = new Image
                 {
                     Source = thumbnail,
-                    Width = 48,
-                    Height = 36,
-                    Stretch = Stretch.UniformToFill
+                    Width = 88,
+                    Height = 64,
+                    Stretch = Stretch.UniformToFill,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
                 };
 
                 border.ToolTip = new Image
                 {
                     Source = thumbnail,
-                    Width = 320,
-                    Height = 240,
+                    Width = 400,
+                    Height = 300,
                     Stretch = Stretch.Uniform
                 };
             }
@@ -471,7 +474,8 @@ namespace AutoCheckMechanical
                     Text = "—",
                     FontSize = 12,
                     Foreground = (Brush)FindResource("BrushTextSecondary"),
-                    HorizontalAlignment = HorizontalAlignment.Center
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
                 };
             }
 
@@ -502,7 +506,8 @@ namespace AutoCheckMechanical
                 FontWeight = item.SheetCount > 1 ? FontWeights.Bold : FontWeights.Normal,
                 Foreground = item.SheetCount > 1
                     ? (Brush)FindResource("BrushAccentOrange")
-                    : (Brush)FindResource("BrushTextPrimary")
+                    : (Brush)FindResource("BrushTextPrimary"),
+                VerticalAlignment = VerticalAlignment.Center
             };
 
             border.MouseLeftButtonUp += (s, e) => ShowFileDetails(item);
@@ -533,7 +538,8 @@ namespace AutoCheckMechanical
                 TextTrimming = TextTrimming.CharacterEllipsis,
                 Foreground = avisos.Count == 0
                     ? (Brush)FindResource("BrushTextSecondary")
-                    : (Brush)FindResource("BrushAccentOrange")
+                    : (Brush)FindResource("BrushAccentOrange"),
+                VerticalAlignment = VerticalAlignment.Center
             };
 
             border.ToolTip = avisos.Count == 0 ? null : string.Join("\n", avisos);
@@ -564,7 +570,8 @@ namespace AutoCheckMechanical
                 Foreground = (Brush)FindResource("BrushTextSecondary"),
                 TextWrapping = TextWrapping.Wrap,
                 TextAlignment = centralizado ? TextAlignment.Center : TextAlignment.Left,
-                HorizontalAlignment = centralizado ? HorizontalAlignment.Center : HorizontalAlignment.Left
+                HorizontalAlignment = centralizado ? HorizontalAlignment.Center : HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Center
             };
 
             Grid.SetColumn(border, column);
@@ -588,7 +595,8 @@ namespace AutoCheckMechanical
             {
                 Text = item.FileName,
                 Foreground = (Brush)FindResource("BrushTextPrimary"),
-                TextTrimming = TextTrimming.CharacterEllipsis
+                TextTrimming = TextTrimming.CharacterEllipsis,
+                VerticalAlignment = VerticalAlignment.Center
             };
 
             BitmapImage thumbnail = CarregarThumbnail(item.ThumbnailPath);
@@ -598,8 +606,8 @@ namespace AutoCheckMechanical
                 border.ToolTip = new Image
                 {
                     Source = thumbnail,
-                    Width = 320,
-                    Height = 240,
+                    Width = 400,
+                    Height = 300,
                     Stretch = Stretch.Uniform
                 };
             }
@@ -648,7 +656,8 @@ namespace AutoCheckMechanical
                 Text = texto,
                 FontWeight = FontWeights.Bold,
                 FontSize = 12,
-                Foreground = cor
+                Foreground = cor,
+                VerticalAlignment = VerticalAlignment.Center
             };
 
             border.MouseLeftButtonUp += (s, e) => ShowFileDetails(item);
