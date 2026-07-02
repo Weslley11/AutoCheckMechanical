@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using AutoCheckMechanical.Models;
@@ -17,6 +18,9 @@ namespace AutoCheckMechanical
     {
         private bool _isPseudoMaximized;
         private Rect _restoreBounds;
+
+        private readonly List<BatchFileResult> _batchResults = new List<BatchFileResult>();
+        private List<string> _checkerNames;
 
         public MainWindow()
         {
@@ -95,6 +99,7 @@ namespace AutoCheckMechanical
 
         private void BtnCheckDrawing_Click(object sender, RoutedEventArgs e)
         {
+            txtDetalheTitulo.Text = "LOG";
             txtLog.Clear();
             AddLog("Iniciando AutoCheck...");
 
@@ -115,6 +120,15 @@ namespace AutoCheckMechanical
             try
             {
                 List<CheckResult> results = engine.Execute(context);
+
+                UpsertBatchResult(new BatchFileResult
+                {
+                    FileName = session.ActiveDocument.GetTitle(),
+                    FilePath = session.ActiveDocument.GetPathName(),
+                    Results = results
+                });
+
+                RebuildResultsGrid();
 
                 AddLog("--------------------------------");
 
@@ -149,6 +163,255 @@ namespace AutoCheckMechanical
             {
                 Mouse.OverrideCursor = null;
                 btnCheckDrawing.IsEnabled = true;
+            }
+        }
+
+        private void BtnVerificarArquivos_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog
+            {
+                Filter = "Desenhos SolidWorks (*.slddrw)|*.slddrw",
+                Multiselect = true,
+                Title = "Selecionar desenhos para verificar"
+            };
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            SolidWorksSession session = RefreshConnectionStatus();
+
+            if (!session.IsConnected)
+                return;
+
+            CheckEngine engine = new CheckEngine();
+            CheckerManager.Register(engine);
+
+            btnCheckDrawing.IsEnabled = false;
+            btnVerificarArquivos.IsEnabled = false;
+            Mouse.OverrideCursor = Cursors.Wait;
+
+            try
+            {
+                AddLog($"Verificando {dialog.FileNames.Length} arquivo(s)... A janela do SolidWorks vai abrir e fechar cada arquivo automaticamente, isso é esperado.");
+
+                List<BatchFileResult> resultados = BatchCheckRunner.Run(session.Application, engine, dialog.FileNames);
+
+                int falhas = 0;
+
+                foreach (BatchFileResult item in resultados)
+                {
+                    UpsertBatchResult(item);
+
+                    if (item.OpenFailed)
+                        falhas++;
+                }
+
+                RebuildResultsGrid();
+
+                txtStatus.Text = falhas == 0
+                    ? $"{resultados.Count} arquivo(s) verificado(s)."
+                    : $"{resultados.Count} arquivo(s) verificado(s), {falhas} com falha ao abrir.";
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+                btnCheckDrawing.IsEnabled = true;
+                btnVerificarArquivos.IsEnabled = true;
+            }
+        }
+
+        private void UpsertBatchResult(BatchFileResult item)
+        {
+            int existingIndex = _batchResults.FindIndex(x => x.FilePath == item.FilePath);
+
+            if (existingIndex >= 0)
+                _batchResults[existingIndex] = item;
+            else
+                _batchResults.Add(item);
+        }
+
+        private List<string> GetCheckerNames()
+        {
+            if (_checkerNames == null)
+            {
+                CheckEngine probe = new CheckEngine();
+                CheckerManager.Register(probe);
+
+                _checkerNames = new List<string>();
+
+                foreach (var checker in probe.Checkers)
+                    _checkerNames.Add(checker.Name);
+            }
+
+            return _checkerNames;
+        }
+
+        private void RebuildResultsGrid()
+        {
+            gridResults.RowDefinitions.Clear();
+            gridResults.ColumnDefinitions.Clear();
+            gridResults.Children.Clear();
+
+            List<string> checkerNames = GetCheckerNames();
+
+            gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(220) });
+
+            foreach (string _ in checkerNames)
+                gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) });
+
+            gridResults.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+            AddHeaderCell("ARQUIVO", 0, 0);
+
+            for (int c = 0; c < checkerNames.Count; c++)
+                AddHeaderCell(checkerNames[c].ToUpper(), c + 1, 0);
+
+            for (int r = 0; r < _batchResults.Count; r++)
+            {
+                gridResults.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+                BatchFileResult item = _batchResults[r];
+                int rowIndex = r + 1;
+
+                AddFileNameCell(item, 0, rowIndex);
+
+                for (int c = 0; c < checkerNames.Count; c++)
+                {
+                    CheckResult result = item.Results.Find(x => x.Checker == checkerNames[c]);
+                    AddStatusCell(item, result, c + 1, rowIndex);
+                }
+            }
+        }
+
+        private void AddHeaderCell(string text, int column, int row)
+        {
+            Border border = new Border
+            {
+                Background = (Brush)FindResource("BrushSidebar"),
+                BorderBrush = (Brush)FindResource("BrushBorder"),
+                BorderThickness = new Thickness(0, 0, 1, 1),
+                Padding = new Thickness(8, 6, 8, 6)
+            };
+
+            border.Child = new TextBlock
+            {
+                Text = text,
+                FontSize = 11,
+                FontWeight = FontWeights.Bold,
+                Foreground = (Brush)FindResource("BrushTextSecondary")
+            };
+
+            Grid.SetColumn(border, column);
+            Grid.SetRow(border, row);
+            gridResults.Children.Add(border);
+        }
+
+        private void AddFileNameCell(BatchFileResult item, int column, int row)
+        {
+            Border border = new Border
+            {
+                BorderBrush = (Brush)FindResource("BrushBorder"),
+                BorderThickness = new Thickness(0, 0, 1, 1),
+                Padding = new Thickness(8),
+                Background = Brushes.Transparent,
+                Cursor = Cursors.Hand
+            };
+
+            border.Child = new TextBlock
+            {
+                Text = item.FileName,
+                Foreground = (Brush)FindResource("BrushTextPrimary"),
+                TextTrimming = TextTrimming.CharacterEllipsis
+            };
+
+            border.MouseLeftButtonUp += (s, e) => ShowFileDetails(item);
+
+            Grid.SetColumn(border, column);
+            Grid.SetRow(border, row);
+            gridResults.Children.Add(border);
+        }
+
+        private void AddStatusCell(BatchFileResult item, CheckResult result, int column, int row)
+        {
+            Border border = new Border
+            {
+                BorderBrush = (Brush)FindResource("BrushBorder"),
+                BorderThickness = new Thickness(0, 0, 1, 1),
+                Padding = new Thickness(8),
+                Background = Brushes.Transparent,
+                Cursor = Cursors.Hand,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+
+            string texto;
+            Brush cor;
+
+            if (item.OpenFailed || result == null)
+            {
+                texto = "—";
+                cor = (Brush)FindResource("BrushTextSecondary");
+            }
+            else if (result.Success)
+            {
+                texto = "OK";
+                cor = Brushes.LimeGreen;
+            }
+            else
+            {
+                texto = "ERRO";
+                cor = (Brush)FindResource("BrushAccentOrange");
+            }
+
+            border.Child = new TextBlock
+            {
+                Text = texto,
+                FontWeight = FontWeights.Bold,
+                FontSize = 12,
+                Foreground = cor
+            };
+
+            border.MouseLeftButtonUp += (s, e) => ShowFileDetails(item);
+
+            Grid.SetColumn(border, column);
+            Grid.SetRow(border, row);
+            gridResults.Children.Add(border);
+        }
+
+        private void ShowFileDetails(BatchFileResult item)
+        {
+            txtDetalheTitulo.Text = "LOG — " + item.FileName;
+            txtLog.Clear();
+
+            if (item.OpenFailed)
+            {
+                AddLog("Falha ao abrir o arquivo.");
+                AddLog(item.OpenError);
+                return;
+            }
+
+            foreach (CheckResult result in item.Results)
+            {
+                AddLog(result.Checker);
+
+                if (result.Success)
+                {
+                    AddLog("OK");
+
+                    if (!string.IsNullOrEmpty(result.Message))
+                        AddLog(result.Message);
+                }
+                else
+                {
+                    AddLog("ERRO");
+
+                    foreach (string erro in result.Errors)
+                        AddLog(erro);
+                }
+
+                foreach (string log in result.Logs)
+                    AddLog(log);
+
+                AddLog("--------------------------------");
             }
         }
 

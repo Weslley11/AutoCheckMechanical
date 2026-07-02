@@ -86,6 +86,7 @@
     <Compile Include="Helpers\SelectionInspector.cs" />
     <Compile Include="Helpers\ValidationHelper.cs" />
     <Compile Include="Helpers\ViewHelper.cs" />
+    <Compile Include="Models\BatchFileResult.cs" />
     <Compile Include="Models\BendLine.cs" />
     <Compile Include="Models\DrawingAnalysis.cs" />
     <Compile Include="Models\DrawingAnnotation.cs" />
@@ -95,6 +96,7 @@
     <Compile Include="Models\DrawingView.cs" />
     <Compile Include="Models\ValidationResult.cs" />
     <Compile Include="Readers\DrawingReader.cs" />
+    <Compile Include="Services\BatchCheckRunner.cs" />
     <Compile Include="Services\CheckEngine.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
