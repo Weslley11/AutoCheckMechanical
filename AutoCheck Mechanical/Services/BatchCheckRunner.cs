@@ -80,6 +80,7 @@ namespace AutoCheckMechanical.Services
 
                 item.SheetCount = context.SheetCount;
                 item.Results = engine.Execute(context);
+                item.ThumbnailPath = ThumbnailStore.Generate(doc, filePath);
             }
             catch (COMException ex)
             {

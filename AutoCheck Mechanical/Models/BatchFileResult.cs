@@ -9,6 +9,7 @@ namespace AutoCheckMechanical.Models
         public bool OpenFailed { get; set; }
         public string OpenError { get; set; }
         public int SheetCount { get; set; }
+        public string ThumbnailPath { get; set; }
         public List<CheckResult> Results { get; set; } = new List<CheckResult>();
     }
 }

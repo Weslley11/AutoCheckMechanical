@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using AutoCheckMechanical.Models;
 using CheckContextModel = AutoCheckMechanical.Core.CheckContext;
 using AutoCheckMechanical.Services;
@@ -105,6 +106,7 @@ namespace AutoCheckMechanical
 
             _batchResults.Clear();
             HistoryStore.Clear();
+            ThumbnailStore.ClearAll();
             RebuildResultsGrid();
 
             txtStatus.Text = "Histórico apagado.";
@@ -202,11 +204,14 @@ namespace AutoCheckMechanical
             {
                 List<CheckResult> results = engine.Execute(context);
 
+                string filePath = session.ActiveDocument.GetPathName();
+
                 UpsertBatchResult(new BatchFileResult
                 {
                     FileName = session.ActiveDocument.GetTitle(),
-                    FilePath = session.ActiveDocument.GetPathName(),
+                    FilePath = filePath,
                     SheetCount = context.SheetCount,
+                    ThumbnailPath = ThumbnailStore.Generate(session.ActiveDocument, filePath),
                     Results = results
                 });
 
@@ -356,9 +361,13 @@ namespace AutoCheckMechanical
             List<string> checkerNames = GetCheckerNames();
             List<BatchFileResult> resultados = GetResultadosFiltrados();
 
-            int colFolhas = checkerNames.Count + 1;
-            int colObservacao = checkerNames.Count + 2;
+            const int colPreview = 0;
+            const int colArquivo = 1;
+            int colCheckerStart = 2;
+            int colFolhas = colCheckerStart + checkerNames.Count;
+            int colObservacao = colFolhas + 1;
 
+            gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(64) });
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(220) });
 
             foreach (string _ in checkerNames)
@@ -369,10 +378,11 @@ namespace AutoCheckMechanical
 
             gridResults.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-            AddHeaderCell("ARQUIVO", 0, 0);
+            AddHeaderCell("PRÉVIA", colPreview, 0);
+            AddHeaderCell("ARQUIVO", colArquivo, 0);
 
             for (int c = 0; c < checkerNames.Count; c++)
-                AddHeaderCell(checkerNames[c].ToUpper(), c + 1, 0);
+                AddHeaderCell(checkerNames[c].ToUpper(), colCheckerStart + c, 0);
 
             AddHeaderCell("FOLHAS", colFolhas, 0);
             AddHeaderCell("OBSERVAÇÃO", colObservacao, 0);
@@ -384,17 +394,91 @@ namespace AutoCheckMechanical
                 BatchFileResult item = resultados[r];
                 int rowIndex = r + 1;
 
-                AddFileNameCell(item, 0, rowIndex);
+                AddPreviewCell(item, colPreview, rowIndex);
+                AddFileNameCell(item, colArquivo, rowIndex);
 
                 for (int c = 0; c < checkerNames.Count; c++)
                 {
                     CheckResult result = item.Results.Find(x => x.Checker == checkerNames[c]);
-                    AddStatusCell(item, result, c + 1, rowIndex);
+                    AddStatusCell(item, result, colCheckerStart + c, rowIndex);
                 }
 
                 AddSheetCountCell(item, colFolhas, rowIndex);
                 AddObservationCell(item, colObservacao, rowIndex);
             }
+        }
+
+        private static BitmapImage CarregarThumbnail(string caminho)
+        {
+            if (string.IsNullOrEmpty(caminho) || !File.Exists(caminho))
+                return null;
+
+            try
+            {
+                BitmapImage bitmap = new BitmapImage();
+
+                bitmap.BeginInit();
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.UriSource = new Uri(caminho, UriKind.Absolute);
+                bitmap.EndInit();
+                bitmap.Freeze();
+
+                return bitmap;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private void AddPreviewCell(BatchFileResult item, int column, int row)
+        {
+            Border border = new Border
+            {
+                BorderBrush = (Brush)FindResource("BrushBorder"),
+                BorderThickness = new Thickness(0, 0, 1, 1),
+                Padding = new Thickness(6),
+                Background = Brushes.Transparent,
+                Cursor = Cursors.Hand,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+
+            BitmapImage thumbnail = CarregarThumbnail(item.ThumbnailPath);
+
+            if (thumbnail != null)
+            {
+                border.Child = new Image
+                {
+                    Source = thumbnail,
+                    Width = 48,
+                    Height = 36,
+                    Stretch = Stretch.UniformToFill
+                };
+
+                border.ToolTip = new Image
+                {
+                    Source = thumbnail,
+                    Width = 320,
+                    Height = 240,
+                    Stretch = Stretch.Uniform
+                };
+            }
+            else
+            {
+                border.Child = new TextBlock
+                {
+                    Text = "—",
+                    FontSize = 12,
+                    Foreground = (Brush)FindResource("BrushTextSecondary"),
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+            }
+
+            border.MouseLeftButtonUp += (s, e) => ShowFileDetails(item);
+
+            Grid.SetColumn(border, column);
+            Grid.SetRow(border, row);
+            gridResults.Children.Add(border);
         }
 
         private void AddSheetCountCell(BatchFileResult item, int column, int row)
@@ -497,6 +581,19 @@ namespace AutoCheckMechanical
                 Foreground = (Brush)FindResource("BrushTextPrimary"),
                 TextTrimming = TextTrimming.CharacterEllipsis
             };
+
+            BitmapImage thumbnail = CarregarThumbnail(item.ThumbnailPath);
+
+            if (thumbnail != null)
+            {
+                border.ToolTip = new Image
+                {
+                    Source = thumbnail,
+                    Width = 320,
+                    Height = 240,
+                    Stretch = Stretch.Uniform
+                };
+            }
 
             border.MouseLeftButtonUp += (s, e) => ShowFileDetails(item);
 

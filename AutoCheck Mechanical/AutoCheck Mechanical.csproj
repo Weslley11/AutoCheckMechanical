@@ -101,6 +101,7 @@
     <Compile Include="Services\CheckEngine.cs" />
     <Compile Include="Services\HistoryStore.cs" />
     <Compile Include="Services\ThemeStore.cs" />
+    <Compile Include="Services\ThumbnailStore.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
