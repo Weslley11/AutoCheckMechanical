@@ -1,4 +1,4 @@
-﻿using System.Windows;
+using System.Windows;
 using AutoCheckMechanical.Core;
 using System;
 using System.Collections.Generic;
@@ -12,9 +12,14 @@ namespace AutoCheckMechanical
 {
     public partial class MainWindow : Window
     {
+        private bool _isPseudoMaximized;
+        private Rect _restoreBounds;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            txtUser.Text = Environment.UserName;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -35,17 +40,15 @@ namespace AutoCheckMechanical
 
             MessageBox.Show("Conectado!\n\n" + session.ActiveDocument.GetTitle());
         }
+
         private void AddLog(string texto)
         {
             txtLog.AppendText(DateTime.Now.ToString("HH:mm:ss") + "  " + texto + Environment.NewLine);
             txtLog.ScrollToEnd();
         }
 
-        private void BtnCheckDrawing_Click(object sender, RoutedEventArgs e)
+        private SolidWorksSession RefreshConnectionStatus()
         {
-            txtLog.Clear();
-            AddLog("Iniciando AutoCheck...");
-
             SolidWorksSession session = SolidWorksSession.Connect();
 
             if (!session.IsConnected)
@@ -55,7 +58,8 @@ namespace AutoCheckMechanical
 
                 ledSolidWorks.Fill = Brushes.Red;
                 txtSolidWorks.Text = "Desconectado";
-                return;
+
+                return session;
             }
 
             ledSolidWorks.Fill = Brushes.LimeGreen;
@@ -67,15 +71,34 @@ namespace AutoCheckMechanical
             {
                 AddLog("Nenhum documento aberto.");
                 txtStatus.Text = "Nenhum documento.";
-                return;
+                return session;
             }
 
-            txtArquivo.Text =
-                session.ActiveDocument.GetTitle();
+            txtArquivo.Text = session.ActiveDocument.GetTitle();
 
             AddLog("Arquivo:");
-
             AddLog(session.ActiveDocument.GetTitle());
+
+            return session;
+        }
+
+        private void BtnReconnect_Click(object sender, RoutedEventArgs e)
+        {
+            txtLog.Clear();
+            AddLog("Verificando conexão...");
+
+            RefreshConnectionStatus();
+        }
+
+        private void BtnCheckDrawing_Click(object sender, RoutedEventArgs e)
+        {
+            txtLog.Clear();
+            AddLog("Iniciando AutoCheck...");
+
+            SolidWorksSession session = RefreshConnectionStatus();
+
+            if (!session.IsConnected || session.ActiveDocument == null)
+                return;
 
             CheckContextModel context = new CheckContextModel(session.Application, session.ActiveDocument);
 
@@ -124,6 +147,42 @@ namespace AutoCheckMechanical
                 Mouse.OverrideCursor = null;
                 btnCheckDrawing.IsEnabled = true;
             }
+        }
+
+        private void BtnMinimize_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+        }
+
+        private void BtnMaximizeRestore_Click(object sender, RoutedEventArgs e)
+        {
+            if (_isPseudoMaximized)
+            {
+                Left = _restoreBounds.Left;
+                Top = _restoreBounds.Top;
+                Width = _restoreBounds.Width;
+                Height = _restoreBounds.Height;
+
+                _isPseudoMaximized = false;
+            }
+            else
+            {
+                _restoreBounds = new Rect(Left, Top, Width, Height);
+
+                Rect workArea = SystemParameters.WorkArea;
+
+                Left = workArea.Left;
+                Top = workArea.Top;
+                Width = workArea.Width;
+                Height = workArea.Height;
+
+                _isPseudoMaximized = true;
+            }
+        }
+
+        private void BtnClose_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 }

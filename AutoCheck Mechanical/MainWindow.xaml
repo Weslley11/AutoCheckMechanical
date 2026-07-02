@@ -1,160 +1,401 @@
-﻿<Window x:Class="AutoCheckMechanical.MainWindow"
+<Window x:Class="AutoCheckMechanical.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="AutoCheck Mechanical"
-        Height="720"
-        Width="1200"
+        Height="760"
+        Width="1280"
+        MinHeight="560"
+        MinWidth="980"
         WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
         ResizeMode="CanResize"
-        Background="#F4F6F9">
+        Background="#14171A"
+        Foreground="#ECEFF2"
+        FontFamily="Segoe UI"
+        Loaded="Window_Loaded">
 
-    <Grid Margin="15">
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="44"
+                             CornerRadius="0"
+                             GlassFrameThickness="0"
+                             ResizeBorderThickness="6"
+                             UseAeroCaptionButtons="False"/>
+    </shell:WindowChrome.WindowChrome>
 
-        <Grid.RowDefinitions>
-            <RowDefinition Height="60"/>
-            <RowDefinition Height="70"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="60"/>
-            <RowDefinition Height="35"/>
-        </Grid.RowDefinitions>
+    <Window.Resources>
 
-        <!-- Cabeçalho -->
-        <Border Grid.Row="0"
-                CornerRadius="8"
-                Background="#2C3E50">
+        <SolidColorBrush x:Key="BrushTitleBar" Color="#0F1113"/>
+        <SolidColorBrush x:Key="BrushSidebar" Color="#101315"/>
+        <SolidColorBrush x:Key="BrushPanel" Color="#1E2226"/>
+        <SolidColorBrush x:Key="BrushCard" Color="#24282D"/>
+        <SolidColorBrush x:Key="BrushBorder" Color="#2C3138"/>
+        <SolidColorBrush x:Key="BrushAccentTeal" Color="#1CBFCF"/>
+        <SolidColorBrush x:Key="BrushAccentTealHover" Color="#3FD3E1"/>
+        <SolidColorBrush x:Key="BrushAccentOrange" Color="#D9643A"/>
+        <SolidColorBrush x:Key="BrushTextPrimary" Color="#ECEFF2"/>
+        <SolidColorBrush x:Key="BrushTextSecondary" Color="#8A9099"/>
 
-            <Grid Margin="15">
+        <!-- Botões da barra de título (minimizar / restaurar / fechar) -->
+        <Style x:Key="WindowButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="44"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource BrushTextSecondary}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#2A2F35"/>
+                                <Setter Property="Foreground" Value="{StaticResource BrushTextPrimary}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CloseButtonStyle" TargetType="Button" BasedOn="{StaticResource WindowButtonStyle}">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#C0392B"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Ícones da barra lateral -->
+        <Style x:Key="SidebarButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Margin" Value="0,4"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{StaticResource BrushTextSecondary}"/>
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#1B2126"/>
+                                <Setter Property="Foreground" Value="{StaticResource BrushAccentTeal}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.35"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Botão de ação principal -->
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource BrushAccentTeal}"/>
+            <Setter Property="Foreground" Value="#0B1416"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{StaticResource BrushAccentTealHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ListBoxItem">
+            <Setter Property="Foreground" Value="{StaticResource BrushTextPrimary}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="6,6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border Background="{TemplateBinding Background}">
+                            <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ListBox">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+    </Window.Resources>
+
+    <Border BorderBrush="{StaticResource BrushBorder}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="44"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="28"/>
+            </Grid.RowDefinitions>
+
+            <!-- Barra de título customizada -->
+            <Border Grid.Row="0"
+                    Background="{StaticResource BrushTitleBar}"
+                    BorderBrush="{StaticResource BrushBorder}"
+                    BorderThickness="0,0,0,1">
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Viewbox Grid.Column="0" Width="18" Height="18" Margin="16,0,10,0">
+                        <Canvas Width="24" Height="24">
+                            <Path Data="M12 2 L22 7 L22 17 L12 22 L2 17 L2 7 Z" Fill="{StaticResource BrushAccentTeal}"/>
+                            <Path Data="M12 2 L22 7 L12 12 L2 7 Z" Fill="White" Opacity="0.18"/>
+                        </Canvas>
+                    </Viewbox>
+
+                    <TextBlock Grid.Column="1"
+                               Text="AUTOCHECK MECHANICAL"
+                               FontSize="12"
+                               FontWeight="Bold"
+                               Foreground="{StaticResource BrushTextPrimary}"
+                               VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Column="2"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center"
+                                Margin="0,0,20,0">
+                        <Rectangle Width="9" Height="9" Margin="2" Fill="#1CBFCF"/>
+                        <Rectangle Width="9" Height="9" Margin="2" Fill="#3FD3E1"/>
+                        <Rectangle Width="9" Height="9" Margin="2" Fill="#7FE3EC"/>
+                        <Rectangle Width="9" Height="9" Margin="2" Fill="{StaticResource BrushAccentOrange}"/>
+                    </StackPanel>
+
+                    <TextBlock Grid.Column="3"
+                               Name="txtUser"
+                               Foreground="{StaticResource BrushTextSecondary}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,16,0"
+                               FontSize="12"/>
+
+                    <StackPanel Grid.Column="4" Orientation="Horizontal">
+                        <Button x:Name="btnMinimize"
+                                Content="&#xE921;"
+                                Style="{StaticResource WindowButtonStyle}"
+                                Click="BtnMinimize_Click"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                        <Button x:Name="btnMaximizeRestore"
+                                Content="&#xE922;"
+                                Style="{StaticResource WindowButtonStyle}"
+                                Click="BtnMaximizeRestore_Click"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                        <Button x:Name="btnClose"
+                                Content="&#xE8BB;"
+                                Style="{StaticResource CloseButtonStyle}"
+                                Click="BtnClose_Click"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                    </StackPanel>
+
+                </Grid>
+            </Border>
+
+            <!-- Corpo -->
+            <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition Width="250"/>
+                    <ColumnDefinition Width="56"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Text="AutoCheck Mechanical"
-                           FontSize="26"
-                           FontWeight="Bold"
-                           Foreground="White"
-                           VerticalAlignment="Center"/>
+                <!-- Barra lateral -->
+                <Border Grid.Column="0"
+                        Background="{StaticResource BrushSidebar}"
+                        BorderBrush="{StaticResource BrushBorder}"
+                        BorderThickness="0,0,1,0">
 
-                <StackPanel Grid.Column="1"
-                            Orientation="Horizontal"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Center">
+                    <StackPanel Margin="0,16,0,0" HorizontalAlignment="Center">
+                        <Button x:Name="btnReconnect"
+                                Content="&#xE72C;"
+                                Style="{StaticResource SidebarButtonStyle}"
+                                ToolTip="Verificar conexão com o SolidWorks"
+                                Click="BtnReconnect_Click"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                        <Button x:Name="btnRunCheckSidebar"
+                                Content="&#xE721;"
+                                Style="{StaticResource SidebarButtonStyle}"
+                                ToolTip="Rodar Check Drawing"
+                                Click="BtnCheckDrawing_Click"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                        <Button Content="&#xE713;"
+                                Style="{StaticResource SidebarButtonStyle}"
+                                ToolTip="Configurações (em breve)"
+                                IsEnabled="False"/>
+                    </StackPanel>
+                </Border>
 
-                    <Ellipse Width="12"
-                             Height="12"
-                             Fill="Red"
-                             Margin="0,0,10,0"
-                             Name="ledSolidWorks"/>
+                <!-- Conteúdo -->
+                <Grid Grid.Column="1" Margin="16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
-                    <TextBlock Text="SolidWorks Desconectado"
-                               Foreground="White"
-                               FontSize="16"
-                               Name="txtSolidWorks"/>
+                    <!-- Card de conexão / arquivo -->
+                    <Border Grid.Row="0"
+                            Background="{StaticResource BrushCard}"
+                            BorderBrush="{StaticResource BrushBorder}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="16"
+                            Margin="0,0,0,12">
 
-                </StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
 
+                            <StackPanel>
+                                <TextBlock Text="ARQUIVO ATUAL"
+                                           FontSize="11"
+                                           Foreground="{StaticResource BrushTextSecondary}"
+                                           Margin="0,0,0,4"/>
+                                <TextBlock Name="txtArquivo"
+                                           Text="Nenhum arquivo carregado"
+                                           FontSize="16"
+                                           Foreground="{StaticResource BrushTextPrimary}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1"
+                                        Orientation="Horizontal"
+                                        VerticalAlignment="Center">
+                                <Ellipse Width="10"
+                                         Height="10"
+                                         Fill="Red"
+                                         Margin="0,0,8,0"
+                                         Name="ledSolidWorks"
+                                         VerticalAlignment="Center"/>
+                                <TextBlock Text="SolidWorks Desconectado"
+                                           Foreground="{StaticResource BrushTextPrimary}"
+                                           FontSize="13"
+                                           Name="txtSolidWorks"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Button Grid.Row="1"
+                            Name="btnCheckDrawing"
+                            Content="CHECK DRAWING"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            HorizontalAlignment="Left"
+                            Margin="0,0,0,12"
+                            Click="BtnCheckDrawing_Click"/>
+
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="260"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Background="{StaticResource BrushCard}"
+                                BorderBrush="{StaticResource BrushBorder}"
+                                BorderThickness="1"
+                                CornerRadius="6">
+                            <DockPanel>
+                                <TextBlock Text="CHECKS"
+                                           DockPanel.Dock="Top"
+                                           FontSize="11"
+                                           Foreground="{StaticResource BrushTextSecondary}"
+                                           Margin="12,10,0,4"/>
+                                <ListBox Name="lstChecks" FontSize="14" Margin="6">
+                                    <ListBoxItem>☐ Flat Pattern</ListBoxItem>
+                                    <ListBoxItem>☐ Layer</ListBoxItem>
+                                    <ListBoxItem>☐ Escala</ListBoxItem>
+                                    <ListBoxItem>☐ Dimensões</ListBoxItem>
+                                    <ListBoxItem>☐ Bend Lines</ListBoxItem>
+                                    <ListBoxItem>☐ Material</ListBoxItem>
+                                    <ListBoxItem>☐ Revisão</ListBoxItem>
+                                    <ListBoxItem>☐ Template</ListBoxItem>
+                                    <ListBoxItem>☐ Sheet Format</ListBoxItem>
+                                    <ListBoxItem>☐ BOM</ListBoxItem>
+                                    <ListBoxItem>☐ Balloon</ListBoxItem>
+                                </ListBox>
+                            </DockPanel>
+                        </Border>
+
+                        <Border Grid.Column="2"
+                                Background="{StaticResource BrushPanel}"
+                                BorderBrush="{StaticResource BrushBorder}"
+                                BorderThickness="1"
+                                CornerRadius="6">
+                            <DockPanel>
+                                <TextBlock Text="LOG"
+                                           DockPanel.Dock="Top"
+                                           FontSize="11"
+                                           Foreground="{StaticResource BrushTextSecondary}"
+                                           Margin="12,10,0,4"/>
+                                <TextBox Name="txtLog"
+                                         Background="Transparent"
+                                         Foreground="{StaticResource BrushTextPrimary}"
+                                         CaretBrush="{StaticResource BrushTextPrimary}"
+                                         BorderThickness="0"
+                                         IsReadOnly="True"
+                                         FontFamily="Consolas"
+                                         FontSize="13"
+                                         AcceptsReturn="True"
+                                         VerticalScrollBarVisibility="Auto"
+                                         Margin="8"/>
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
             </Grid>
 
-        </Border>
-
-        <!-- Arquivo -->
-
-        <GroupBox Grid.Row="1"
-                  Header="Arquivo Atual"
-                  Margin="0,10,0,10">
-
-            <TextBox Name="txtArquivo"
-                     FontSize="16"
-                     IsReadOnly="True"
-                     BorderThickness="0"
-                     Background="Transparent"
-                     Text="Nenhum arquivo carregado"/>
-
-        </GroupBox>
-
-        <!-- Centro -->
-
-        <Grid Grid.Row="2">
-
-            <Grid.ColumnDefinitions>
-
-                <ColumnDefinition Width="320"/>
-
-                <ColumnDefinition/>
-
-            </Grid.ColumnDefinitions>
-
-            <!-- Lista de Checks -->
-
-            <GroupBox Header="Checks"
-                      Margin="0,0,10,0">
-
-                <ListBox Name="lstChecks"
-                         FontSize="16">
-
-                    <ListBoxItem>☐ Flat Pattern</ListBoxItem>
-
-                    <ListBoxItem>☐ Layer</ListBoxItem>
-
-                    <ListBoxItem>☐ Escala</ListBoxItem>
-
-                    <ListBoxItem>☐ Dimensões</ListBoxItem>
-
-                    <ListBoxItem>☐ Bend Lines</ListBoxItem>
-
-                    <ListBoxItem>☐ Material</ListBoxItem>
-
-                    <ListBoxItem>☐ Revisão</ListBoxItem>
-
-                    <ListBoxItem>☐ Template</ListBoxItem>
-
-                    <ListBoxItem>☐ Sheet Format</ListBoxItem>
-
-                    <ListBoxItem>☐ BOM</ListBoxItem>
-
-                    <ListBoxItem>☐ Balloon</ListBoxItem>
-
-                </ListBox>
-
-            </GroupBox>
-
-            <!-- Log -->
-
-            <GroupBox Header="Log"
-                      Grid.Column="1">
-
-                <TextBox Name="txtLog"
-                         IsReadOnly="True"
-                         FontFamily="Consolas"
-                         FontSize="14"
-                         AcceptsReturn="True"
-                         VerticalScrollBarVisibility="Auto"/>
-
-            </GroupBox>
+            <!-- Barra de status -->
+            <Border Grid.Row="2"
+                    Background="{StaticResource BrushTitleBar}"
+                    BorderBrush="{StaticResource BrushBorder}"
+                    BorderThickness="0,1,0,0">
+                <TextBlock Name="txtStatus"
+                           Text="Pronto."
+                           Foreground="{StaticResource BrushTextSecondary}"
+                           FontSize="12"
+                           VerticalAlignment="Center"
+                           Margin="16,0"/>
+            </Border>
 
         </Grid>
-
-        <!-- Botão -->
-
-        <Button Grid.Row="3"
-                Name="btnCheckDrawing"
-                Content="CHECK DRAWING"
-                FontSize="20"
-                FontWeight="Bold"
-                Height="45"
-                Width="250"
-                HorizontalAlignment="Center"
-                Click="BtnCheckDrawing_Click"/>
-
-        <!-- Barra de Status -->
-
-        <StatusBar Grid.Row="4">
-
-            <TextBlock Name="txtStatus"
-                       Text="Pronto."/>
-
-        </StatusBar>
-
-    </Grid>
-
+    </Border>
 </Window>
