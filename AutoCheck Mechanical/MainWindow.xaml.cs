@@ -23,12 +23,91 @@ namespace AutoCheckMechanical
         private readonly List<BatchFileResult> _batchResults = new List<BatchFileResult>();
         private List<string> _checkerNames;
         private string _filtroTexto = "";
+        private bool _temaEscuro = true;
 
         public MainWindow()
         {
             InitializeComponent();
 
             txtUser.Text = Environment.UserName;
+
+            _batchResults.AddRange(HistoryStore.Load());
+
+            _temaEscuro = ThemeStore.LoadTemaEscuro();
+            AplicarTema(_temaEscuro);
+        }
+
+        private void AplicarTema(bool escuro)
+        {
+            if (escuro)
+            {
+                Resources["BrushTitleBar"] = new SolidColorBrush(Color.FromRgb(0x0F, 0x11, 0x13));
+                Resources["BrushSidebar"] = new SolidColorBrush(Color.FromRgb(0x10, 0x13, 0x15));
+                Resources["BrushPanel"] = new SolidColorBrush(Color.FromRgb(0x1E, 0x22, 0x26));
+                Resources["BrushCard"] = new SolidColorBrush(Color.FromRgb(0x24, 0x28, 0x2D));
+                Resources["BrushBorder"] = new SolidColorBrush(Color.FromRgb(0x2C, 0x31, 0x38));
+                Resources["BrushAccentTeal"] = new SolidColorBrush(Color.FromRgb(0x1C, 0xBF, 0xCF));
+                Resources["BrushAccentTealHover"] = new SolidColorBrush(Color.FromRgb(0x3F, 0xD3, 0xE1));
+                Resources["BrushAccentOrange"] = new SolidColorBrush(Color.FromRgb(0xD9, 0x64, 0x3A));
+                Resources["BrushTextPrimary"] = new SolidColorBrush(Color.FromRgb(0xEC, 0xEF, 0xF2));
+                Resources["BrushTextSecondary"] = new SolidColorBrush(Color.FromRgb(0x8A, 0x90, 0x99));
+                Resources["BrushHoverSurface"] = new SolidColorBrush(Color.FromRgb(0x2A, 0x2F, 0x35));
+            }
+            else
+            {
+                Resources["BrushTitleBar"] = new SolidColorBrush(Color.FromRgb(0xFF, 0xFF, 0xFF));
+                Resources["BrushSidebar"] = new SolidColorBrush(Color.FromRgb(0xF1, 0xF2, 0xF4));
+                Resources["BrushPanel"] = new SolidColorBrush(Color.FromRgb(0xF7, 0xF8, 0xFA));
+                Resources["BrushCard"] = new SolidColorBrush(Color.FromRgb(0xFF, 0xFF, 0xFF));
+                Resources["BrushBorder"] = new SolidColorBrush(Color.FromRgb(0xDD, 0xE1, 0xE6));
+                Resources["BrushAccentTeal"] = new SolidColorBrush(Color.FromRgb(0x0E, 0xA5, 0xB7));
+                Resources["BrushAccentTealHover"] = new SolidColorBrush(Color.FromRgb(0x14, 0xBF, 0xD1));
+                Resources["BrushAccentOrange"] = new SolidColorBrush(Color.FromRgb(0xC1, 0x50, 0x2E));
+                Resources["BrushTextPrimary"] = new SolidColorBrush(Color.FromRgb(0x1B, 0x1E, 0x22));
+                Resources["BrushTextSecondary"] = new SolidColorBrush(Color.FromRgb(0x6B, 0x72, 0x80));
+                Resources["BrushHoverSurface"] = new SolidColorBrush(Color.FromRgb(0xE7, 0xE9, 0xEC));
+            }
+
+            _temaEscuro = escuro;
+
+            RebuildResultsGrid();
+        }
+
+        private void BtnConfiguracoes_Click(object sender, RoutedEventArgs e)
+        {
+            AplicarTema(!_temaEscuro);
+            ThemeStore.Save(_temaEscuro);
+
+            txtStatus.Text = _temaEscuro ? "Tema escuro aplicado." : "Tema claro aplicado.";
+        }
+
+        private void BtnHistorico_Click(object sender, RoutedEventArgs e)
+        {
+            txtFiltro.Text = "";
+            gridResults.BringIntoView();
+
+            txtStatus.Text = $"Histórico: {_batchResults.Count} arquivo(s) verificado(s) ao todo.";
+        }
+
+        private void BtnLimparHistorico_Click(object sender, RoutedEventArgs e)
+        {
+            if (_batchResults.Count == 0)
+                return;
+
+            MessageBoxResult resposta = MessageBox.Show(
+                "Isso vai apagar todo o histórico de verificações salvo neste computador. Deseja continuar?",
+                "Limpar Histórico",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (resposta != MessageBoxResult.Yes)
+                return;
+
+            _batchResults.Clear();
+            HistoryStore.Clear();
+            RebuildResultsGrid();
+
+            txtStatus.Text = "Histórico apagado.";
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -132,6 +211,7 @@ namespace AutoCheckMechanical
                 });
 
                 RebuildResultsGrid();
+                HistoryStore.Save(_batchResults);
 
                 AddLog("--------------------------------");
 
@@ -210,6 +290,7 @@ namespace AutoCheckMechanical
                 }
 
                 RebuildResultsGrid();
+                HistoryStore.Save(_batchResults);
 
                 txtStatus.Text = falhas == 0
                     ? $"{resultados.Count} arquivo(s) verificado(s)."
