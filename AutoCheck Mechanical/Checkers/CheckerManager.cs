@@ -11,6 +11,7 @@ namespace AutoCheckMechanical.Core
             engine.Register(new LayerChecker());
             engine.Register(new ScaleChecker());
             engine.Register(new DimensionChecker());
+            engine.Register(new TitleBlockChecker());
 
             // desativado a pedido: verificação de balões não é necessária por enquanto
             // engine.Register(new BalloonChecker());

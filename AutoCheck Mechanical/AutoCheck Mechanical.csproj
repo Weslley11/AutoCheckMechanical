@@ -70,6 +70,7 @@
     <Compile Include="Checkers\FlatPatternChecker.cs" />
     <Compile Include="Checkers\LayerChecker.cs" />
     <Compile Include="Checkers\ScaleChecker.cs" />
+    <Compile Include="Checkers\TitleBlockChecker.cs" />
     <Compile Include="Configuration\CheckSettings.cs" />
     <Compile Include="Core\CheckerBase.cs" />
     <Compile Include="Helpers\AnnotationHelper.cs" />
@@ -82,6 +83,7 @@
     <Compile Include="Helpers\MathHelper.cs" />
     <Compile Include="Helpers\NoteHelper.cs" />
     <Compile Include="Helpers\OrdinateHelper.cs" />
+    <Compile Include="Helpers\PropertyHelper.cs" />
     <Compile Include="Helpers\ScaleHelper.cs" />
     <Compile Include="Helpers\SelectionHelper.cs" />
     <Compile Include="Helpers\SelectionInspector.cs" />
