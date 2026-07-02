@@ -123,7 +123,8 @@ namespace AutoCheckMechanical.Helpers
         public static List<DrawingAnnotation> GetBalloons(View view)
         {
             return GetAnnotations(view)
-                .FindAll(x => x.Type == (int)swAnnotationType_e.swBOMBalloon);
+                .FindAll(x => x.Type == (int)swAnnotationType_e.swNote &&
+                              (x.Specific as Note)?.IsBomBalloon() == true);
         }
 
         public static List<DrawingAnnotation> GetSurfaceFinish(View view)
