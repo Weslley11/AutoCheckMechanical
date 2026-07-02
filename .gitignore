@@ -1,0 +1,23 @@
+# Visual Studio
+.vs/
+.vscode/
+
+# Build
+bin/
+obj/
+Debug/
+Release/
+x64/
+x86/
+
+# User files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# NuGet
+packages/
+
+# Logs
+*.log

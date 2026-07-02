@@ -1,0 +1,160 @@
+﻿<Window x:Class="AutoCheckMechanical.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="AutoCheck Mechanical"
+        Height="720"
+        Width="1200"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize"
+        Background="#F4F6F9">
+
+    <Grid Margin="15">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="70"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="35"/>
+        </Grid.RowDefinitions>
+
+        <!-- Cabeçalho -->
+        <Border Grid.Row="0"
+                CornerRadius="8"
+                Background="#2C3E50">
+
+            <Grid Margin="15">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="250"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="AutoCheck Mechanical"
+                           FontSize="26"
+                           FontWeight="Bold"
+                           Foreground="White"
+                           VerticalAlignment="Center"/>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center">
+
+                    <Ellipse Width="12"
+                             Height="12"
+                             Fill="Red"
+                             Margin="0,0,10,0"
+                             Name="ledSolidWorks"/>
+
+                    <TextBlock Text="SolidWorks Desconectado"
+                               Foreground="White"
+                               FontSize="16"
+                               Name="txtSolidWorks"/>
+
+                </StackPanel>
+
+            </Grid>
+
+        </Border>
+
+        <!-- Arquivo -->
+
+        <GroupBox Grid.Row="1"
+                  Header="Arquivo Atual"
+                  Margin="0,10,0,10">
+
+            <TextBox Name="txtArquivo"
+                     FontSize="16"
+                     IsReadOnly="True"
+                     BorderThickness="0"
+                     Background="Transparent"
+                     Text="Nenhum arquivo carregado"/>
+
+        </GroupBox>
+
+        <!-- Centro -->
+
+        <Grid Grid.Row="2">
+
+            <Grid.ColumnDefinitions>
+
+                <ColumnDefinition Width="320"/>
+
+                <ColumnDefinition/>
+
+            </Grid.ColumnDefinitions>
+
+            <!-- Lista de Checks -->
+
+            <GroupBox Header="Checks"
+                      Margin="0,0,10,0">
+
+                <ListBox Name="lstChecks"
+                         FontSize="16">
+
+                    <ListBoxItem>☐ Flat Pattern</ListBoxItem>
+
+                    <ListBoxItem>☐ Layer</ListBoxItem>
+
+                    <ListBoxItem>☐ Escala</ListBoxItem>
+
+                    <ListBoxItem>☐ Dimensões</ListBoxItem>
+
+                    <ListBoxItem>☐ Bend Lines</ListBoxItem>
+
+                    <ListBoxItem>☐ Material</ListBoxItem>
+
+                    <ListBoxItem>☐ Revisão</ListBoxItem>
+
+                    <ListBoxItem>☐ Template</ListBoxItem>
+
+                    <ListBoxItem>☐ Sheet Format</ListBoxItem>
+
+                    <ListBoxItem>☐ BOM</ListBoxItem>
+
+                    <ListBoxItem>☐ Balloon</ListBoxItem>
+
+                </ListBox>
+
+            </GroupBox>
+
+            <!-- Log -->
+
+            <GroupBox Header="Log"
+                      Grid.Column="1">
+
+                <TextBox Name="txtLog"
+                         IsReadOnly="True"
+                         FontFamily="Consolas"
+                         FontSize="14"
+                         AcceptsReturn="True"
+                         VerticalScrollBarVisibility="Auto"/>
+
+            </GroupBox>
+
+        </Grid>
+
+        <!-- Botão -->
+
+        <Button Grid.Row="3"
+                Name="btnCheckDrawing"
+                Content="CHECK DRAWING"
+                FontSize="20"
+                FontWeight="Bold"
+                Height="45"
+                Width="250"
+                HorizontalAlignment="Center"
+                Click="BtnCheckDrawing_Click"/>
+
+        <!-- Barra de Status -->
+
+        <StatusBar Grid.Row="4">
+
+            <TextBlock Name="txtStatus"
+                       Text="Pronto."/>
+
+        </StatusBar>
+
+    </Grid>
+
+</Window>
