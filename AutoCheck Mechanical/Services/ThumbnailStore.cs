@@ -9,7 +9,7 @@ namespace AutoCheckMechanical.Services
     public static class ThumbnailStore
     {
         private static readonly string FolderPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData),
             "AutoCheckMechanical",
             "thumbnails");
 
