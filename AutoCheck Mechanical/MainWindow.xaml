@@ -131,6 +131,39 @@
             </Setter>
         </Style>
 
+        <!-- Botão secundário (exportar log) -->
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource BrushTextSecondary}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BrushBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource BrushAccentTeal}"/>
+                                <Setter Property="Foreground" Value="{StaticResource BrushAccentTeal}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style TargetType="ListBoxItem">
             <Setter Property="Foreground" Value="{StaticResource BrushTextPrimary}"/>
             <Setter Property="Background" Value="Transparent"/>
@@ -361,11 +394,27 @@
                                 BorderThickness="1"
                                 CornerRadius="6">
                             <DockPanel>
-                                <TextBlock Text="LOG"
-                                           DockPanel.Dock="Top"
-                                           FontSize="11"
-                                           Foreground="{StaticResource BrushTextSecondary}"
-                                           Margin="12,10,0,4"/>
+                                <Grid DockPanel.Dock="Top" Margin="12,8,8,4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Text="LOG"
+                                               FontSize="11"
+                                               Foreground="{StaticResource BrushTextSecondary}"
+                                               VerticalAlignment="Center"/>
+
+                                    <Button Grid.Column="1"
+                                            x:Name="btnExportLog"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            Click="BtnExportLog_Click">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="&#xE74E;" FontFamily="Segoe MDL2 Assets" FontSize="12" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Exportar" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                </Grid>
                                 <TextBox Name="txtLog"
                                          Background="Transparent"
                                          Foreground="{StaticResource BrushTextPrimary}"
