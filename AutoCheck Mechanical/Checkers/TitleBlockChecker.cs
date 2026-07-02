@@ -12,6 +12,18 @@ namespace AutoCheckMechanical.Checkers
     {
         public override string Name => "Bloco de Título";
 
+        // Ordem dos campos exibida na tabela de resultados (MainWindow usa esta lista).
+        public static readonly string[] OrdemCampos =
+        {
+            "Material",
+            "Matéria-Prima",
+            "Tratamento",
+            "Acabamento",
+            "Plano de Pintura",
+            "Matriz de Dobra",
+            "Raio de Dobra",
+        };
+
         // Nomes reais das propriedades customizadas extraídos do BLOCO-WAU-A3_3.SLDBLK
         private static readonly KeyValuePair<string, string>[] CamposObrigatorios =
         {
@@ -104,6 +116,8 @@ namespace AutoCheckMechanical.Checkers
         {
             bool vazio = string.IsNullOrWhiteSpace(valor) ||
                 valor.IndexOf("not specified", StringComparison.OrdinalIgnoreCase) >= 0;
+
+            result.Fields[rotulo] = vazio ? "" : valor;
 
             AddLog(result, $"{rotulo} : {(vazio ? "(vazio)" : valor)}");
 

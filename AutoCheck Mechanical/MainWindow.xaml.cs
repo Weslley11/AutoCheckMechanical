@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using AutoCheckMechanical.Checkers;
 using AutoCheckMechanical.Models;
 using CheckContextModel = AutoCheckMechanical.Core.CheckContext;
 using AutoCheckMechanical.Services;
@@ -361,10 +362,13 @@ namespace AutoCheckMechanical
             List<string> checkerNames = GetCheckerNames();
             List<BatchFileResult> resultados = GetResultadosFiltrados();
 
+            string[] camposTitulo = TitleBlockChecker.OrdemCampos;
+
             const int colPreview = 0;
             const int colArquivo = 1;
             int colCheckerStart = 2;
-            int colFolhas = colCheckerStart + checkerNames.Count;
+            int colTituloStart = colCheckerStart + checkerNames.Count;
+            int colFolhas = colTituloStart + camposTitulo.Length;
             int colObservacao = colFolhas + 1;
 
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(96) });
@@ -372,6 +376,9 @@ namespace AutoCheckMechanical
 
             foreach (string _ in checkerNames)
                 gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(140) });
+
+            foreach (string _ in camposTitulo)
+                gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(170) });
 
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(90) });
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(260) });
@@ -383,6 +390,9 @@ namespace AutoCheckMechanical
 
             for (int c = 0; c < checkerNames.Count; c++)
                 AddHeaderCell(checkerNames[c].ToUpper(), colCheckerStart + c, 0);
+
+            for (int c = 0; c < camposTitulo.Length; c++)
+                AddHeaderCell(camposTitulo[c].ToUpper(), colTituloStart + c, 0);
 
             AddHeaderCell("FOLHAS", colFolhas, 0);
             AddHeaderCell("OBSERVAÇÃO", colObservacao, 0, centralizado: false);
@@ -403,9 +413,51 @@ namespace AutoCheckMechanical
                     AddStatusCell(item, result, colCheckerStart + c, rowIndex);
                 }
 
+                CheckResult resultadoBlocoTitulo = item.Results.Find(x => x.Checker == "Bloco de Título");
+
+                for (int c = 0; c < camposTitulo.Length; c++)
+                    AddFieldValueCell(item, resultadoBlocoTitulo, camposTitulo[c], colTituloStart + c, rowIndex);
+
                 AddSheetCountCell(item, colFolhas, rowIndex);
                 AddObservationCell(item, colObservacao, rowIndex);
             }
+        }
+
+        private void AddFieldValueCell(BatchFileResult item, CheckResult resultadoBlocoTitulo, string nomeCampo, int column, int row)
+        {
+            Border border = new Border
+            {
+                BorderBrush = (Brush)FindResource("BrushBorder"),
+                BorderThickness = new Thickness(0, 0, 1, 1),
+                Padding = new Thickness(8),
+                Background = Brushes.Transparent,
+                Cursor = Cursors.Hand,
+                ClipToBounds = true
+            };
+
+            string valor = null;
+
+            resultadoBlocoTitulo?.Fields.TryGetValue(nomeCampo, out valor);
+
+            bool preenchido = !string.IsNullOrWhiteSpace(valor);
+
+            border.Child = new TextBlock
+            {
+                Text = preenchido ? valor : "—",
+                FontSize = 12,
+                TextTrimming = TextTrimming.CharacterEllipsis,
+                VerticalAlignment = VerticalAlignment.Center,
+                Foreground = preenchido
+                    ? (Brush)FindResource("BrushTextPrimary")
+                    : (Brush)FindResource("BrushAccentOrange")
+            };
+
+            border.ToolTip = preenchido ? valor : $"Campo \"{nomeCampo}\" vazio.";
+            border.MouseLeftButtonUp += (s, e) => ShowFileDetails(item);
+
+            Grid.SetColumn(border, column);
+            Grid.SetRow(border, row);
+            gridResults.Children.Add(border);
         }
 
         private static BitmapImage CarregarThumbnail(string caminho)
