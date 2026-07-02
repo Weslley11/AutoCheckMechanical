@@ -371,7 +371,7 @@ namespace AutoCheckMechanical
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(220) });
 
             foreach (string _ in checkerNames)
-                gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(120) });
+                gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(140) });
 
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(90) });
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(260) });
@@ -379,13 +379,13 @@ namespace AutoCheckMechanical
             gridResults.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
             AddHeaderCell("PRÉVIA", colPreview, 0);
-            AddHeaderCell("ARQUIVO", colArquivo, 0);
+            AddHeaderCell("ARQUIVO", colArquivo, 0, centralizado: false);
 
             for (int c = 0; c < checkerNames.Count; c++)
                 AddHeaderCell(checkerNames[c].ToUpper(), colCheckerStart + c, 0);
 
             AddHeaderCell("FOLHAS", colFolhas, 0);
-            AddHeaderCell("OBSERVAÇÃO", colObservacao, 0);
+            AddHeaderCell("OBSERVAÇÃO", colObservacao, 0, centralizado: false);
 
             for (int r = 0; r < resultados.Count; r++)
             {
@@ -440,7 +440,8 @@ namespace AutoCheckMechanical
                 Padding = new Thickness(6),
                 Background = Brushes.Transparent,
                 Cursor = Cursors.Hand,
-                HorizontalAlignment = HorizontalAlignment.Center
+                HorizontalAlignment = HorizontalAlignment.Center,
+                ClipToBounds = true
             };
 
             BitmapImage thumbnail = CarregarThumbnail(item.ThumbnailPath);
@@ -490,7 +491,8 @@ namespace AutoCheckMechanical
                 Padding = new Thickness(8),
                 Background = Brushes.Transparent,
                 Cursor = Cursors.Hand,
-                HorizontalAlignment = HorizontalAlignment.Center
+                HorizontalAlignment = HorizontalAlignment.Center,
+                ClipToBounds = true
             };
 
             border.Child = new TextBlock
@@ -518,7 +520,8 @@ namespace AutoCheckMechanical
                 BorderThickness = new Thickness(0, 0, 1, 1),
                 Padding = new Thickness(8),
                 Background = Brushes.Transparent,
-                Cursor = Cursors.Hand
+                Cursor = Cursors.Hand,
+                ClipToBounds = true
             };
 
             List<string> avisos = item.Results.SelectMany(r => r.Warnings).ToList();
@@ -541,14 +544,16 @@ namespace AutoCheckMechanical
             gridResults.Children.Add(border);
         }
 
-        private void AddHeaderCell(string text, int column, int row)
+        private void AddHeaderCell(string text, int column, int row, bool centralizado = true)
         {
             Border border = new Border
             {
                 Background = (Brush)FindResource("BrushSidebar"),
                 BorderBrush = (Brush)FindResource("BrushBorder"),
                 BorderThickness = new Thickness(0, 0, 1, 1),
-                Padding = new Thickness(8, 6, 8, 6)
+                Padding = new Thickness(6, 6, 6, 6),
+                ClipToBounds = true,
+                MinHeight = 32
             };
 
             border.Child = new TextBlock
@@ -556,7 +561,10 @@ namespace AutoCheckMechanical
                 Text = text,
                 FontSize = 11,
                 FontWeight = FontWeights.Bold,
-                Foreground = (Brush)FindResource("BrushTextSecondary")
+                Foreground = (Brush)FindResource("BrushTextSecondary"),
+                TextWrapping = TextWrapping.Wrap,
+                TextAlignment = centralizado ? TextAlignment.Center : TextAlignment.Left,
+                HorizontalAlignment = centralizado ? HorizontalAlignment.Center : HorizontalAlignment.Left
             };
 
             Grid.SetColumn(border, column);
@@ -572,7 +580,8 @@ namespace AutoCheckMechanical
                 BorderThickness = new Thickness(0, 0, 1, 1),
                 Padding = new Thickness(8),
                 Background = Brushes.Transparent,
-                Cursor = Cursors.Hand
+                Cursor = Cursors.Hand,
+                ClipToBounds = true
             };
 
             border.Child = new TextBlock
@@ -611,7 +620,8 @@ namespace AutoCheckMechanical
                 Padding = new Thickness(8),
                 Background = Brushes.Transparent,
                 Cursor = Cursors.Hand,
-                HorizontalAlignment = HorizontalAlignment.Center
+                HorizontalAlignment = HorizontalAlignment.Center,
+                ClipToBounds = true
             };
 
             string texto;
