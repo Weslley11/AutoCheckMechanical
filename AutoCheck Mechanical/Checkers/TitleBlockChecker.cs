@@ -97,7 +97,7 @@ namespace AutoCheckMechanical.Checkers
                 try
                 {
                     string configAtiva = peca.ConfigurationManager?.ActiveConfiguration?.Name ?? "";
-                    object varLibProperties;
+                    string varLibProperties;
 
                     material = partDoc.GetMaterialPropertyName2(configAtiva, out varLibProperties);
                 }
