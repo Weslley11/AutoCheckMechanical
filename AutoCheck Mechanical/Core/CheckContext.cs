@@ -1,9 +1,13 @@
-﻿using SolidWorks.Interop.sldworks;
+﻿using System.Collections.Generic;
+using AutoCheckMechanical.Helpers;
+using SolidWorks.Interop.sldworks;
 
 namespace AutoCheckMechanical.Core
 {
     public class CheckContext
     {
+        private List<View> _views;
+
         public SldWorks Application { get; }
         public ModelDoc2 Model { get; }
         public DrawingDoc Drawing { get; }
@@ -13,6 +17,17 @@ namespace AutoCheckMechanical.Core
             Application = application;
             Model = model;
             Drawing = model as DrawingDoc;
+        }
+
+        public List<View> Views
+        {
+            get
+            {
+                if (_views == null)
+                    _views = DrawingHelper.GetAllViews(Drawing);
+
+                return _views;
+            }
         }
 
         public bool IsDrawing

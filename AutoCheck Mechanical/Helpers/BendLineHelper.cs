@@ -64,8 +64,10 @@ namespace AutoCheckMechanical.Helpers
                         list.Add(edge);
                 }
             }
-            catch
+            catch (System.Runtime.InteropServices.COMException ex)
             {
+                System.Diagnostics.Debug.WriteLine(
+                    $"BendLineHelper.GetRelatedEdges: {ex.Message}");
             }
 
             return list;
@@ -101,8 +103,11 @@ namespace AutoCheckMechanical.Helpers
                 return ComparePoint(p1, p3) &&
                        ComparePoint(p2, p4);
             }
-            catch
+            catch (System.Runtime.InteropServices.COMException ex)
             {
+                System.Diagnostics.Debug.WriteLine(
+                    $"BendLineHelper.IsSameEdge: {ex.Message}");
+
                 return false;
             }
         }

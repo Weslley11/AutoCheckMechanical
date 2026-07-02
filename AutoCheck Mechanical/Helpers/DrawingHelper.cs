@@ -17,6 +17,8 @@ namespace AutoCheckMechanical.Helpers
             if (sheetNames == null)
                 return views;
 
+            string originalSheetName = (drawing.GetCurrentSheet() as Sheet)?.GetName();
+
             foreach (string sheetName in sheetNames)
             {
                 drawing.ActivateSheet(sheetName);
@@ -33,6 +35,9 @@ namespace AutoCheckMechanical.Helpers
                     views.Add(view);
                 }
             }
+
+            if (!string.IsNullOrEmpty(originalSheetName))
+                drawing.ActivateSheet(originalSheetName);
 
             return views;
         }

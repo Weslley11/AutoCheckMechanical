@@ -1,4 +1,6 @@
-﻿using AutoCheckMechanical.Core;
+﻿using System;
+using AutoCheckMechanical.Configuration;
+using AutoCheckMechanical.Core;
 using AutoCheckMechanical.Helpers;
 using AutoCheckMechanical.Models;
 using SolidWorks.Interop.sldworks;
@@ -19,7 +21,7 @@ namespace AutoCheckMechanical.Checkers
                 return result;
             }
 
-            foreach (View view in DrawingHelper.GetAllViews(context.Drawing))
+            foreach (View view in context.Views)
             {
                 if (!ViewHelper.IsFlatPattern(view))
                     continue;
@@ -35,7 +37,7 @@ namespace AutoCheckMechanical.Checkers
                     return result;
                 }
 
-                if (!layer.ToUpper().Contains("PLANIFICADO"))
+                if (!string.Equals(layer, CheckSettings.FlatPatternLayer, StringComparison.OrdinalIgnoreCase))
                 {
                     AddError(result,
                         $"Layer incorreta ({layer})");
