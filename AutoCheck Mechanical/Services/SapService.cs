@@ -31,13 +31,21 @@ namespace AutoCheckMechanical.Services
             // "SapROTWrapper", mas ele é opcional e pode não estar instalado/registrado
             // (foi o caso aqui) — então em vez de depender dele, procuramos direto na ROT
             // usando só APIs do Win32/COM (GetRunningObjectTable + enumeração de monikers).
-            object sapGuiAuto = ObterSapGuiDaRot();
+            List<string> nomesEncontrados;
+            object sapGuiAuto = ObterSapGuiDaRot(out nomesEncontrados);
 
             if (sapGuiAuto == null)
+            {
+                string listagem = nomesEncontrados.Count == 0
+                    ? "(a Running Object Table está vazia agora — nenhum objeto COM ativo encontrado)"
+                    : "Objetos ativos encontrados na ROT agora:\n - " + string.Join("\n - ", nomesEncontrados);
+
                 throw new InvalidOperationException(
-                    "Não foi encontrado nenhum objeto \"!SAPGUI\" ativo na Running Object Table. " +
+                    "Não foi encontrado nenhum objeto do SAP GUI ativo na Running Object Table.\n\n" +
+                    listagem + "\n\n" +
                     "Confirme que o SAP Logon está aberto, conectado, e que \"Habilitar script\" está marcado " +
                     "em Ajustar Layout Local > Opções > Acessibilidade e Script > Script.");
+            }
 
             dynamic app;
             dynamic connection;
@@ -63,8 +71,14 @@ namespace AutoCheckMechanical.Services
             return session;
         }
 
-        private static object ObterSapGuiDaRot()
+        // Retorna o objeto SAPGUI ativo na Running Object Table, se houver. Em
+        // "nomesEncontrados" devolve o nome de exibição de TODO objeto ativo
+        // encontrado na ROT (mesmo quando não é o SAPGUI), para diagnóstico —
+        // assim dá pra ver de verdade o que está registrado em vez de adivinhar.
+        private static object ObterSapGuiDaRot(out List<string> nomesEncontrados)
         {
+            nomesEncontrados = new List<string>();
+
             IRunningObjectTable rot;
 
             if (GetRunningObjectTable(0, out rot) != 0 || rot == null)
@@ -80,6 +94,7 @@ namespace AutoCheckMechanical.Services
             CreateBindCtx(0, out bindCtx);
 
             IMoniker[] monikers = new IMoniker[1];
+            object encontrado = null;
 
             while (enumMoniker.Next(1, monikers, IntPtr.Zero) == 0)
             {
@@ -89,20 +104,23 @@ namespace AutoCheckMechanical.Services
                 {
                     monikers[0].GetDisplayName(bindCtx, null, out nome);
                 }
-                catch (COMException)
+                catch (COMException ex)
                 {
+                    nomesEncontrados.Add("(erro ao ler nome: " + DescreverErro(ex) + ")");
                     continue;
                 }
 
-                if (string.Equals(nome, "!SAPGUI", StringComparison.OrdinalIgnoreCase))
+                nomesEncontrados.Add(nome);
+
+                if (encontrado == null && nome.IndexOf("SAPGUI", StringComparison.OrdinalIgnoreCase) >= 0)
                 {
                     object obj;
                     rot.GetObject(monikers[0], out obj);
-                    return obj;
+                    encontrado = obj;
                 }
             }
 
-            return null;
+            return encontrado;
         }
 
         private static string DescreverErro(Exception ex)
