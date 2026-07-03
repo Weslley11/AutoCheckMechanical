@@ -377,7 +377,7 @@ namespace AutoCheckMechanical
             {
                 AddLog($"Conectando ao SAP para buscar documentos da ECM {ecm}...");
 
-                dynamic sapSession;
+                object sapSession;
 
                 try
                 {
