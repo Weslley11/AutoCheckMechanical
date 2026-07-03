@@ -122,13 +122,21 @@ namespace AutoCheckMechanical.Services
             return encontrado;
         }
 
+        // Type.InvokeMember (via TargetInvocationException) e chamadas encadeadas
+        // costumam embrulhar o erro real dentro de InnerException — sem isso a
+        // mensagem mostrada é só "Exception has been thrown by the target of an
+        // invocation.", que não ajuda em nada a diagnosticar. Aqui descemos até
+        // achar a causa raiz.
         private static string DescreverErro(Exception ex)
         {
+            while (ex.InnerException != null)
+                ex = ex.InnerException;
+
             COMException comEx = ex as COMException;
 
             return comEx != null
                 ? $"{ex.Message} (HRESULT 0x{comEx.HResult:X8})"
-                : ex.Message;
+                : $"{ex.GetType().Name}: {ex.Message}";
         }
 
         // Abre a ZTPLM025, filtra por ECM + tipo de documento SWD e retorna
