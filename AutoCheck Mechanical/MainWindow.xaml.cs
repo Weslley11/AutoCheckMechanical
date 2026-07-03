@@ -23,9 +23,9 @@ namespace AutoCheckMechanical
         private Rect _restoreBounds;
 
         private readonly List<BatchFileResult> _batchResults = new List<BatchFileResult>();
-        private List<string> _checkerNames;
         private string _filtroTexto = "";
         private bool _temaEscuro = true;
+        private HashSet<string> _checkersDesativados;
 
         public MainWindow()
         {
@@ -34,6 +34,7 @@ namespace AutoCheckMechanical
             txtUser.Text = Environment.UserName;
 
             _batchResults.AddRange(HistoryStore.Load());
+            _checkersDesativados = CheckerSettingsStore.LoadDesativados();
 
             _temaEscuro = ThemeStore.LoadTemaEscuro();
             AplicarTema(_temaEscuro);
@@ -81,6 +82,26 @@ namespace AutoCheckMechanical
             ThemeStore.Save(_temaEscuro);
 
             txtStatus.Text = _temaEscuro ? "Tema escuro aplicado." : "Tema claro aplicado.";
+        }
+
+        private void BtnChecks_Click(object sender, RoutedEventArgs e)
+        {
+            List<string> todosOsChecks = CheckerManager.GetAllCheckerNames();
+
+            ChecksConfigWindow dialog = new ChecksConfigWindow(todosOsChecks, _checkersDesativados, _temaEscuro)
+            {
+                Owner = this
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                _checkersDesativados = dialog.CheckersDesativados;
+                CheckerSettingsStore.Save(_checkersDesativados);
+                RebuildResultsGrid();
+
+                int ativos = todosOsChecks.Count - _checkersDesativados.Count;
+                txtStatus.Text = $"{ativos} de {todosOsChecks.Count} check(s) ativado(s).";
+            }
         }
 
         private void BtnHistorico_Click(object sender, RoutedEventArgs e)
@@ -196,7 +217,7 @@ namespace AutoCheckMechanical
 
             CheckEngine engine = new CheckEngine();
 
-            CheckerManager.Register(engine);
+            CheckerManager.Register(engine, _checkersDesativados);
 
             btnCheckDrawing.IsEnabled = false;
             Mouse.OverrideCursor = Cursors.Wait;
@@ -273,7 +294,7 @@ namespace AutoCheckMechanical
                 return;
 
             CheckEngine engine = new CheckEngine();
-            CheckerManager.Register(engine);
+            CheckerManager.Register(engine, _checkersDesativados);
 
             btnCheckDrawing.IsEnabled = false;
             btnVerificarArquivos.IsEnabled = false;
@@ -322,18 +343,9 @@ namespace AutoCheckMechanical
 
         private List<string> GetCheckerNames()
         {
-            if (_checkerNames == null)
-            {
-                CheckEngine probe = new CheckEngine();
-                CheckerManager.Register(probe);
-
-                _checkerNames = new List<string>();
-
-                foreach (var checker in probe.Checkers)
-                    _checkerNames.Add(checker.Name);
-            }
-
-            return _checkerNames;
+            return CheckerManager.GetAllCheckerNames()
+                .Where(nome => !_checkersDesativados.Contains(nome))
+                .ToList();
         }
 
         private void TxtFiltro_TextChanged(object sender, TextChangedEventArgs e)
@@ -362,7 +374,9 @@ namespace AutoCheckMechanical
             List<string> checkerNames = GetCheckerNames();
             List<BatchFileResult> resultados = GetResultadosFiltrados();
 
-            string[] camposTitulo = TitleBlockChecker.OrdemCampos;
+            string[] camposTitulo = checkerNames.Contains("Bloco de Título")
+                ? TitleBlockChecker.OrdemCampos
+                : new string[0];
 
             const int colPreview = 0;
             const int colArquivo = 1;

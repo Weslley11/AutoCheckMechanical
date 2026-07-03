@@ -281,6 +281,12 @@
                                 ToolTip="Alternar tema claro/escuro"
                                 Click="BtnConfiguracoes_Click"
                                 shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                        <Button x:Name="btnChecks"
+                                Content="&#xE8FD;"
+                                Style="{StaticResource SidebarButtonStyle}"
+                                ToolTip="Escolher quais checks executar"
+                                Click="BtnChecks_Click"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
                     </StackPanel>
                 </Border>
 

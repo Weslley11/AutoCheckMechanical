@@ -101,10 +101,15 @@
     <Compile Include="Readers\DrawingReader.cs" />
     <Compile Include="Services\BatchCheckRunner.cs" />
     <Compile Include="Services\CheckEngine.cs" />
+    <Compile Include="Services\CheckerSettingsStore.cs" />
     <Compile Include="Services\HistoryStore.cs" />
     <Compile Include="Services\ThemeStore.cs" />
     <Compile Include="Services\ThumbnailStore.cs" />
     <Page Include="MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ChecksConfigWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -118,6 +123,10 @@
     <Compile Include="Interfaces\IChecker.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ChecksConfigWindow.xaml.cs">
+      <DependentUpon>ChecksConfigWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
