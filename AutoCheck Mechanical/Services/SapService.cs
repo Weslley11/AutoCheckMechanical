@@ -15,22 +15,53 @@ namespace AutoCheckMechanical.Services
     {
         public static dynamic Conectar()
         {
+            // Marshal.GetActiveObject("SAPGUI") não funciona a partir de .NET: ele tenta
+            // resolver "SAPGUI" como um ProgID (CLSIDFromProgID), mas o SAP GUI registra
+            // esse nome na Running Object Table como um nome de exibição simples, não como
+            // ProgID — daí o erro CO_E_CLASSSTRING (0x800401F3). O VBA consegue porque o
+            // GetObject dele trata esse caso de forma diferente por baixo dos panos.
+            // A forma documentada pela SAP de contornar isso fora do VBA é usar o
+            // componente auxiliar "SapROTWrapper" (instalado junto com o SAP GUI), que
+            // expõe um método GetROTEntry(nome) fazendo a busca certa na ROT.
             object sapGuiAuto;
 
             try
             {
-                sapGuiAuto = Marshal.GetActiveObject("SAPGUI");
+                Type rotWrapperType = Type.GetTypeFromProgID("SapROTWrapper.SapROTWrapper");
+
+                if (rotWrapperType == null)
+                {
+                    throw new InvalidOperationException(
+                        "O componente \"SapROTWrapper\" não está registrado nesta máquina. " +
+                        "Ele normalmente vem junto com o SAP GUI — procure por \"SapROTWrapper.dll\" " +
+                        "na pasta de instalação do SAP GUI (ex.: C:\\Program Files (x86)\\SAP\\FrontEnd\\SapGui) " +
+                        "e registre com \"regsvr32 SapROTWrapper.dll\" (como administrador).");
+                }
+
+                object rotWrapper = Activator.CreateInstance(rotWrapperType);
+
+                sapGuiAuto = rotWrapperType.InvokeMember(
+                    "GetROTEntry",
+                    System.Reflection.BindingFlags.InvokeMethod,
+                    null,
+                    rotWrapper,
+                    new object[] { "SAPGUI" });
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!(ex is InvalidOperationException))
             {
                 throw new InvalidOperationException(
-                    "Não foi possível obter o objeto \"SAPGUI\" (SAP GUI Scripting). " +
+                    "Não foi possível obter o objeto \"SAPGUI\" via SapROTWrapper. " +
                     "Confirme que o SAP Logon está aberto, conectado, e que \"Habilitar script\" está marcado " +
                     "em Ajustar Layout Local > Opções > Acessibilidade e Script > Script.\n\n" +
                     "Se isso já estiver tudo certo, pode ser incompatibilidade de arquitetura " +
                     "(app 64-bit x SAP GUI 32-bit, ou vice-versa).\n\n" +
                     "Erro original: " + DescreverErro(ex), ex);
             }
+
+            if (sapGuiAuto == null)
+                throw new InvalidOperationException(
+                    "SapROTWrapper não encontrou nenhum objeto \"SAPGUI\" ativo. " +
+                    "Confirme que o SAP Logon está aberto e conectado.");
 
             dynamic app;
             dynamic connection;
