@@ -1096,8 +1096,11 @@ namespace AutoCheckMechanical
 
                 foreach (string nomeCampo in camposTitulo)
                 {
-                    string valor;
-                    resultadoBlocoTitulo?.Fields.TryGetValue(nomeCampo, out valor);
+                    string valor = null;
+
+                    if (resultadoBlocoTitulo != null)
+                        resultadoBlocoTitulo.Fields.TryGetValue(nomeCampo, out valor);
+
                     colunas.Add(valor ?? "");
                 }
 
