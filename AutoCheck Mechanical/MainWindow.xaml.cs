@@ -307,6 +307,18 @@ namespace AutoCheckMechanical
             if (!session.IsConnected)
                 return;
 
+            VerificarArquivos(session, dialog.FileNames);
+        }
+
+        // Reaproveitado pelo fluxo manual (VERIFICAR ARQUIVOS...) e pelo fluxo
+        // de download automático via SAP.
+        private void VerificarArquivos(SolidWorksSession session, IEnumerable<string> filePaths)
+        {
+            List<string> arquivos = filePaths.ToList();
+
+            if (arquivos.Count == 0)
+                return;
+
             CheckEngine engine = new CheckEngine();
             CheckerManager.Register(engine, _checkersDesativados);
 
@@ -316,9 +328,9 @@ namespace AutoCheckMechanical
 
             try
             {
-                AddLog($"Verificando {dialog.FileNames.Length} arquivo(s)... A janela do SolidWorks vai abrir e fechar cada arquivo automaticamente, isso é esperado.");
+                AddLog($"Verificando {arquivos.Count} arquivo(s)... A janela do SolidWorks vai abrir e fechar cada arquivo automaticamente, isso é esperado.");
 
-                List<BatchFileResult> resultados = BatchCheckRunner.Run(session.Application, engine, dialog.FileNames);
+                List<BatchFileResult> resultados = BatchCheckRunner.Run(session.Application, engine, arquivos);
 
                 int falhas = 0;
 
@@ -342,6 +354,125 @@ namespace AutoCheckMechanical
                 Mouse.OverrideCursor = null;
                 btnCheckDrawing.IsEnabled = true;
                 btnVerificarArquivos.IsEnabled = true;
+            }
+        }
+
+        private void BtnBuscarSap_Click(object sender, RoutedEventArgs e)
+        {
+            string ecm = txtEcm.Text?.Trim();
+
+            if (string.IsNullOrEmpty(ecm))
+            {
+                MessageBox.Show("Informe a ECM antes de buscar no SAP.", "Buscar no SAP",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            btnBuscarSap.IsEnabled = false;
+            Mouse.OverrideCursor = Cursors.Wait;
+            txtLog.Clear();
+            txtDetalheTitulo.Text = "LOG";
+
+            try
+            {
+                AddLog($"Conectando ao SAP para buscar documentos da ECM {ecm}...");
+
+                dynamic sapSession;
+
+                try
+                {
+                    sapSession = SapService.Conectar();
+                }
+                catch (Exception ex)
+                {
+                    AddLog("Falha ao conectar no SAP: " + ex.Message);
+                    MessageBox.Show(ex.Message, "Buscar no SAP", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                List<string> documentos;
+
+                try
+                {
+                    documentos = SapService.BuscarDocumentosPorEcm(sapSession, ecm);
+                }
+                catch (Exception ex)
+                {
+                    AddLog("Falha ao buscar documentos no SAP (ZTPLM025): " + ex.Message);
+                    MessageBox.Show("Não foi possível buscar os documentos no SAP:\n" + ex.Message,
+                        "Buscar no SAP", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                AddLog($"{documentos.Count} documento(s) SWD encontrado(s) para a ECM {ecm}:");
+
+                foreach (string doc in documentos)
+                    AddLog(" - " + doc);
+
+                if (documentos.Count == 0)
+                {
+                    txtStatus.Text = $"Nenhum documento SWD encontrado para a ECM {ecm}.";
+                    return;
+                }
+
+                string pastaDestino = Path.Combine("C:\\SAP_SW", ecm);
+                Directory.CreateDirectory(pastaDestino);
+                AddLog("Pasta de destino: " + pastaDestino);
+
+                bool downloadAutomatico = true;
+
+                try
+                {
+                    SapService.SelecionarTudoEBaixar(sapSession, pastaDestino);
+                    AddLog("Download solicitado ao SAP.");
+                }
+                catch (NotImplementedException ex)
+                {
+                    downloadAutomatico = false;
+                    AddLog("AVISO: " + ex.Message);
+                    AddLog("Baixe os documentos manualmente para a pasta acima e clique em \"VERIFICAR ARQUIVOS...\" apontando para ela, ou rode a busca de novo depois que o download automático estiver configurado.");
+                }
+                catch (Exception ex)
+                {
+                    downloadAutomatico = false;
+                    AddLog("Falha ao acionar o download no SAP: " + ex.Message);
+                }
+
+                string[] arquivosBaixados = Directory.Exists(pastaDestino)
+                    ? Directory.GetFiles(pastaDestino, "*.slddrw", SearchOption.TopDirectoryOnly)
+                    : new string[0];
+
+                AddLog($"{arquivosBaixados.Length} arquivo(s) .slddrw encontrado(s) em {pastaDestino}.");
+
+                if (arquivosBaixados.Length == 0)
+                {
+                    MessageBox.Show(
+                        $"ECM: {ecm}\nDocumentos encontrados no SAP: {documentos.Count}\n\n" +
+                        (downloadAutomatico
+                            ? "O download foi solicitado, mas nenhum arquivo .slddrw apareceu na pasta ainda."
+                            : "O download automático ainda não está configurado (veja o log). Baixe manualmente para:\n" + pastaDestino),
+                        "Buscar no SAP", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    txtStatus.Text = $"{documentos.Count} documento(s) encontrado(s) no SAP, nenhum arquivo local ainda.";
+                    return;
+                }
+
+                MessageBox.Show(
+                    $"ECM: {ecm}\nDocumentos encontrados no SAP: {documentos.Count}\nArquivos baixados: {arquivosBaixados.Length}\n\n" +
+                    "Os arquivos serão abertos no SolidWorks e verificados agora.",
+                    "Buscar no SAP", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                SolidWorksSession session = RefreshConnectionStatus();
+
+                if (!session.IsConnected)
+                    return;
+
+                VerificarArquivos(session, arquivosBaixados);
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+                btnBuscarSap.IsEnabled = true;
             }
         }
 
@@ -893,6 +1024,92 @@ namespace AutoCheckMechanical
                 return "\"" + valor.Replace("\"", "\"\"") + "\"";
 
             return valor;
+        }
+
+        private void BtnExportarRelatorio_Click(object sender, RoutedEventArgs e)
+        {
+            List<BatchFileResult> resultados = GetResultadosFiltrados();
+
+            if (resultados.Count == 0)
+            {
+                MessageBox.Show("Não há resultados na tabela para exportar.", "Exportar Relatório",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            SaveFileDialog dialog = new SaveFileDialog
+            {
+                Filter = "CSV para Excel (*.csv)|*.csv",
+                FileName = "AutoCheckMechanical_Relatorio_" + DateTime.Now.ToString("yyyyMMdd_HHmmss")
+            };
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            try
+            {
+                File.WriteAllText(dialog.FileName, GerarCsvRelatorio(resultados), Encoding.UTF8);
+
+                txtStatus.Text = "Relatório exportado: " + dialog.FileName;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Não foi possível salvar o arquivo:\n" + ex.Message,
+                    "Exportar Relatório", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private string GerarCsvRelatorio(List<BatchFileResult> resultados)
+        {
+            List<string> checkerNames = GetCheckerNames();
+
+            string[] camposTitulo = checkerNames.Contains("Bloco de Título")
+                ? TitleBlockChecker.OrdemCampos
+                : new string[0];
+
+            StringBuilder sb = new StringBuilder();
+
+            List<string> cabecalho = new List<string> { "Arquivo" };
+            cabecalho.AddRange(checkerNames);
+            cabecalho.AddRange(camposTitulo);
+            cabecalho.Add("Folhas");
+            cabecalho.Add("Observação");
+
+            sb.AppendLine(string.Join(";", cabecalho.Select(CampoCsv)));
+
+            foreach (BatchFileResult item in resultados)
+            {
+                List<string> colunas = new List<string> { item.FileName };
+
+                foreach (string nomeChecker in checkerNames)
+                {
+                    CheckResult resultado = item.Results.Find(x => x.Checker == nomeChecker);
+
+                    string status = item.OpenFailed || resultado == null
+                        ? ""
+                        : (resultado.Success ? "OK" : "ERRO");
+
+                    colunas.Add(status);
+                }
+
+                CheckResult resultadoBlocoTitulo = item.Results.Find(x => x.Checker == "Bloco de Título");
+
+                foreach (string nomeCampo in camposTitulo)
+                {
+                    string valor;
+                    resultadoBlocoTitulo?.Fields.TryGetValue(nomeCampo, out valor);
+                    colunas.Add(valor ?? "");
+                }
+
+                colunas.Add(item.OpenFailed ? "" : item.SheetCount.ToString());
+
+                List<string> avisos = item.Results.SelectMany(r => r.Warnings).ToList();
+                colunas.Add(string.Join(" | ", avisos));
+
+                sb.AppendLine(string.Join(";", colunas.Select(CampoCsv)));
+            }
+
+            return sb.ToString();
         }
     }
 }

@@ -332,11 +332,62 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <!-- Card de conexão / arquivo -->
+                    <!-- Busca de documentos no SAP (ZTPLM025) -->
                     <Border Grid.Row="0"
+                            Background="{DynamicResource BrushCard}"
+                            BorderBrush="{DynamicResource BrushBorder}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="16"
+                            Margin="0,0,0,12">
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="ECM"
+                                       FontSize="12"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource BrushTextSecondary}"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"/>
+
+                            <Border Grid.Column="1"
+                                    Background="{DynamicResource BrushPanel}"
+                                    BorderBrush="{DynamicResource BrushBorder}"
+                                    BorderThickness="1"
+                                    CornerRadius="4">
+                                <TextBox x:Name="txtEcm"
+                                         Background="Transparent"
+                                         Foreground="{DynamicResource BrushTextPrimary}"
+                                         CaretBrush="{DynamicResource BrushTextPrimary}"
+                                         BorderThickness="0"
+                                         Padding="8,6"
+                                         ToolTip="Número da ECM no SAP"/>
+                            </Border>
+
+                            <Button Grid.Column="2"
+                                    x:Name="btnBuscarSap"
+                                    Content="BUSCAR NO SAP"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    FontSize="13"
+                                    Padding="16,8"
+                                    Margin="12,0,0,0"
+                                    ToolTip="Busca no SAP (ZTPLM025) os documentos SWD da ECM, baixa e roda os checks habilitados"
+                                    Click="BtnBuscarSap_Click"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Card de conexão / arquivo -->
+                    <Border Grid.Row="1"
                             Background="{DynamicResource BrushCard}"
                             BorderBrush="{DynamicResource BrushBorder}"
                             BorderThickness="1"
@@ -379,7 +430,7 @@
                         </Grid>
                     </Border>
 
-                    <StackPanel Grid.Row="1"
+                    <StackPanel Grid.Row="2"
                                 Orientation="Horizontal"
                                 Margin="0,0,0,12">
                         <Button Name="btnCheckDrawing"
@@ -395,7 +446,7 @@
                                 Click="BtnVerificarArquivos_Click"/>
                     </StackPanel>
 
-                    <Grid Grid.Row="2">
+                    <Grid Grid.Row="3">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="12"/>
@@ -411,6 +462,7 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
@@ -453,6 +505,18 @@
                                     </Border>
 
                                     <Button Grid.Column="3"
+                                            x:Name="btnExportarRelatorio"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            Margin="8,0,0,0"
+                                            ToolTip="Exportar a tabela de resultados (CSV para Excel)"
+                                            Click="BtnExportarRelatorio_Click">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="&#xE74E;" FontFamily="Segoe MDL2 Assets" FontSize="12" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Relatório" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <Button Grid.Column="4"
                                             x:Name="btnLimparHistorico"
                                             Style="{StaticResource SecondaryButtonStyle}"
                                             Margin="8,0,0,0"
