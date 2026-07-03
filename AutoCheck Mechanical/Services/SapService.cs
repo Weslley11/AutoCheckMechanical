@@ -21,20 +21,48 @@ namespace AutoCheckMechanical.Services
             {
                 sapGuiAuto = Marshal.GetActiveObject("SAPGUI");
             }
-            catch (COMException)
+            catch (Exception ex)
             {
                 throw new InvalidOperationException(
-                    "SAP não está aberto. Abra o SAP Logon, conecte na sessão e tente novamente.");
+                    "Não foi possível obter o objeto \"SAPGUI\" (SAP GUI Scripting). " +
+                    "Confirme que o SAP Logon está aberto, conectado, e que \"Habilitar script\" está marcado " +
+                    "em Ajustar Layout Local > Opções > Acessibilidade e Script > Script.\n\n" +
+                    "Se isso já estiver tudo certo, pode ser incompatibilidade de arquitetura " +
+                    "(app 64-bit x SAP GUI 32-bit, ou vice-versa).\n\n" +
+                    "Erro original: " + DescreverErro(ex), ex);
             }
 
-            dynamic app = ((dynamic)sapGuiAuto).GetScriptingEngine;
-            dynamic connection = app.Children(0);
-            dynamic session = connection.Children(0);
+            dynamic app;
+            dynamic connection;
+            dynamic session;
+
+            try
+            {
+                app = ((dynamic)sapGuiAuto).GetScriptingEngine;
+                connection = app.Children(0);
+                session = connection.Children(0);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException(
+                    "O objeto \"SAPGUI\" foi encontrado, mas não foi possível obter a sessão ativa. " +
+                    "Confirme que há uma conexão/sessão SAP aberta em primeiro plano.\n\n" +
+                    "Erro original: " + DescreverErro(ex), ex);
+            }
 
             if (session == null)
                 throw new InvalidOperationException("Não foi possível obter a sessão do SAP GUI.");
 
             return session;
+        }
+
+        private static string DescreverErro(Exception ex)
+        {
+            COMException comEx = ex as COMException;
+
+            return comEx != null
+                ? $"{ex.Message} (HRESULT 0x{comEx.HResult:X8})"
+                : ex.Message;
         }
 
         // Abre a ZTPLM025, filtra por ECM + tipo de documento SWD e retorna
