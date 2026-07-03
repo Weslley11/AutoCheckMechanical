@@ -52,9 +52,13 @@ namespace AutoCheckMechanical.Services
 
             try
             {
+                // "Children" é uma propriedade que devolve uma GuiComponentCollection,
+                // não um método que aceita índice — o "Children(0)" do VBA só funciona
+                // por causa do açúcar sintático de "membro padrão" de coleção do VBA.
+                // Em .NET isso precisa ser explícito via ElementAt(index).
                 object app = Get(sapGuiAuto, "GetScriptingEngine");
-                object connection = Invoke(app, "Children", 0);
-                session = Invoke(connection, "Children", 0);
+                object connection = Invoke(Get(app, "Children"), "ElementAt", 0);
+                session = Invoke(Get(connection, "Children"), "ElementAt", 0);
             }
             catch (Exception ex)
             {
