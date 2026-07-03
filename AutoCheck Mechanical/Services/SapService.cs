@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Windows.Threading;
 
@@ -13,55 +14,30 @@ namespace AutoCheckMechanical.Services
     // exatamente como o VBA original.
     public static class SapService
     {
+        [DllImport("ole32.dll")]
+        private static extern int GetRunningObjectTable(int reserved, out IRunningObjectTable pprot);
+
+        [DllImport("ole32.dll")]
+        private static extern int CreateBindCtx(int reserved, out IBindCtx ppbc);
+
         public static dynamic Conectar()
         {
             // Marshal.GetActiveObject("SAPGUI") não funciona a partir de .NET: ele tenta
-            // resolver "SAPGUI" como um ProgID (CLSIDFromProgID), mas o SAP GUI registra
-            // esse nome na Running Object Table como um nome de exibição simples, não como
-            // ProgID — daí o erro CO_E_CLASSSTRING (0x800401F3). O VBA consegue porque o
-            // GetObject dele trata esse caso de forma diferente por baixo dos panos.
-            // A forma documentada pela SAP de contornar isso fora do VBA é usar o
-            // componente auxiliar "SapROTWrapper" (instalado junto com o SAP GUI), que
-            // expõe um método GetROTEntry(nome) fazendo a busca certa na ROT.
-            object sapGuiAuto;
-
-            try
-            {
-                Type rotWrapperType = Type.GetTypeFromProgID("SapROTWrapper.SapROTWrapper");
-
-                if (rotWrapperType == null)
-                {
-                    throw new InvalidOperationException(
-                        "O componente \"SapROTWrapper\" não está registrado nesta máquina. " +
-                        "Ele normalmente vem junto com o SAP GUI — procure por \"SapROTWrapper.dll\" " +
-                        "na pasta de instalação do SAP GUI (ex.: C:\\Program Files (x86)\\SAP\\FrontEnd\\SapGui) " +
-                        "e registre com \"regsvr32 SapROTWrapper.dll\" (como administrador).");
-                }
-
-                object rotWrapper = Activator.CreateInstance(rotWrapperType);
-
-                sapGuiAuto = rotWrapperType.InvokeMember(
-                    "GetROTEntry",
-                    System.Reflection.BindingFlags.InvokeMethod,
-                    null,
-                    rotWrapper,
-                    new object[] { "SAPGUI" });
-            }
-            catch (Exception ex) when (!(ex is InvalidOperationException))
-            {
-                throw new InvalidOperationException(
-                    "Não foi possível obter o objeto \"SAPGUI\" via SapROTWrapper. " +
-                    "Confirme que o SAP Logon está aberto, conectado, e que \"Habilitar script\" está marcado " +
-                    "em Ajustar Layout Local > Opções > Acessibilidade e Script > Script.\n\n" +
-                    "Se isso já estiver tudo certo, pode ser incompatibilidade de arquitetura " +
-                    "(app 64-bit x SAP GUI 32-bit, ou vice-versa).\n\n" +
-                    "Erro original: " + DescreverErro(ex), ex);
-            }
+            // resolver "SAPGUI" como um ProgID (CLSIDFromProgID), mas o SAP GUI só registra
+            // esse nome na Running Object Table como moniker de item ("!SAPGUI"), não como
+            // ProgID de verdade — daí o erro CO_E_CLASSSTRING (0x800401F3). O VBA consegue
+            // pegar o objeto porque o GetObject dele tem um fallback para casos assim.
+            // A saída documentada pela SAP fora do VBA é o componente auxiliar
+            // "SapROTWrapper", mas ele é opcional e pode não estar instalado/registrado
+            // (foi o caso aqui) — então em vez de depender dele, procuramos direto na ROT
+            // usando só APIs do Win32/COM (GetRunningObjectTable + enumeração de monikers).
+            object sapGuiAuto = ObterSapGuiDaRot();
 
             if (sapGuiAuto == null)
                 throw new InvalidOperationException(
-                    "SapROTWrapper não encontrou nenhum objeto \"SAPGUI\" ativo. " +
-                    "Confirme que o SAP Logon está aberto e conectado.");
+                    "Não foi encontrado nenhum objeto \"!SAPGUI\" ativo na Running Object Table. " +
+                    "Confirme que o SAP Logon está aberto, conectado, e que \"Habilitar script\" está marcado " +
+                    "em Ajustar Layout Local > Opções > Acessibilidade e Script > Script.");
 
             dynamic app;
             dynamic connection;
@@ -85,6 +61,48 @@ namespace AutoCheckMechanical.Services
                 throw new InvalidOperationException("Não foi possível obter a sessão do SAP GUI.");
 
             return session;
+        }
+
+        private static object ObterSapGuiDaRot()
+        {
+            IRunningObjectTable rot;
+
+            if (GetRunningObjectTable(0, out rot) != 0 || rot == null)
+                return null;
+
+            IEnumMoniker enumMoniker;
+            rot.EnumRunning(out enumMoniker);
+
+            if (enumMoniker == null)
+                return null;
+
+            IBindCtx bindCtx;
+            CreateBindCtx(0, out bindCtx);
+
+            IMoniker[] monikers = new IMoniker[1];
+
+            while (enumMoniker.Next(1, monikers, IntPtr.Zero) == 0)
+            {
+                string nome;
+
+                try
+                {
+                    monikers[0].GetDisplayName(bindCtx, null, out nome);
+                }
+                catch (COMException)
+                {
+                    continue;
+                }
+
+                if (string.Equals(nome, "!SAPGUI", StringComparison.OrdinalIgnoreCase))
+                {
+                    object obj;
+                    rot.GetObject(monikers[0], out obj);
+                    return obj;
+                }
+            }
+
+            return null;
         }
 
         private static string DescreverErro(Exception ex)
