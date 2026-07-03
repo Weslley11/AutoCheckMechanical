@@ -25,17 +25,24 @@
 
     <Window.Resources>
 
-        <SolidColorBrush x:Key="BrushTitleBar" Color="#0F1113"/>
-        <SolidColorBrush x:Key="BrushSidebar" Color="#101315"/>
-        <SolidColorBrush x:Key="BrushPanel" Color="#1E2226"/>
-        <SolidColorBrush x:Key="BrushCard" Color="#24282D"/>
-        <SolidColorBrush x:Key="BrushBorder" Color="#2C3138"/>
-        <SolidColorBrush x:Key="BrushAccentTeal" Color="#1CBFCF"/>
-        <SolidColorBrush x:Key="BrushAccentTealHover" Color="#3FD3E1"/>
+        <SolidColorBrush x:Key="BrushTitleBar" Color="#171F26"/>
+        <SolidColorBrush x:Key="BrushBanner" Color="#1F2E38"/>
+        <SolidColorBrush x:Key="BrushSidebar" Color="#17222A"/>
+        <SolidColorBrush x:Key="BrushPanel" Color="#1C2830"/>
+        <SolidColorBrush x:Key="BrushCard" Color="#22323C"/>
+        <SolidColorBrush x:Key="BrushBorder" Color="#2E4552"/>
+        <SolidColorBrush x:Key="BrushAccentTeal" Color="#2FB8C4"/>
+        <SolidColorBrush x:Key="BrushAccentTealHover" Color="#4DD3DE"/>
         <SolidColorBrush x:Key="BrushAccentOrange" Color="#D9643A"/>
-        <SolidColorBrush x:Key="BrushTextPrimary" Color="#ECEFF2"/>
-        <SolidColorBrush x:Key="BrushTextSecondary" Color="#8A9099"/>
-        <SolidColorBrush x:Key="BrushHoverSurface" Color="#2A2F35"/>
+        <SolidColorBrush x:Key="BrushTextPrimary" Color="#EDF3F5"/>
+        <SolidColorBrush x:Key="BrushTextSecondary" Color="#90A4AD"/>
+        <SolidColorBrush x:Key="BrushHoverSurface" Color="#26404C"/>
+        <SolidColorBrush x:Key="BrushSwatch1" Color="#1E4E68"/>
+        <SolidColorBrush x:Key="BrushSwatch2" Color="#2C7A9E"/>
+        <SolidColorBrush x:Key="BrushSwatch3" Color="#3FA9C7"/>
+        <SolidColorBrush x:Key="BrushSwatch4" Color="#6FC6DE"/>
+        <SolidColorBrush x:Key="BrushSwatch5" Color="#2FB8C4"/>
+        <SolidColorBrush x:Key="BrushSwatch6" Color="#175372"/>
 
         <!-- Botões da barra de título (minimizar / restaurar / fechar) -->
         <Style x:Key="WindowButtonStyle" TargetType="Button">
@@ -171,6 +178,7 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="44"/>
+                <RowDefinition Height="64"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="28"/>
             </Grid.RowDefinitions>
@@ -204,17 +212,6 @@
                                Foreground="{DynamicResource BrushTextPrimary}"
                                VerticalAlignment="Center"/>
 
-                    <StackPanel Grid.Column="2"
-                                Orientation="Horizontal"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Center"
-                                Margin="0,0,20,0">
-                        <Rectangle Width="9" Height="9" Margin="2" Fill="#1CBFCF"/>
-                        <Rectangle Width="9" Height="9" Margin="2" Fill="#3FD3E1"/>
-                        <Rectangle Width="9" Height="9" Margin="2" Fill="#7FE3EC"/>
-                        <Rectangle Width="9" Height="9" Margin="2" Fill="{DynamicResource BrushAccentOrange}"/>
-                    </StackPanel>
-
                     <TextBlock Grid.Column="3"
                                Name="txtUser"
                                Foreground="{DynamicResource BrushTextSecondary}"
@@ -243,8 +240,48 @@
                 </Grid>
             </Border>
 
+            <!-- Banner estilo WEG -->
+            <Border Grid.Row="1"
+                    Background="{DynamicResource BrushBanner}"
+                    BorderBrush="{DynamicResource BrushBorder}"
+                    BorderThickness="0,0,0,1">
+                <Grid Margin="20,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Viewbox Grid.Column="0" Width="30" Height="30" VerticalAlignment="Center">
+                        <Canvas Width="24" Height="24">
+                            <Path Data="M12 2 L22 7 L22 17 L12 22 L2 17 L2 7 Z" Fill="{DynamicResource BrushAccentTeal}"/>
+                            <Path Data="M12 2 L22 7 L12 12 L2 7 Z" Fill="White" Opacity="0.18"/>
+                        </Canvas>
+                    </Viewbox>
+
+                    <TextBlock Grid.Column="1"
+                               Text="AUTOCHECK MECHANICAL"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource BrushTextPrimary}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Column="2"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <Rectangle Width="12" Height="12" Margin="2" Fill="{DynamicResource BrushSwatch1}"/>
+                        <Rectangle Width="12" Height="12" Margin="2" Fill="{DynamicResource BrushSwatch2}"/>
+                        <Rectangle Width="12" Height="12" Margin="2" Fill="{DynamicResource BrushSwatch3}"/>
+                        <Rectangle Width="12" Height="12" Margin="2" Fill="{DynamicResource BrushSwatch4}"/>
+                        <Rectangle Width="12" Height="12" Margin="2" Fill="{DynamicResource BrushSwatch5}"/>
+                        <Rectangle Width="12" Height="12" Margin="2" Fill="{DynamicResource BrushSwatch6}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
             <!-- Corpo -->
-            <Grid Grid.Row="1">
+            <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="56"/>
                     <ColumnDefinition Width="*"/>
@@ -479,7 +516,7 @@
             </Grid>
 
             <!-- Barra de status -->
-            <Border Grid.Row="2"
+            <Border Grid.Row="3"
                     Background="{DynamicResource BrushTitleBar}"
                     BorderBrush="{DynamicResource BrushBorder}"
                     BorderThickness="0,1,0,0">

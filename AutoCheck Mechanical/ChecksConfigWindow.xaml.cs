@@ -38,15 +38,15 @@ namespace AutoCheckMechanical
         {
             if (escuro)
             {
-                gridRoot.Background = new SolidColorBrush(Color.FromRgb(0x1E, 0x22, 0x26));
-                this.Background = new SolidColorBrush(Color.FromRgb(0x1E, 0x22, 0x26));
-                this.Foreground = new SolidColorBrush(Color.FromRgb(0xEC, 0xEF, 0xF2));
+                gridRoot.Background = new SolidColorBrush(Color.FromRgb(0x1C, 0x28, 0x30));
+                this.Background = new SolidColorBrush(Color.FromRgb(0x1C, 0x28, 0x30));
+                this.Foreground = new SolidColorBrush(Color.FromRgb(0xED, 0xF3, 0xF5));
             }
             else
             {
                 gridRoot.Background = new SolidColorBrush(Color.FromRgb(0xF7, 0xF8, 0xFA));
                 this.Background = new SolidColorBrush(Color.FromRgb(0xF7, 0xF8, 0xFA));
-                this.Foreground = new SolidColorBrush(Color.FromRgb(0x1B, 0x1E, 0x22));
+                this.Foreground = new SolidColorBrush(Color.FromRgb(0x17, 0x24, 0x2B));
             }
 
             txtTitulo.Foreground = this.Foreground;

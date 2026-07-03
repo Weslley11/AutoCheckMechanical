@@ -44,31 +44,45 @@ namespace AutoCheckMechanical
         {
             if (escuro)
             {
-                Resources["BrushTitleBar"] = new SolidColorBrush(Color.FromRgb(0x0F, 0x11, 0x13));
-                Resources["BrushSidebar"] = new SolidColorBrush(Color.FromRgb(0x10, 0x13, 0x15));
-                Resources["BrushPanel"] = new SolidColorBrush(Color.FromRgb(0x1E, 0x22, 0x26));
-                Resources["BrushCard"] = new SolidColorBrush(Color.FromRgb(0x24, 0x28, 0x2D));
-                Resources["BrushBorder"] = new SolidColorBrush(Color.FromRgb(0x2C, 0x31, 0x38));
-                Resources["BrushAccentTeal"] = new SolidColorBrush(Color.FromRgb(0x1C, 0xBF, 0xCF));
-                Resources["BrushAccentTealHover"] = new SolidColorBrush(Color.FromRgb(0x3F, 0xD3, 0xE1));
+                Resources["BrushTitleBar"] = new SolidColorBrush(Color.FromRgb(0x17, 0x1F, 0x26));
+                Resources["BrushBanner"] = new SolidColorBrush(Color.FromRgb(0x1F, 0x2E, 0x38));
+                Resources["BrushSidebar"] = new SolidColorBrush(Color.FromRgb(0x17, 0x22, 0x2A));
+                Resources["BrushPanel"] = new SolidColorBrush(Color.FromRgb(0x1C, 0x28, 0x30));
+                Resources["BrushCard"] = new SolidColorBrush(Color.FromRgb(0x22, 0x32, 0x3C));
+                Resources["BrushBorder"] = new SolidColorBrush(Color.FromRgb(0x2E, 0x45, 0x52));
+                Resources["BrushAccentTeal"] = new SolidColorBrush(Color.FromRgb(0x2F, 0xB8, 0xC4));
+                Resources["BrushAccentTealHover"] = new SolidColorBrush(Color.FromRgb(0x4D, 0xD3, 0xDE));
                 Resources["BrushAccentOrange"] = new SolidColorBrush(Color.FromRgb(0xD9, 0x64, 0x3A));
-                Resources["BrushTextPrimary"] = new SolidColorBrush(Color.FromRgb(0xEC, 0xEF, 0xF2));
-                Resources["BrushTextSecondary"] = new SolidColorBrush(Color.FromRgb(0x8A, 0x90, 0x99));
-                Resources["BrushHoverSurface"] = new SolidColorBrush(Color.FromRgb(0x2A, 0x2F, 0x35));
+                Resources["BrushTextPrimary"] = new SolidColorBrush(Color.FromRgb(0xED, 0xF3, 0xF5));
+                Resources["BrushTextSecondary"] = new SolidColorBrush(Color.FromRgb(0x90, 0xA4, 0xAD));
+                Resources["BrushHoverSurface"] = new SolidColorBrush(Color.FromRgb(0x26, 0x40, 0x4C));
+                Resources["BrushSwatch1"] = new SolidColorBrush(Color.FromRgb(0x1E, 0x4E, 0x68));
+                Resources["BrushSwatch2"] = new SolidColorBrush(Color.FromRgb(0x2C, 0x7A, 0x9E));
+                Resources["BrushSwatch3"] = new SolidColorBrush(Color.FromRgb(0x3F, 0xA9, 0xC7));
+                Resources["BrushSwatch4"] = new SolidColorBrush(Color.FromRgb(0x6F, 0xC6, 0xDE));
+                Resources["BrushSwatch5"] = new SolidColorBrush(Color.FromRgb(0x2F, 0xB8, 0xC4));
+                Resources["BrushSwatch6"] = new SolidColorBrush(Color.FromRgb(0x17, 0x53, 0x72));
             }
             else
             {
                 Resources["BrushTitleBar"] = new SolidColorBrush(Color.FromRgb(0xFF, 0xFF, 0xFF));
+                Resources["BrushBanner"] = new SolidColorBrush(Color.FromRgb(0xE7, 0xEE, 0xF2));
                 Resources["BrushSidebar"] = new SolidColorBrush(Color.FromRgb(0xF1, 0xF2, 0xF4));
                 Resources["BrushPanel"] = new SolidColorBrush(Color.FromRgb(0xF7, 0xF8, 0xFA));
                 Resources["BrushCard"] = new SolidColorBrush(Color.FromRgb(0xFF, 0xFF, 0xFF));
-                Resources["BrushBorder"] = new SolidColorBrush(Color.FromRgb(0xDD, 0xE1, 0xE6));
-                Resources["BrushAccentTeal"] = new SolidColorBrush(Color.FromRgb(0x0E, 0xA5, 0xB7));
-                Resources["BrushAccentTealHover"] = new SolidColorBrush(Color.FromRgb(0x14, 0xBF, 0xD1));
+                Resources["BrushBorder"] = new SolidColorBrush(Color.FromRgb(0xD8, 0xE0, 0xE5));
+                Resources["BrushAccentTeal"] = new SolidColorBrush(Color.FromRgb(0x0E, 0x93, 0xA5));
+                Resources["BrushAccentTealHover"] = new SolidColorBrush(Color.FromRgb(0x14, 0xAD, 0xC1));
                 Resources["BrushAccentOrange"] = new SolidColorBrush(Color.FromRgb(0xC1, 0x50, 0x2E));
-                Resources["BrushTextPrimary"] = new SolidColorBrush(Color.FromRgb(0x1B, 0x1E, 0x22));
-                Resources["BrushTextSecondary"] = new SolidColorBrush(Color.FromRgb(0x6B, 0x72, 0x80));
-                Resources["BrushHoverSurface"] = new SolidColorBrush(Color.FromRgb(0xE7, 0xE9, 0xEC));
+                Resources["BrushTextPrimary"] = new SolidColorBrush(Color.FromRgb(0x17, 0x24, 0x2B));
+                Resources["BrushTextSecondary"] = new SolidColorBrush(Color.FromRgb(0x5C, 0x70, 0x79));
+                Resources["BrushHoverSurface"] = new SolidColorBrush(Color.FromRgb(0xE2, 0xE9, 0xEC));
+                Resources["BrushSwatch1"] = new SolidColorBrush(Color.FromRgb(0x4A, 0x7E, 0x96));
+                Resources["BrushSwatch2"] = new SolidColorBrush(Color.FromRgb(0x2C, 0x7A, 0x9E));
+                Resources["BrushSwatch3"] = new SolidColorBrush(Color.FromRgb(0x3F, 0xA9, 0xC7));
+                Resources["BrushSwatch4"] = new SolidColorBrush(Color.FromRgb(0x7F, 0xCB, 0xE0));
+                Resources["BrushSwatch5"] = new SolidColorBrush(Color.FromRgb(0x17, 0xA6, 0xB8));
+                Resources["BrushSwatch6"] = new SolidColorBrush(Color.FromRgb(0x23, 0x5E, 0x78));
             }
 
             _temaEscuro = escuro;
