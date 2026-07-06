@@ -357,6 +357,22 @@ namespace AutoCheckMechanical
             }
         }
 
+        private void BtnTrocarPlanilha_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog dialogPlanilha = new OpenFileDialog
+            {
+                Filter = "Planilhas Excel (*.xlsm;*.xls;*.xlsb;*.xlsx)|*.xlsm;*.xls;*.xlsb;*.xlsx",
+                Title = "Selecionar a planilha com a macro de busca no SAP"
+            };
+
+            if (dialogPlanilha.ShowDialog() != true)
+                return;
+
+            ExcelMacroSettingsStore.Save(dialogPlanilha.FileName);
+
+            txtStatus.Text = "Planilha do SAP atualizada: " + dialogPlanilha.FileName;
+        }
+
         private void BtnBuscarSap_Click(object sender, RoutedEventArgs e)
         {
             string ecm = txtEcm.Text?.Trim();

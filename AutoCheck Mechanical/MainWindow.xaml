@@ -350,6 +350,7 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="200"/>
                                 <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
@@ -383,6 +384,16 @@
                                     Margin="12,0,0,0"
                                     ToolTip="Busca no SAP (ZTPLM025) os documentos SWD da ECM, baixa e roda os checks habilitados"
                                     Click="BtnBuscarSap_Click"/>
+
+                            <Button Grid.Column="3"
+                                    x:Name="btnTrocarPlanilha"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Padding="8"
+                                    Margin="8,0,0,0"
+                                    ToolTip="Trocar a planilha Excel usada para buscar no SAP"
+                                    Click="BtnTrocarPlanilha_Click">
+                                <TextBlock Text="&#xE8DE;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
+                            </Button>
                         </Grid>
                     </Border>
 
