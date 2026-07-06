@@ -375,31 +375,36 @@ namespace AutoCheckMechanical
 
             try
             {
-                AddLog($"Conectando ao SAP para buscar documentos da ECM {ecm}...");
+                string caminhoPlanilha = ExcelMacroSettingsStore.LoadCaminho();
 
-                object sapSession;
+                if (string.IsNullOrEmpty(caminhoPlanilha) || !File.Exists(caminhoPlanilha))
+                {
+                    OpenFileDialog dialogPlanilha = new OpenFileDialog
+                    {
+                        Filter = "Planilhas Excel (*.xlsm;*.xls;*.xlsb;*.xlsx)|*.xlsm;*.xls;*.xlsb;*.xlsx",
+                        Title = "Selecionar a planilha com a macro de busca no SAP"
+                    };
 
-                try
-                {
-                    sapSession = SapService.Conectar();
+                    if (dialogPlanilha.ShowDialog() != true)
+                        return;
+
+                    caminhoPlanilha = dialogPlanilha.FileName;
+                    ExcelMacroSettingsStore.Save(caminhoPlanilha);
                 }
-                catch (Exception ex)
-                {
-                    AddLog("Falha ao conectar no SAP: " + ex.Message);
-                    MessageBox.Show(ex.Message, "Buscar no SAP", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
+
+                AddLog($"Rodando a macro da planilha para buscar documentos da ECM {ecm}...");
+                AddLog("Planilha: " + caminhoPlanilha);
 
                 List<string> documentos;
 
                 try
                 {
-                    documentos = SapService.BuscarDocumentosPorEcm(sapSession, ecm);
+                    documentos = ExcelSapService.BuscarEBaixarViaMacro(caminhoPlanilha, ecm);
                 }
                 catch (Exception ex)
                 {
-                    AddLog("Falha ao buscar documentos no SAP (ZTPLM025): " + ex.Message);
-                    MessageBox.Show("Não foi possível buscar os documentos no SAP:\n" + ex.Message,
+                    AddLog("Falha ao rodar a macro da planilha: " + ex.Message);
+                    MessageBox.Show("Não foi possível rodar a macro da planilha:\n" + ex.Message,
                         "Buscar no SAP", MessageBoxButton.OK, MessageBoxImage.Error);
                     return;
                 }
@@ -416,27 +421,6 @@ namespace AutoCheckMechanical
                 }
 
                 string pastaDestino = Path.Combine("C:\\SAP_SW", ecm);
-                Directory.CreateDirectory(pastaDestino);
-                AddLog("Pasta de destino: " + pastaDestino);
-
-                bool downloadAutomatico = true;
-
-                try
-                {
-                    SapService.SelecionarTudoEBaixar(sapSession, pastaDestino);
-                    AddLog("Download solicitado ao SAP.");
-                }
-                catch (NotImplementedException ex)
-                {
-                    downloadAutomatico = false;
-                    AddLog("AVISO: " + ex.Message);
-                    AddLog("Baixe os documentos manualmente para a pasta acima e clique em \"VERIFICAR ARQUIVOS...\" apontando para ela, ou rode a busca de novo depois que o download automático estiver configurado.");
-                }
-                catch (Exception ex)
-                {
-                    downloadAutomatico = false;
-                    AddLog("Falha ao acionar o download no SAP: " + ex.Message);
-                }
 
                 string[] arquivosBaixados = Directory.Exists(pastaDestino)
                     ? Directory.GetFiles(pastaDestino, "*.slddrw", SearchOption.TopDirectoryOnly)
@@ -448,9 +432,7 @@ namespace AutoCheckMechanical
                 {
                     MessageBox.Show(
                         $"ECM: {ecm}\nDocumentos encontrados no SAP: {documentos.Count}\n\n" +
-                        (downloadAutomatico
-                            ? "O download foi solicitado, mas nenhum arquivo .slddrw apareceu na pasta ainda."
-                            : "O download automático ainda não está configurado (veja o log). Baixe manualmente para:\n" + pastaDestino),
+                        "A macro rodou, mas nenhum arquivo .slddrw apareceu em:\n" + pastaDestino,
                         "Buscar no SAP", MessageBoxButton.OK, MessageBoxImage.Information);
 
                     txtStatus.Text = $"{documentos.Count} documento(s) encontrado(s) no SAP, nenhum arquivo local ainda.";
