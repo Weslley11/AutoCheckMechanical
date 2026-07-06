@@ -23,6 +23,12 @@ namespace AutoCheckMechanical.Services
         private const int PrimeiraLinhaLista = 7;
         private const int UltimaLinhaLista = 5000;
 
+        // msoAutomationSecurityLow: quando o Excel é aberto/controlado via
+        // automação COM (é o nosso caso), por padrão ele pode bloquear a
+        // execução de macros por segurança mesmo com tudo liberado na
+        // interface — é isso que a propriedade AutomationSecurity controla.
+        private const int MsoAutomationSecurityLow = 1;
+
         // Abre (ou reaproveita) a planilha, escreve a ECM, roda a macro Check()
         // e devolve os documentos que ela escreveu em Planilha1!F7:F5000.
         //
@@ -33,6 +39,9 @@ namespace AutoCheckMechanical.Services
         public static List<string> BuscarEBaixarViaMacro(string caminhoPlanilha, string ecm)
         {
             object excel = ObterOuAbrirExcel();
+
+            Definir(excel, "AutomationSecurity", MsoAutomationSecurityLow);
+
             object workbook = AbrirOuAtivarPlanilha(excel, caminhoPlanilha);
 
             object planilha = Chamar(Get(workbook, "Sheets"), "Item", NomePlanilha);
