@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using AutoCheckMechanical.Checkers;
 using AutoCheckMechanical.Models;
 using CheckContextModel = AutoCheckMechanical.Core.CheckContext;
@@ -330,20 +331,27 @@ namespace AutoCheckMechanical
             {
                 AddLog($"Verificando {arquivos.Count} arquivo(s)... A janela do SolidWorks vai abrir e fechar cada arquivo automaticamente, isso é esperado.");
 
-                List<BatchFileResult> resultados = BatchCheckRunner.Run(session.Application, engine, arquivos);
+                int concluidos = 0;
 
-                int falhas = 0;
-
-                foreach (BatchFileResult item in resultados)
+                List<BatchFileResult> resultados = BatchCheckRunner.Run(session.Application, engine, arquivos, item =>
                 {
+                    concluidos++;
+
                     UpsertBatchResult(item);
+                    RebuildResultsGrid();
+                    HistoryStore.Save(_batchResults);
 
-                    if (item.OpenFailed)
-                        falhas++;
-                }
+                    string statusItem = item.OpenFailed ? "FALHA AO ABRIR" : "OK";
+                    AddLog($"[{concluidos}/{arquivos.Count}] {item.FileName} — {statusItem}");
+                    txtStatus.Text = $"Verificando... {concluidos}/{arquivos.Count} concluído(s) ({item.FileName}).";
 
-                RebuildResultsGrid();
-                HistoryStore.Save(_batchResults);
+                    // Força o WPF a processar a fila de render agora, já que tudo
+                    // roda de forma síncrona nesta thread — sem isso a tabela só
+                    // apareceria atualizada quando o lote inteiro terminasse.
+                    Dispatcher.Invoke(DispatcherPriority.Background, new Action(() => { }));
+                });
+
+                int falhas = resultados.Count(r => r.OpenFailed);
 
                 txtStatus.Text = falhas == 0
                     ? $"{resultados.Count} arquivo(s) verificado(s)."

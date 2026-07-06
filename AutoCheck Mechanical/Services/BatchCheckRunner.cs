@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -13,7 +14,8 @@ namespace AutoCheckMechanical.Services
         public static List<BatchFileResult> Run(
             SldWorks app,
             CheckEngine engine,
-            IEnumerable<string> filePaths)
+            IEnumerable<string> filePaths,
+            Action<BatchFileResult> aoConcluirArquivo = null)
         {
             List<BatchFileResult> results = new List<BatchFileResult>();
 
@@ -21,7 +23,11 @@ namespace AutoCheckMechanical.Services
 
             foreach (string filePath in filePaths)
             {
-                results.Add(RunSingleFile(app, engine, filePath));
+                BatchFileResult item = RunSingleFile(app, engine, filePath);
+
+                results.Add(item);
+
+                aoConcluirArquivo?.Invoke(item);
             }
 
             if (originalActiveDoc != null)
