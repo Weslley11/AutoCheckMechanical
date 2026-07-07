@@ -678,8 +678,6 @@ namespace AutoCheckMechanical
                 Padding = new Thickness(4),
                 Background = Brushes.Transparent,
                 Cursor = Cursors.Hand,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
                 ClipToBounds = true
             };
 
@@ -733,7 +731,6 @@ namespace AutoCheckMechanical
                 Padding = new Thickness(8),
                 Background = Brushes.Transparent,
                 Cursor = Cursors.Hand,
-                HorizontalAlignment = HorizontalAlignment.Center,
                 ClipToBounds = true
             };
 
@@ -745,6 +742,7 @@ namespace AutoCheckMechanical
                 Foreground = item.SheetCount > 1
                     ? (Brush)FindResource("BrushAccentOrange")
                     : (Brush)FindResource("BrushTextPrimary"),
+                HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             };
 
@@ -866,7 +864,6 @@ namespace AutoCheckMechanical
                 Padding = new Thickness(8),
                 Background = Brushes.Transparent,
                 Cursor = Cursors.Hand,
-                HorizontalAlignment = HorizontalAlignment.Center,
                 ClipToBounds = true
             };
 
@@ -895,6 +892,7 @@ namespace AutoCheckMechanical
                 FontWeight = FontWeights.Bold,
                 FontSize = 12,
                 Foreground = cor,
+                HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             };
 
