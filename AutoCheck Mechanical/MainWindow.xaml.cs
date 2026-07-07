@@ -474,6 +474,27 @@ namespace AutoCheckMechanical
                     return;
 
                 VerificarArquivos(session, arquivosBaixados);
+
+                string caminhoRelatorio = null;
+
+                try
+                {
+                    caminhoRelatorio = GerarRelatorioAutomatico(arquivosBaixados, ecm, pastaDestino);
+                }
+                catch (Exception ex)
+                {
+                    AddLog("Falha ao gerar o relatório automático: " + ex.Message);
+                }
+
+                if (caminhoRelatorio != null)
+                {
+                    AddLog("Relatório gerado: " + caminhoRelatorio);
+                    txtStatus.Text = $"Verificação concluída. Relatório: {caminhoRelatorio}";
+
+                    MessageBox.Show(
+                        $"Verificação concluída para a ECM {ecm}.\n\nRelatório detalhado salvo em:\n{caminhoRelatorio}",
+                        "Buscar no SAP", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
             }
             finally
             {
@@ -1065,6 +1086,27 @@ namespace AutoCheckMechanical
             }
         }
 
+        // Gera e salva o relatório automaticamente ao final do fluxo via SAP,
+        // sem precisar do clique manual no botão "Relatório".
+        private string GerarRelatorioAutomatico(IEnumerable<string> arquivosDoLote, string ecm, string pastaDestino)
+        {
+            HashSet<string> caminhos = new HashSet<string>(arquivosDoLote, StringComparer.OrdinalIgnoreCase);
+
+            List<BatchFileResult> resultadosDoLote = _batchResults
+                .Where(x => caminhos.Contains(x.FilePath))
+                .ToList();
+
+            if (resultadosDoLote.Count == 0)
+                return null;
+
+            string nomeArquivo = $"Relatorio_{ecm}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+            string caminhoRelatorio = Path.Combine(pastaDestino, nomeArquivo);
+
+            File.WriteAllText(caminhoRelatorio, GerarCsvRelatorio(resultadosDoLote), Encoding.UTF8);
+
+            return caminhoRelatorio;
+        }
+
         private string GerarCsvRelatorio(List<BatchFileResult> resultados)
         {
             List<string> checkerNames = GetCheckerNames();
@@ -1091,9 +1133,14 @@ namespace AutoCheckMechanical
                 {
                     CheckResult resultado = item.Results.Find(x => x.Checker == nomeChecker);
 
-                    string status = item.OpenFailed || resultado == null
-                        ? ""
-                        : (resultado.Success ? "OK" : "ERRO");
+                    string status;
+
+                    if (item.OpenFailed || resultado == null)
+                        status = "";
+                    else if (resultado.Success)
+                        status = "OK";
+                    else
+                        status = "ERRO: " + string.Join(" | ", resultado.Errors);
 
                     colunas.Add(status);
                 }
