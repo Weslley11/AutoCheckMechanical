@@ -1,5 +1,4 @@
-﻿using System;
-using AutoCheckMechanical.Core;
+﻿using AutoCheckMechanical.Core;
 using AutoCheckMechanical.Helpers;
 using AutoCheckMechanical.Models;
 using SolidWorks.Interop.sldworks;
@@ -9,8 +8,19 @@ namespace AutoCheckMechanical.Checkers
 {
     public class FlatPatternChecker : CheckerBase
     {
-        private const string NomeBlocoLegenda = "WAU";
         private const string NomePropriedadeMateriaPrima = "materiaPrima";
+
+        // Nomes de definição do bloco de legenda WAU, um por tamanho de folha,
+        // conforme a macro de inserção da própria empresa (SelectByID2 com o
+        // nome exato do bloco e tipo "SUBSKETCHDEF").
+        private static readonly string[] NomesBlocoWau =
+        {
+            "BLOCO-WAU-A0_3",
+            "BLOCO-WAU-A1_3",
+            "BLOCO-WAU-A2_3",
+            "BLOCO-WAU-A3_3",
+            "BLOCO-WAU-A4_3",
+        };
 
         public override string Name => "Flat Pattern";
 
@@ -110,33 +120,32 @@ namespace AutoCheckMechanical.Checkers
                 "mas o desenho não tem nenhuma vista com a planificada.");
         }
 
-        // NÃO CONFIRMADO na prática: em desenhos, definições de bloco aparecem
-        // como features na árvore (documentação oficial da SOLIDWORKS), então
-        // percorremos as features procurando uma ISketchBlockDefinition cujo
-        // arquivo de origem contenha "WAU" no nome. O cast "as" é seguro --
-        // se a API não bater exatamente assim, isso só retorna false, não quebra.
+        // Confirmado com a macro de inserção do bloco da própria empresa: o
+        // bloco é selecionável por nome via SelectByID2 com o tipo
+        // "SUBSKETCHDEF" (é assim que a macro localiza o bloco antigo antes
+        // de apagar e inserir a versão atual).
         private static bool TemBlocoLegendaWau(ModelDoc2 modelo)
         {
             if (modelo == null)
                 return false;
 
-            Feature feature = modelo.FirstFeature() as Feature;
+            bool encontrado = false;
 
-            while (feature != null)
+            foreach (string nomeBloco in NomesBlocoWau)
             {
-                SketchBlockDefinition bloco = feature.GetSpecificFeature2() as SketchBlockDefinition;
+                bool selecionado = modelo.Extension.SelectByID2(
+                    nomeBloco, "SUBSKETCHDEF", 0, 0, 0, false, 0, null, 0);
 
-                if (bloco != null &&
-                    !string.IsNullOrEmpty(bloco.FileName) &&
-                    bloco.FileName.IndexOf(NomeBlocoLegenda, StringComparison.OrdinalIgnoreCase) >= 0)
+                if (selecionado)
                 {
-                    return true;
+                    encontrado = true;
+                    break;
                 }
-
-                feature = feature.GetNextFeature() as Feature;
             }
 
-            return false;
+            modelo.ClearSelection2(true);
+
+            return encontrado;
         }
     }
 }
