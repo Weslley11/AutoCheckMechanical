@@ -41,12 +41,6 @@
         <SolidColorBrush x:Key="BrushTextPrimary" Color="#D3D3D3"/>
         <SolidColorBrush x:Key="BrushTextSecondary" Color="#9A9A9A"/>
         <SolidColorBrush x:Key="BrushHoverSurface" Color="#454545"/>
-        <SolidColorBrush x:Key="BrushSwatch1" Color="#3A4A57"/>
-        <SolidColorBrush x:Key="BrushSwatch2" Color="#4C6478"/>
-        <SolidColorBrush x:Key="BrushSwatch3" Color="#5B7A93"/>
-        <SolidColorBrush x:Key="BrushSwatch4" Color="#7A97AC"/>
-        <SolidColorBrush x:Key="BrushSwatch5" Color="#5B7A93"/>
-        <SolidColorBrush x:Key="BrushSwatch6" Color="#2E3B45"/>
 
         <!-- Botões da barra de título (minimizar / restaurar / fechar) -->
         <Style x:Key="WindowButtonStyle" TargetType="Button">
@@ -271,16 +265,12 @@
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
 
-                    <StackPanel Grid.Column="2"
-                                Orientation="Horizontal"
-                                VerticalAlignment="Center">
-                        <Rectangle Width="12" Height="12" Margin="2" Fill="{DynamicResource BrushSwatch1}"/>
-                        <Rectangle Width="12" Height="12" Margin="2" Fill="{DynamicResource BrushSwatch2}"/>
-                        <Rectangle Width="12" Height="12" Margin="2" Fill="{DynamicResource BrushSwatch3}"/>
-                        <Rectangle Width="12" Height="12" Margin="2" Fill="{DynamicResource BrushSwatch4}"/>
-                        <Rectangle Width="12" Height="12" Margin="2" Fill="{DynamicResource BrushSwatch5}"/>
-                        <Rectangle Width="12" Height="12" Margin="2" Fill="{DynamicResource BrushSwatch6}"/>
-                    </StackPanel>
+                    <Image Grid.Column="2"
+                           Source="Assets/Images/GRID.png"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Center"
+                           Height="20"
+                           Margin="2"/>
                 </Grid>
             </Border>
 

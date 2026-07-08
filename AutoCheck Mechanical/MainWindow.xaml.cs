@@ -61,12 +61,6 @@ namespace AutoCheckMechanical
                 Resources["BrushTextPrimary"] = new SolidColorBrush(Color.FromRgb(0xD3, 0xD3, 0xD3));
                 Resources["BrushTextSecondary"] = new SolidColorBrush(Color.FromRgb(0x9A, 0x9A, 0x9A));
                 Resources["BrushHoverSurface"] = new SolidColorBrush(Color.FromRgb(0x45, 0x45, 0x45));
-                Resources["BrushSwatch1"] = new SolidColorBrush(Color.FromRgb(0x3A, 0x4A, 0x57));
-                Resources["BrushSwatch2"] = new SolidColorBrush(Color.FromRgb(0x4C, 0x64, 0x78));
-                Resources["BrushSwatch3"] = new SolidColorBrush(Color.FromRgb(0x5B, 0x7A, 0x93));
-                Resources["BrushSwatch4"] = new SolidColorBrush(Color.FromRgb(0x7A, 0x97, 0xAC));
-                Resources["BrushSwatch5"] = new SolidColorBrush(Color.FromRgb(0x5B, 0x7A, 0x93));
-                Resources["BrushSwatch6"] = new SolidColorBrush(Color.FromRgb(0x2E, 0x3B, 0x45));
             }
             else
             {
@@ -82,12 +76,6 @@ namespace AutoCheckMechanical
                 Resources["BrushTextPrimary"] = new SolidColorBrush(Color.FromRgb(0x24, 0x24, 0x24));
                 Resources["BrushTextSecondary"] = new SolidColorBrush(Color.FromRgb(0x60, 0x60, 0x60));
                 Resources["BrushHoverSurface"] = new SolidColorBrush(Color.FromRgb(0xE0, 0xE0, 0xE0));
-                Resources["BrushSwatch1"] = new SolidColorBrush(Color.FromRgb(0x4C, 0x64, 0x78));
-                Resources["BrushSwatch2"] = new SolidColorBrush(Color.FromRgb(0x5B, 0x7A, 0x93));
-                Resources["BrushSwatch3"] = new SolidColorBrush(Color.FromRgb(0x6F, 0x8F, 0xA6));
-                Resources["BrushSwatch4"] = new SolidColorBrush(Color.FromRgb(0x7A, 0x97, 0xAC));
-                Resources["BrushSwatch5"] = new SolidColorBrush(Color.FromRgb(0x45, 0x60, 0x7A));
-                Resources["BrushSwatch6"] = new SolidColorBrush(Color.FromRgb(0x2E, 0x3B, 0x45));
             }
 
             _temaEscuro = escuro;

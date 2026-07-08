@@ -121,6 +121,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Assets\Assets.cs" />
+    <Resource Include="Assets\Images\GRID.png" />
     <Compile Include="Core\CheckContext.cs" />
     <Compile Include="Core\SolidWorksSession.cs" />
     <Compile Include="Interfaces\IChecker.cs" />
