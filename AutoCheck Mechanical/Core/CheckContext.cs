@@ -38,6 +38,14 @@ namespace AutoCheckMechanical.Core
             }
         }
 
+        public int SheetCount
+        {
+            get
+            {
+                return Drawing?.GetSheetCount() ?? 0;
+            }
+        }
+
         public string FileName
         {
             get

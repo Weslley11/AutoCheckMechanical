@@ -1,160 +1,608 @@
-﻿<Window x:Class="AutoCheckMechanical.MainWindow"
+<Window x:Class="AutoCheckMechanical.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         Title="AutoCheck Mechanical"
-        Height="720"
-        Width="1200"
+        Height="760"
+        Width="1280"
+        MinHeight="560"
+        MinWidth="980"
         WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
         ResizeMode="CanResize"
-        Background="#F4F6F9">
+        Background="{DynamicResource BrushPanel}"
+        Foreground="{DynamicResource BrushTextPrimary}"
+        FontFamily="Segoe UI"
+        Loaded="Window_Loaded">
 
-    <Grid Margin="15">
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="44"
+                             CornerRadius="0"
+                             GlassFrameThickness="0"
+                             ResizeBorderThickness="6"
+                             UseAeroCaptionButtons="False"/>
+    </shell:WindowChrome.WindowChrome>
 
-        <Grid.RowDefinitions>
-            <RowDefinition Height="60"/>
-            <RowDefinition Height="70"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="60"/>
-            <RowDefinition Height="35"/>
-        </Grid.RowDefinitions>
+    <Window.Resources>
 
-        <!-- Cabeçalho -->
-        <Border Grid.Row="0"
-                CornerRadius="8"
-                Background="#2C3E50">
+        <SolidColorBrush x:Key="BrushTitleBar" Color="#171F26"/>
+        <SolidColorBrush x:Key="BrushBanner" Color="#1F2E38"/>
+        <SolidColorBrush x:Key="BrushSidebar" Color="#17222A"/>
+        <SolidColorBrush x:Key="BrushPanel" Color="#1C2830"/>
+        <SolidColorBrush x:Key="BrushCard" Color="#22323C"/>
+        <SolidColorBrush x:Key="BrushBorder" Color="#2E4552"/>
+        <SolidColorBrush x:Key="BrushAccentTeal" Color="#2FB8C4"/>
+        <SolidColorBrush x:Key="BrushAccentTealHover" Color="#4DD3DE"/>
+        <SolidColorBrush x:Key="BrushAccentOrange" Color="#D9643A"/>
+        <SolidColorBrush x:Key="BrushTextPrimary" Color="#EDF3F5"/>
+        <SolidColorBrush x:Key="BrushTextSecondary" Color="#90A4AD"/>
+        <SolidColorBrush x:Key="BrushHoverSurface" Color="#26404C"/>
+        <SolidColorBrush x:Key="BrushSwatch1" Color="#1E4E68"/>
+        <SolidColorBrush x:Key="BrushSwatch2" Color="#2C7A9E"/>
+        <SolidColorBrush x:Key="BrushSwatch3" Color="#3FA9C7"/>
+        <SolidColorBrush x:Key="BrushSwatch4" Color="#6FC6DE"/>
+        <SolidColorBrush x:Key="BrushSwatch5" Color="#2FB8C4"/>
+        <SolidColorBrush x:Key="BrushSwatch6" Color="#175372"/>
 
-            <Grid Margin="15">
+        <!-- Botões da barra de título (minimizar / restaurar / fechar) -->
+        <Style x:Key="WindowButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="44"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource BrushTextSecondary}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrushHoverSurface}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource BrushTextPrimary}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CloseButtonStyle" TargetType="Button" BasedOn="{StaticResource WindowButtonStyle}">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#C0392B"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Ícones da barra lateral -->
+        <Style x:Key="SidebarButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Margin" Value="0,4"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="{DynamicResource BrushTextSecondary}"/>
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrushHoverSurface}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource BrushAccentTeal}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.35"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Botão de ação principal -->
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource BrushAccentTeal}"/>
+            <Setter Property="Foreground" Value="#0B1416"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrushAccentTealHover}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Botão secundário (exportar log) -->
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource BrushTextSecondary}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BrushBorder}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource BrushAccentTeal}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource BrushAccentTeal}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+
+    <Border BorderBrush="{DynamicResource BrushBorder}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="44"/>
+                <RowDefinition Height="64"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="28"/>
+            </Grid.RowDefinitions>
+
+            <!-- Barra de título customizada -->
+            <Border Grid.Row="0"
+                    Background="{DynamicResource BrushTitleBar}"
+                    BorderBrush="{DynamicResource BrushBorder}"
+                    BorderThickness="0,0,0,1">
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Viewbox Grid.Column="0" Width="18" Height="18" Margin="16,0,10,0">
+                        <Canvas Width="24" Height="24">
+                            <Path Data="M12 2 L22 7 L22 17 L12 22 L2 17 L2 7 Z" Fill="{DynamicResource BrushAccentTeal}"/>
+                            <Path Data="M12 2 L22 7 L12 12 L2 7 Z" Fill="White" Opacity="0.18"/>
+                        </Canvas>
+                    </Viewbox>
+
+                    <TextBlock Grid.Column="1"
+                               Text="AUTOCHECK MECHANICAL"
+                               FontSize="12"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource BrushTextPrimary}"
+                               VerticalAlignment="Center"/>
+
+                    <TextBlock Grid.Column="3"
+                               Name="txtUser"
+                               Foreground="{DynamicResource BrushTextSecondary}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,16,0"
+                               FontSize="12"/>
+
+                    <StackPanel Grid.Column="4" Orientation="Horizontal">
+                        <Button x:Name="btnMinimize"
+                                Content="&#xE921;"
+                                Style="{StaticResource WindowButtonStyle}"
+                                Click="BtnMinimize_Click"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                        <Button x:Name="btnMaximizeRestore"
+                                Content="&#xE922;"
+                                Style="{StaticResource WindowButtonStyle}"
+                                Click="BtnMaximizeRestore_Click"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                        <Button x:Name="btnClose"
+                                Content="&#xE8BB;"
+                                Style="{StaticResource CloseButtonStyle}"
+                                Click="BtnClose_Click"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                    </StackPanel>
+
+                </Grid>
+            </Border>
+
+            <!-- Banner estilo WEG -->
+            <Border Grid.Row="1"
+                    Background="{DynamicResource BrushBanner}"
+                    BorderBrush="{DynamicResource BrushBorder}"
+                    BorderThickness="0,0,0,1">
+                <Grid Margin="20,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Viewbox Grid.Column="0" Width="30" Height="30" VerticalAlignment="Center">
+                        <Canvas Width="24" Height="24">
+                            <Path Data="M12 2 L22 7 L22 17 L12 22 L2 17 L2 7 Z" Fill="{DynamicResource BrushAccentTeal}"/>
+                            <Path Data="M12 2 L22 7 L12 12 L2 7 Z" Fill="White" Opacity="0.18"/>
+                        </Canvas>
+                    </Viewbox>
+
+                    <TextBlock Grid.Column="1"
+                               Text="AUTOCHECK MECHANICAL"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource BrushTextPrimary}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Column="2"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <Rectangle Width="12" Height="12" Margin="2" Fill="{DynamicResource BrushSwatch1}"/>
+                        <Rectangle Width="12" Height="12" Margin="2" Fill="{DynamicResource BrushSwatch2}"/>
+                        <Rectangle Width="12" Height="12" Margin="2" Fill="{DynamicResource BrushSwatch3}"/>
+                        <Rectangle Width="12" Height="12" Margin="2" Fill="{DynamicResource BrushSwatch4}"/>
+                        <Rectangle Width="12" Height="12" Margin="2" Fill="{DynamicResource BrushSwatch5}"/>
+                        <Rectangle Width="12" Height="12" Margin="2" Fill="{DynamicResource BrushSwatch6}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Corpo -->
+            <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition Width="250"/>
+                    <ColumnDefinition Width="56"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Text="AutoCheck Mechanical"
-                           FontSize="26"
-                           FontWeight="Bold"
-                           Foreground="White"
-                           VerticalAlignment="Center"/>
+                <!-- Barra lateral -->
+                <Border Grid.Column="0"
+                        Background="{DynamicResource BrushSidebar}"
+                        BorderBrush="{DynamicResource BrushBorder}"
+                        BorderThickness="0,0,1,0">
 
-                <StackPanel Grid.Column="1"
-                            Orientation="Horizontal"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Center">
+                    <StackPanel Margin="0,16,0,0" HorizontalAlignment="Center">
+                        <Button x:Name="btnReconnect"
+                                Content="&#xE72C;"
+                                Style="{StaticResource SidebarButtonStyle}"
+                                ToolTip="Verificar conexão com o SolidWorks"
+                                Click="BtnReconnect_Click"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                        <Button x:Name="btnRunCheckSidebar"
+                                Content="&#xE721;"
+                                Style="{StaticResource SidebarButtonStyle}"
+                                ToolTip="Rodar Check Drawing"
+                                Click="BtnCheckDrawing_Click"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                        <Button x:Name="btnHistorico"
+                                Content="&#xE81C;"
+                                Style="{StaticResource SidebarButtonStyle}"
+                                ToolTip="Ir para o histórico de projetos"
+                                Click="BtnHistorico_Click"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                        <Button x:Name="btnConfiguracoes"
+                                Content="&#xE713;"
+                                Style="{StaticResource SidebarButtonStyle}"
+                                ToolTip="Alternar tema claro/escuro"
+                                Click="BtnConfiguracoes_Click"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                        <Button x:Name="btnChecks"
+                                Content="&#xE8FD;"
+                                Style="{StaticResource SidebarButtonStyle}"
+                                ToolTip="Escolher quais checks executar"
+                                Click="BtnChecks_Click"
+                                shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                    </StackPanel>
+                </Border>
 
-                    <Ellipse Width="12"
-                             Height="12"
-                             Fill="Red"
-                             Margin="0,0,10,0"
-                             Name="ledSolidWorks"/>
+                <!-- Conteúdo -->
+                <Grid Grid.Column="1" Margin="16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
-                    <TextBlock Text="SolidWorks Desconectado"
-                               Foreground="White"
-                               FontSize="16"
-                               Name="txtSolidWorks"/>
+                    <!-- Busca de documentos no SAP (ZTPLM025) -->
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource BrushCard}"
+                            BorderBrush="{DynamicResource BrushBorder}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="16"
+                            Margin="0,0,0,12">
 
-                </StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
 
+                            <TextBlock Text="ECM"
+                                       FontSize="12"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource BrushTextSecondary}"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"/>
+
+                            <Border Grid.Column="1"
+                                    Background="{DynamicResource BrushPanel}"
+                                    BorderBrush="{DynamicResource BrushBorder}"
+                                    BorderThickness="1"
+                                    CornerRadius="4">
+                                <TextBox x:Name="txtEcm"
+                                         Background="Transparent"
+                                         Foreground="{DynamicResource BrushTextPrimary}"
+                                         CaretBrush="{DynamicResource BrushTextPrimary}"
+                                         BorderThickness="0"
+                                         Padding="8,6"
+                                         ToolTip="Número da ECM no SAP"/>
+                            </Border>
+
+                            <Button Grid.Column="2"
+                                    x:Name="btnBuscarSap"
+                                    Content="BUSCAR NO SAP"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    FontSize="13"
+                                    Padding="16,8"
+                                    Margin="12,0,0,0"
+                                    ToolTip="Busca no SAP (ZTPLM025) os documentos SWD da ECM, baixa e roda os checks habilitados"
+                                    Click="BtnBuscarSap_Click"/>
+
+                            <Button Grid.Column="3"
+                                    x:Name="btnTrocarPlanilha"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Padding="8"
+                                    Margin="8,0,0,0"
+                                    ToolTip="Trocar a planilha Excel usada para buscar no SAP"
+                                    Click="BtnTrocarPlanilha_Click">
+                                <TextBlock Text="&#xE8DE;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                    <!-- Card de conexão / arquivo -->
+                    <Border Grid.Row="1"
+                            Background="{DynamicResource BrushCard}"
+                            BorderBrush="{DynamicResource BrushBorder}"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="16"
+                            Margin="0,0,0,12">
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel>
+                                <TextBlock Text="ARQUIVO ATUAL"
+                                           FontSize="11"
+                                           Foreground="{DynamicResource BrushTextSecondary}"
+                                           Margin="0,0,0,4"/>
+                                <TextBlock Name="txtArquivo"
+                                           Text="Nenhum arquivo carregado"
+                                           FontSize="16"
+                                           Foreground="{DynamicResource BrushTextPrimary}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1"
+                                        Orientation="Horizontal"
+                                        VerticalAlignment="Center">
+                                <Ellipse Width="10"
+                                         Height="10"
+                                         Fill="Red"
+                                         Margin="0,0,8,0"
+                                         Name="ledSolidWorks"
+                                         VerticalAlignment="Center"/>
+                                <TextBlock Text="SolidWorks Desconectado"
+                                           Foreground="{DynamicResource BrushTextPrimary}"
+                                           FontSize="13"
+                                           Name="txtSolidWorks"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <StackPanel Grid.Row="2"
+                                Orientation="Horizontal"
+                                Margin="0,0,0,12">
+                        <Button Name="btnCheckDrawing"
+                                Content="CHECK DRAWING"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Click="BtnCheckDrawing_Click"/>
+                        <Button Name="btnVerificarArquivos"
+                                Content="VERIFICAR ARQUIVOS..."
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                FontSize="14"
+                                Padding="18,10"
+                                Margin="12,0,0,0"
+                                Click="BtnVerificarArquivos_Click"/>
+                    </StackPanel>
+
+                    <Grid Grid.Row="3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="360"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Background="{DynamicResource BrushCard}"
+                                BorderBrush="{DynamicResource BrushBorder}"
+                                BorderThickness="1"
+                                CornerRadius="6">
+                            <DockPanel>
+                                <Grid DockPanel.Dock="Top" Margin="12,10,8,8" x:Name="gridResultadosHeader">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Text="RESULTADOS"
+                                               FontSize="11"
+                                               Foreground="{DynamicResource BrushTextSecondary}"
+                                               VerticalAlignment="Center"/>
+
+                                    <Border Grid.Column="2"
+                                            Width="220"
+                                            Background="{DynamicResource BrushPanel}"
+                                            BorderBrush="{DynamicResource BrushBorder}"
+                                            BorderThickness="1"
+                                            CornerRadius="4">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Text="&#xE721;"
+                                                       FontFamily="Segoe MDL2 Assets"
+                                                       FontSize="12"
+                                                       Foreground="{DynamicResource BrushTextSecondary}"
+                                                       Margin="8,0,4,0"
+                                                       VerticalAlignment="Center"/>
+
+                                            <TextBox Grid.Column="1"
+                                                     x:Name="txtFiltro"
+                                                     Background="Transparent"
+                                                     Foreground="{DynamicResource BrushTextPrimary}"
+                                                     CaretBrush="{DynamicResource BrushTextPrimary}"
+                                                     BorderThickness="0"
+                                                     Padding="0,5"
+                                                     Margin="0,0,8,0"
+                                                     ToolTip="Filtrar por nome do arquivo"
+                                                     TextChanged="TxtFiltro_TextChanged"/>
+                                        </Grid>
+                                    </Border>
+
+                                    <Button Grid.Column="3"
+                                            x:Name="btnExportarRelatorio"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            Margin="8,0,0,0"
+                                            ToolTip="Exportar a tabela de resultados (CSV para Excel)"
+                                            Click="BtnExportarRelatorio_Click">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="&#xE74E;" FontFamily="Segoe MDL2 Assets" FontSize="12" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Relatório" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+
+                                    <Button Grid.Column="4"
+                                            x:Name="btnLimparHistorico"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            Margin="8,0,0,0"
+                                            ToolTip="Limpar todo o histórico salvo"
+                                            Click="BtnLimparHistorico_Click">
+                                        <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
+                                    </Button>
+                                </Grid>
+
+                                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                              HorizontalScrollBarVisibility="Auto"
+                                              Margin="8">
+                                    <Grid x:Name="gridResults"/>
+                                </ScrollViewer>
+                            </DockPanel>
+                        </Border>
+
+                        <Border Grid.Column="2"
+                                Background="{DynamicResource BrushPanel}"
+                                BorderBrush="{DynamicResource BrushBorder}"
+                                BorderThickness="1"
+                                CornerRadius="6">
+                            <DockPanel>
+                                <Grid DockPanel.Dock="Top" Margin="12,8,8,4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Name="txtDetalheTitulo"
+                                               Text="LOG"
+                                               FontSize="11"
+                                               Foreground="{DynamicResource BrushTextSecondary}"
+                                               VerticalAlignment="Center"/>
+
+                                    <Button Grid.Column="1"
+                                            x:Name="btnExportLog"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            Click="BtnExportLog_Click">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="&#xE74E;" FontFamily="Segoe MDL2 Assets" FontSize="12" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Exportar" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Button>
+                                </Grid>
+                                <TextBox Name="txtLog"
+                                         Background="Transparent"
+                                         Foreground="{DynamicResource BrushTextPrimary}"
+                                         CaretBrush="{DynamicResource BrushTextPrimary}"
+                                         BorderThickness="0"
+                                         IsReadOnly="True"
+                                         FontFamily="Consolas"
+                                         FontSize="13"
+                                         AcceptsReturn="True"
+                                         VerticalScrollBarVisibility="Auto"
+                                         Margin="8"/>
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
             </Grid>
 
-        </Border>
-
-        <!-- Arquivo -->
-
-        <GroupBox Grid.Row="1"
-                  Header="Arquivo Atual"
-                  Margin="0,10,0,10">
-
-            <TextBox Name="txtArquivo"
-                     FontSize="16"
-                     IsReadOnly="True"
-                     BorderThickness="0"
-                     Background="Transparent"
-                     Text="Nenhum arquivo carregado"/>
-
-        </GroupBox>
-
-        <!-- Centro -->
-
-        <Grid Grid.Row="2">
-
-            <Grid.ColumnDefinitions>
-
-                <ColumnDefinition Width="320"/>
-
-                <ColumnDefinition/>
-
-            </Grid.ColumnDefinitions>
-
-            <!-- Lista de Checks -->
-
-            <GroupBox Header="Checks"
-                      Margin="0,0,10,0">
-
-                <ListBox Name="lstChecks"
-                         FontSize="16">
-
-                    <ListBoxItem>☐ Flat Pattern</ListBoxItem>
-
-                    <ListBoxItem>☐ Layer</ListBoxItem>
-
-                    <ListBoxItem>☐ Escala</ListBoxItem>
-
-                    <ListBoxItem>☐ Dimensões</ListBoxItem>
-
-                    <ListBoxItem>☐ Bend Lines</ListBoxItem>
-
-                    <ListBoxItem>☐ Material</ListBoxItem>
-
-                    <ListBoxItem>☐ Revisão</ListBoxItem>
-
-                    <ListBoxItem>☐ Template</ListBoxItem>
-
-                    <ListBoxItem>☐ Sheet Format</ListBoxItem>
-
-                    <ListBoxItem>☐ BOM</ListBoxItem>
-
-                    <ListBoxItem>☐ Balloon</ListBoxItem>
-
-                </ListBox>
-
-            </GroupBox>
-
-            <!-- Log -->
-
-            <GroupBox Header="Log"
-                      Grid.Column="1">
-
-                <TextBox Name="txtLog"
-                         IsReadOnly="True"
-                         FontFamily="Consolas"
-                         FontSize="14"
-                         AcceptsReturn="True"
-                         VerticalScrollBarVisibility="Auto"/>
-
-            </GroupBox>
+            <!-- Barra de status -->
+            <Border Grid.Row="3"
+                    Background="{DynamicResource BrushTitleBar}"
+                    BorderBrush="{DynamicResource BrushBorder}"
+                    BorderThickness="0,1,0,0">
+                <TextBlock Name="txtStatus"
+                           Text="Pronto."
+                           Foreground="{DynamicResource BrushTextSecondary}"
+                           FontSize="12"
+                           VerticalAlignment="Center"
+                           Margin="16,0"/>
+            </Border>
 
         </Grid>
-
-        <!-- Botão -->
-
-        <Button Grid.Row="3"
-                Name="btnCheckDrawing"
-                Content="CHECK DRAWING"
-                FontSize="20"
-                FontWeight="Bold"
-                Height="45"
-                Width="250"
-                HorizontalAlignment="Center"
-                Click="BtnCheckDrawing_Click"/>
-
-        <!-- Barra de Status -->
-
-        <StatusBar Grid.Row="4">
-
-            <TextBlock Name="txtStatus"
-                       Text="Pronto."/>
-
-        </StatusBar>
-
-    </Grid>
-
+    </Border>
 </Window>

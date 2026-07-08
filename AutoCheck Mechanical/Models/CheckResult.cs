@@ -10,12 +10,14 @@ namespace AutoCheckMechanical.Models
         public List<string> Errors { get; }
         public List<string> Warnings { get; }
         public List<string> Logs { get; }
+        public Dictionary<string, string> Fields { get; }
 
         public CheckResult()
         {
             Errors = new List<string>();
             Warnings = new List<string>();
             Logs = new List<string>();
+            Fields = new Dictionary<string, string>();
         }
 
         public void AddLog(string text)
