@@ -25,24 +25,28 @@
 
     <Window.Resources>
 
-        <SolidColorBrush x:Key="BrushTitleBar" Color="#171F26"/>
-        <SolidColorBrush x:Key="BrushBanner" Color="#1F2E38"/>
-        <SolidColorBrush x:Key="BrushSidebar" Color="#17222A"/>
-        <SolidColorBrush x:Key="BrushPanel" Color="#1C2830"/>
-        <SolidColorBrush x:Key="BrushCard" Color="#22323C"/>
-        <SolidColorBrush x:Key="BrushBorder" Color="#2E4552"/>
-        <SolidColorBrush x:Key="BrushAccentTeal" Color="#2FB8C4"/>
-        <SolidColorBrush x:Key="BrushAccentTealHover" Color="#4DD3DE"/>
-        <SolidColorBrush x:Key="BrushAccentOrange" Color="#D9643A"/>
-        <SolidColorBrush x:Key="BrushTextPrimary" Color="#EDF3F5"/>
-        <SolidColorBrush x:Key="BrushTextSecondary" Color="#90A4AD"/>
-        <SolidColorBrush x:Key="BrushHoverSurface" Color="#26404C"/>
-        <SolidColorBrush x:Key="BrushSwatch1" Color="#1E4E68"/>
-        <SolidColorBrush x:Key="BrushSwatch2" Color="#2C7A9E"/>
-        <SolidColorBrush x:Key="BrushSwatch3" Color="#3FA9C7"/>
-        <SolidColorBrush x:Key="BrushSwatch4" Color="#6FC6DE"/>
-        <SolidColorBrush x:Key="BrushSwatch5" Color="#2FB8C4"/>
-        <SolidColorBrush x:Key="BrushSwatch6" Color="#175372"/>
+        <!-- Paleta inspirada no app WBC (MahApps.Metro, tema BaseDark + accent Steel).
+             Tons de cinza (#212121/#373737/#424242/#525252) conferidos direto no
+             XAML real do WBC; o azul-acinzentado do accent "Steel" e o "IndianRed"
+             de erro são aproximações razoáveis, não os hex exatos do MahApps. -->
+        <SolidColorBrush x:Key="BrushTitleBar" Color="#212121"/>
+        <SolidColorBrush x:Key="BrushBanner" Color="#373737"/>
+        <SolidColorBrush x:Key="BrushSidebar" Color="#424242"/>
+        <SolidColorBrush x:Key="BrushPanel" Color="#262626"/>
+        <SolidColorBrush x:Key="BrushCard" Color="#373737"/>
+        <SolidColorBrush x:Key="BrushBorder" Color="#4A4A4A"/>
+        <SolidColorBrush x:Key="BrushAccentTeal" Color="#5B7A93"/>
+        <SolidColorBrush x:Key="BrushAccentTealHover" Color="#7191AA"/>
+        <SolidColorBrush x:Key="BrushAccentOrange" Color="#CD5C5C"/>
+        <SolidColorBrush x:Key="BrushTextPrimary" Color="#D3D3D3"/>
+        <SolidColorBrush x:Key="BrushTextSecondary" Color="#9A9A9A"/>
+        <SolidColorBrush x:Key="BrushHoverSurface" Color="#454545"/>
+        <SolidColorBrush x:Key="BrushSwatch1" Color="#3A4A57"/>
+        <SolidColorBrush x:Key="BrushSwatch2" Color="#4C6478"/>
+        <SolidColorBrush x:Key="BrushSwatch3" Color="#5B7A93"/>
+        <SolidColorBrush x:Key="BrushSwatch4" Color="#7A97AC"/>
+        <SolidColorBrush x:Key="BrushSwatch5" Color="#5B7A93"/>
+        <SolidColorBrush x:Key="BrushSwatch6" Color="#2E3B45"/>
 
         <!-- Botões da barra de título (minimizar / restaurar / fechar) -->
         <Style x:Key="WindowButtonStyle" TargetType="Button">
