@@ -269,8 +269,9 @@
                            Source="Assets/Images/GRID.png"
                            HorizontalAlignment="Right"
                            VerticalAlignment="Center"
-                           Height="20"
-                           Margin="2"/>
+                           Height="43"
+                           Width="208"
+                           Margin="0,10"/>
                 </Grid>
             </Border>
 
