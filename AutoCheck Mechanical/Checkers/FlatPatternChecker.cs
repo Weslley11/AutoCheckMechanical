@@ -115,9 +115,7 @@ namespace AutoCheckMechanical.Checkers
 
             AddLog(result, $"Bloco de legenda WAU encontrado, Matéria-Prima = {materiaPrima}, mas sem vista planificada.");
 
-            result.AddWarning(
-                $"Bloco de legenda WAU inserido e Matéria-Prima preenchida ({materiaPrima}), " +
-                "mas o desenho não tem nenhuma vista com a planificada.");
+            result.AddWarning("Falta vista planificada.");
         }
 
         // Confirmado com a macro de inserção do bloco da própria empresa: o
