@@ -111,6 +111,10 @@
     <Compile Include="Services\SapService.cs" />
     <Compile Include="Services\ThemeStore.cs" />
     <Compile Include="Services\ThumbnailStore.cs" />
+    <Compile Include="ViewModels\BaseViewModel.cs" />
+    <Compile Include="ViewModels\ChecksConfigViewModel.cs" />
+    <Compile Include="ViewModels\CheckerOptionViewModel.cs" />
+    <Compile Include="ViewModels\DelegateCommand.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -166,7 +170,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="ViewModels\" />
     <Folder Include="Views\" />
   </ItemGroup>
   <ItemGroup>

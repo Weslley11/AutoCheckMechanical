@@ -24,7 +24,16 @@
                    Margin="0,0,0,14"/>
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <StackPanel Name="panelCheckers"/>
+            <ItemsControl ItemsSource="{Binding CheckerOptions}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <CheckBox Content="{Binding Name}"
+                                  IsChecked="{Binding IsEnabled}"
+                                  Margin="0,0,0,12"
+                                  FontSize="13"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </ScrollViewer>
 
         <StackPanel Grid.Row="2"
@@ -35,12 +44,12 @@
                     Content="Cancelar"
                     Padding="16,6"
                     Margin="0,0,8,0"
-                    Click="BtnCancelar_Click"/>
+                    Command="{Binding CancelCommand}"/>
             <Button Name="btnSalvar"
                     Content="Salvar"
                     Padding="16,6"
                     FontWeight="Bold"
-                    Click="BtnSalvar_Click"/>
+                    Command="{Binding SaveCommand}"/>
         </StackPanel>
     </Grid>
 </Window>

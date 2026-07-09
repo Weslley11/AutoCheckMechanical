@@ -1,15 +1,15 @@
 using System.Collections.Generic;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
+using AutoCheckMechanical.ViewModels;
 
 namespace AutoCheckMechanical
 {
     public partial class ChecksConfigWindow : Window
     {
-        private readonly List<CheckBox> _checkBoxes = new List<CheckBox>();
+        private readonly ChecksConfigViewModel _viewModel;
 
-        public HashSet<string> CheckersDesativados { get; private set; }
+        public HashSet<string> CheckersDesativados => _viewModel.CheckersDesativados;
 
         public ChecksConfigWindow(IEnumerable<string> todosOsChecks, ISet<string> desativadosAtuais, bool temaEscuro)
         {
@@ -17,21 +17,9 @@ namespace AutoCheckMechanical
 
             AplicarTema(temaEscuro);
 
-            foreach (string nome in todosOsChecks)
-            {
-                CheckBox checkBox = new CheckBox
-                {
-                    Content = nome,
-                    IsChecked = !desativadosAtuais.Contains(nome),
-                    Foreground = this.Foreground,
-                    Margin = new Thickness(0, 0, 0, 12),
-                    FontSize = 13,
-                    Tag = nome
-                };
+            _viewModel = new ChecksConfigViewModel(todosOsChecks, desativadosAtuais, resultado => DialogResult = resultado);
 
-                _checkBoxes.Add(checkBox);
-                panelCheckers.Children.Add(checkBox);
-            }
+            DataContext = _viewModel;
         }
 
         private void AplicarTema(bool escuro)
@@ -50,24 +38,6 @@ namespace AutoCheckMechanical
             }
 
             txtTitulo.Foreground = this.Foreground;
-        }
-
-        private void BtnSalvar_Click(object sender, RoutedEventArgs e)
-        {
-            CheckersDesativados = new HashSet<string>();
-
-            foreach (CheckBox checkBox in _checkBoxes)
-            {
-                if (checkBox.IsChecked != true)
-                    CheckersDesativados.Add((string)checkBox.Tag);
-            }
-
-            DialogResult = true;
-        }
-
-        private void BtnCancelar_Click(object sender, RoutedEventArgs e)
-        {
-            DialogResult = false;
         }
     }
 }
