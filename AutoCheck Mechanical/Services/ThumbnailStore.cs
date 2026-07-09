@@ -41,7 +41,6 @@ namespace AutoCheckMechanical.Services
                 // margem de segurança pra esse recorte não alcançar o
                 // conteúdo.
                 doc.ViewZoomout();
-                doc.ViewZoomout();
 
                 int largura, altura;
                 CalcularDimensoes(doc, out largura, out altura);
