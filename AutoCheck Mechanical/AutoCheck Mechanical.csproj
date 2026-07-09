@@ -89,6 +89,7 @@
     <Compile Include="Helpers\SelectionInspector.cs" />
     <Compile Include="Helpers\ValidationHelper.cs" />
     <Compile Include="Helpers\ViewHelper.cs" />
+    <Compile Include="Helpers\WauBlockHelper.cs" />
     <Compile Include="Models\BatchFileResult.cs" />
     <Compile Include="Models\BendLine.cs" />
     <Compile Include="Models\DrawingAnalysis.cs" />

@@ -19,6 +19,14 @@ namespace AutoCheckMechanical.Checkers
                 return result;
             }
 
+            if (WauBlockHelper.DesenhoDispensaChecksDeChapa(context))
+            {
+                result.Skipped = true;
+                result.Message = "Check dispensado (sem bloco/Matéria-Prima de chapa).";
+                AddLog(result, "Bloco de legenda WAU sem Matéria-Prima e sem vista planificada: check dispensado.");
+                return result;
+            }
+
             bool encontrou = false;
 
             foreach (View view in context.Views)

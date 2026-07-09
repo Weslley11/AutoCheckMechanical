@@ -6,6 +6,7 @@ namespace AutoCheckMechanical.Models
     {
         public string Checker { get; set; }
         public bool Success { get; set; }
+        public bool Skipped { get; set; }
         public string Message { get; set; }
         public List<string> Errors { get; }
         public List<string> Warnings { get; }

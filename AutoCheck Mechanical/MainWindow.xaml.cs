@@ -253,7 +253,14 @@ namespace AutoCheckMechanical
                 {
                     AddLog(result.Checker);
 
-                    if (result.Success)
+                    if (result.Skipped)
+                    {
+                        AddLog("N/A (dispensado)");
+
+                        if (!string.IsNullOrEmpty(result.Message))
+                            AddLog(result.Message);
+                    }
+                    else if (result.Success)
                     {
                         AddLog("OK");
 
@@ -867,6 +874,11 @@ namespace AutoCheckMechanical
                 texto = "—";
                 cor = (Brush)FindResource("BrushTextSecondary");
             }
+            else if (result.Skipped)
+            {
+                texto = "N/A";
+                cor = (Brush)FindResource("BrushTextSecondary");
+            }
             else if (result.Success)
             {
                 texto = "OK";
@@ -911,7 +923,14 @@ namespace AutoCheckMechanical
             {
                 AddLog(result.Checker);
 
-                if (result.Success)
+                if (result.Skipped)
+                {
+                    AddLog("N/A (dispensado)");
+
+                    if (!string.IsNullOrEmpty(result.Message))
+                        AddLog(result.Message);
+                }
+                else if (result.Success)
                 {
                     AddLog("OK");
 
@@ -1127,6 +1146,8 @@ namespace AutoCheckMechanical
 
                     if (item.OpenFailed || resultado == null)
                         status = "";
+                    else if (resultado.Skipped)
+                        status = "N/A";
                     else if (resultado.Success)
                         status = "OK";
                     else

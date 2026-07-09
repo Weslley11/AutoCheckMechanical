@@ -1,4 +1,4 @@
-﻿using AutoCheckMechanical.Core;
+using AutoCheckMechanical.Core;
 using AutoCheckMechanical.Helpers;
 using AutoCheckMechanical.Models;
 using SolidWorks.Interop.sldworks;
@@ -8,20 +8,6 @@ namespace AutoCheckMechanical.Checkers
 {
     public class FlatPatternChecker : CheckerBase
     {
-        private const string NomePropriedadeMateriaPrima = "materiaPrima";
-
-        // Nomes de definição do bloco de legenda WAU, um por tamanho de folha,
-        // conforme a macro de inserção da própria empresa (SelectByID2 com o
-        // nome exato do bloco e tipo "SUBSKETCHDEF").
-        private static readonly string[] NomesBlocoWau =
-        {
-            "BLOCO-WAU-A0_3",
-            "BLOCO-WAU-A1_3",
-            "BLOCO-WAU-A2_3",
-            "BLOCO-WAU-A3_3",
-            "BLOCO-WAU-A4_3",
-        };
-
         public override string Name => "Flat Pattern";
 
         public override CheckResult Execute(CheckContext context)
@@ -31,6 +17,14 @@ namespace AutoCheckMechanical.Checkers
             if (!context.IsDrawing)
             {
                 AddError(result, "O documento ativo não é um Drawing.");
+                return result;
+            }
+
+            if (WauBlockHelper.DesenhoDispensaChecksDeChapa(context))
+            {
+                result.Skipped = true;
+                result.Message = "Check dispensado (sem bloco/Matéria-Prima de chapa).";
+                AddLog(result, "Bloco de legenda WAU sem Matéria-Prima e sem vista planificada: check dispensado.");
                 return result;
             }
 
@@ -93,22 +87,10 @@ namespace AutoCheckMechanical.Checkers
         // (peça ainda sem planificada gerada, por exemplo).
         private void VerificarBlocoLegendaSemFlatPattern(CheckContext context, CheckResult result)
         {
-            if (!TemBlocoLegendaWau(context.Model))
+            if (!WauBlockHelper.TemBlocoLegendaWau(context.Model))
                 return;
 
-            string materiaPrima = PropertyHelper.GetValue(context.Model, NomePropriedadeMateriaPrima);
-
-            if (string.IsNullOrWhiteSpace(materiaPrima))
-            {
-                foreach (View view in context.Views)
-                {
-                    ModelDoc2 peca = view.ReferencedDocument as ModelDoc2;
-                    materiaPrima = PropertyHelper.GetValue(peca, NomePropriedadeMateriaPrima);
-
-                    if (!string.IsNullOrWhiteSpace(materiaPrima))
-                        break;
-                }
-            }
+            string materiaPrima = WauBlockHelper.GetMateriaPrima(context);
 
             if (string.IsNullOrWhiteSpace(materiaPrima))
                 return;
@@ -116,34 +98,6 @@ namespace AutoCheckMechanical.Checkers
             AddLog(result, $"Bloco de legenda WAU encontrado, Matéria-Prima = {materiaPrima}, mas sem vista planificada.");
 
             result.AddWarning("Falta vista planificada.");
-        }
-
-        // Confirmado com a macro de inserção do bloco da própria empresa: o
-        // bloco é selecionável por nome via SelectByID2 com o tipo
-        // "SUBSKETCHDEF" (é assim que a macro localiza o bloco antigo antes
-        // de apagar e inserir a versão atual).
-        private static bool TemBlocoLegendaWau(ModelDoc2 modelo)
-        {
-            if (modelo == null)
-                return false;
-
-            bool encontrado = false;
-
-            foreach (string nomeBloco in NomesBlocoWau)
-            {
-                bool selecionado = modelo.Extension.SelectByID2(
-                    nomeBloco, "SUBSKETCHDEF", 0, 0, 0, false, 0, null, 0);
-
-                if (selecionado)
-                {
-                    encontrado = true;
-                    break;
-                }
-            }
-
-            modelo.ClearSelection2(true);
-
-            return encontrado;
         }
     }
 }
