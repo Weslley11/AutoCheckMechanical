@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -16,6 +17,8 @@ using AutoCheckMechanical.Models;
 using CheckContextModel = AutoCheckMechanical.Core.CheckContext;
 using AutoCheckMechanical.Services;
 using Microsoft.Win32;
+using SolidWorks.Interop.sldworks;
+using SolidWorks.Interop.swconst;
 
 namespace AutoCheckMechanical
 {
@@ -1065,11 +1068,86 @@ namespace AutoCheckMechanical
                 };
             }
 
-            border.MouseLeftButtonUp += (s, e) => ShowFileDetails(item);
+            border.MouseLeftButtonUp += (s, e) => AbrirNoSolidWorks(item);
+            border.ToolTip = border.ToolTip ?? "Clique para abrir no SolidWorks.";
 
             Grid.SetColumn(border, column);
             Grid.SetRow(border, row);
             gridResults.Children.Add(border);
+        }
+
+        [DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        // Abre o arquivo no SolidWorks (ou apenas ativa a janela, se ele já
+        // estiver aberto), ao clicar no nome do arquivo na tabela.
+        private void AbrirNoSolidWorks(BatchFileResult item)
+        {
+            if (string.IsNullOrEmpty(item.FilePath) || !File.Exists(item.FilePath))
+            {
+                MessageBox.Show("Arquivo não encontrado:\n" + item.FilePath, "Abrir no SolidWorks",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            SolidWorksSession session = RefreshConnectionStatus();
+
+            if (!session.IsConnected)
+                return;
+
+            Mouse.OverrideCursor = Cursors.Wait;
+
+            try
+            {
+                SldWorks app = session.Application;
+
+                ModelDoc2 doc = app.GetOpenDocumentByName(item.FilePath) as ModelDoc2;
+
+                if (doc == null)
+                {
+                    int errors = 0;
+                    int warnings = 0;
+
+                    doc = app.OpenDoc6(
+                        item.FilePath,
+                        (int)swDocumentTypes_e.swDocDRAWING,
+                        (int)swOpenDocOptions_e.swOpenDocOptions_Silent,
+                        "",
+                        ref errors,
+                        ref warnings) as ModelDoc2;
+
+                    if (doc == null)
+                    {
+                        MessageBox.Show($"Não foi possível abrir o arquivo no SolidWorks (código de erro {errors}).",
+                            "Abrir no SolidWorks", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                }
+
+                int activateErrors = 0;
+                app.ActivateDoc2(doc.GetTitle(), false, ref activateErrors);
+
+                app.Visible = true;
+
+                try
+                {
+                    IFrame frame = app.Frame() as IFrame;
+                    if (frame != null)
+                        SetForegroundWindow((IntPtr)frame.GetHWnd());
+                }
+                catch (COMException)
+                {
+                }
+            }
+            catch (COMException ex)
+            {
+                MessageBox.Show("Não foi possível abrir o arquivo no SolidWorks:\n" + ex.Message,
+                    "Abrir no SolidWorks", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+            }
         }
 
         private void AddStatusCell(BatchFileResult item, CheckResult result, int column, int row)
