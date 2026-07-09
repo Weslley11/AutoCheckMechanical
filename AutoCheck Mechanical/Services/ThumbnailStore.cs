@@ -25,6 +25,12 @@ namespace AutoCheckMechanical.Services
 
                 string caminhoCompleto = Path.Combine(FolderPath, ChaveArquivo(sourceFilePath) + ".bmp");
 
+                // Ao abrir o arquivo via automação (silencioso), algumas
+                // vistas (detalhe, corte etc.) podem não estar totalmente
+                // regeneradas ainda -- sem o rebuild, o ViewZoomtofit2 calcula
+                // o enquadramento com base num bounding box incompleto e a
+                // prévia sai cortada, faltando parte da folha.
+                doc.ForceRebuild3(false);
                 doc.ViewZoomtofit2();
 
                 int largura, altura;
