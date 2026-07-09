@@ -2,6 +2,7 @@ using System.Windows;
 using AutoCheckMechanical.Core;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -682,9 +683,11 @@ namespace AutoCheckMechanical
 
             BitmapImage thumbnail = CarregarThumbnail(item.ThumbnailPath);
 
+            Grid conteudo = new Grid();
+
             if (thumbnail != null)
             {
-                border.Child = new Image
+                conteudo.Children.Add(new Image
                 {
                     Source = thumbnail,
                     Width = 88,
@@ -692,7 +695,7 @@ namespace AutoCheckMechanical
                     Stretch = Stretch.UniformToFill,
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center
-                };
+                });
 
                 border.ToolTip = new Image
                 {
@@ -704,21 +707,158 @@ namespace AutoCheckMechanical
             }
             else
             {
-                border.Child = new TextBlock
+                conteudo.Children.Add(new TextBlock
                 {
                     Text = "—",
                     FontSize = 12,
                     Foreground = (Brush)FindResource("BrushTextSecondary"),
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center
-                };
+                });
             }
 
+            if (!string.IsNullOrEmpty(item.FilePath))
+            {
+                Button btnEDrawings = new Button
+                {
+                    Content = "",
+                    FontFamily = new FontFamily("Segoe MDL2 Assets"),
+                    FontSize = 11,
+                    Width = 20,
+                    Height = 20,
+                    Padding = new Thickness(0),
+                    Background = new SolidColorBrush(Color.FromArgb(180, 0, 0, 0)),
+                    Foreground = Brushes.White,
+                    BorderThickness = new Thickness(0),
+                    Cursor = Cursors.Hand,
+                    HorizontalAlignment = HorizontalAlignment.Right,
+                    VerticalAlignment = VerticalAlignment.Bottom,
+                    Margin = new Thickness(0, 0, 2, 2),
+                    ToolTip = "Abrir no eDrawings"
+                };
+
+                btnEDrawings.Click += (s, e) => AbrirNoEDrawings(item.FilePath);
+
+                conteudo.Children.Add(btnEDrawings);
+            }
+
+            border.Child = conteudo;
             border.MouseLeftButtonUp += (s, e) => ShowFileDetails(item);
 
             Grid.SetColumn(border, column);
             Grid.SetRow(border, row);
             gridResults.Children.Add(border);
+        }
+
+        // Abre o desenho no visualizador eDrawings (independente do
+        // SolidWorks), para o usuário conferir o arquivo visualmente sem
+        // precisar abrir o SolidWorks completo.
+        private void AbrirNoEDrawings(string filePath)
+        {
+            if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
+            {
+                MessageBox.Show("Arquivo não encontrado:\n" + filePath, "Abrir no eDrawings",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            string caminhoEDrawings = LocalizarEDrawings();
+
+            if (caminhoEDrawings == null)
+            {
+                if (!TentarAbrirViaShell(filePath))
+                {
+                    caminhoEDrawings = EscolherEDrawingsManualmente();
+
+                    if (caminhoEDrawings == null)
+                        return;
+                }
+                else
+                {
+                    return;
+                }
+            }
+
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = caminhoEDrawings,
+                    Arguments = "\"" + filePath + "\"",
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Não foi possível abrir o eDrawings:\n" + ex.Message,
+                    "Abrir no eDrawings", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private static readonly string[] CaminhosConhecidosEDrawings =
+        {
+            @"C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS eDrawings\eDrawings.exe",
+            @"C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS 2024\SOLIDWORKS eDrawings\eDrawings.exe",
+            @"C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS 2023\SOLIDWORKS eDrawings\eDrawings.exe",
+            @"C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS 2022\SOLIDWORKS eDrawings\eDrawings.exe",
+            @"C:\Program Files (x86)\SOLIDWORKS Corp\SOLIDWORKS eDrawings\eDrawings.exe",
+            @"C:\Program Files\eDrawings\eDrawings.exe",
+            @"C:\Program Files (x86)\eDrawings\eDrawings.exe",
+        };
+
+        // Tenta localizar o eDrawings.exe: primeiro o caminho salvo
+        // manualmente pelo usuário (se houver), depois os caminhos de
+        // instalação mais comuns.
+        private string LocalizarEDrawings()
+        {
+            string caminhoSalvo = EDrawingsSettingsStore.LoadCaminho();
+
+            if (!string.IsNullOrEmpty(caminhoSalvo) && File.Exists(caminhoSalvo))
+                return caminhoSalvo;
+
+            return CaminhosConhecidosEDrawings.FirstOrDefault(File.Exists);
+        }
+
+        // Deixa o Windows resolver "eDrawings.exe" (App Paths / PATH), como
+        // aconteceria se o usuário desse duplo clique num atalho dele.
+        private bool TentarAbrirViaShell(string filePath)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "eDrawings.exe",
+                    Arguments = "\"" + filePath + "\"",
+                    UseShellExecute = true
+                });
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        private string EscolherEDrawingsManualmente()
+        {
+            MessageBox.Show(
+                "Não foi possível localizar o eDrawings automaticamente.\nSelecione o executável (eDrawings.exe) manualmente.",
+                "Abrir no eDrawings", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            OpenFileDialog dialog = new OpenFileDialog
+            {
+                Filter = "eDrawings (eDrawings.exe)|eDrawings.exe|Executável (*.exe)|*.exe",
+                Title = "Selecionar o eDrawings.exe"
+            };
+
+            if (dialog.ShowDialog() != true)
+                return null;
+
+            EDrawingsSettingsStore.Save(dialog.FileName);
+
+            return dialog.FileName;
         }
 
         private void AddSheetCountCell(BatchFileResult item, int column, int row)
