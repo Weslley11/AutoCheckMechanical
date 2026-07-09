@@ -107,11 +107,12 @@ namespace AutoCheckMechanical.Services
         }
 
         // Em vez de tentar acertar o zoom exato da câmera do SolidWorks (o
-        // que deixava uma margem branca grande e imprevisível em volta da
-        // folha), a imagem já salva é recortada automaticamente até os
-        // limites reais do conteúdo (não-branco), com uma folga pequena.
-        // Isso garante um enquadramento justo independente de quanto zoom
-        // out foi dado antes de salvar.
+        // que deixava uma margem grande e imprevisível em volta da folha --
+        // inclusive revelando o fundo escuro da área gráfica fora do papel,
+        // dependendo do tema do SolidWorks do usuário), a imagem já salva é
+        // recortada automaticamente até os limites reais do PAPEL (branco),
+        // com uma folga pequena. Isso garante um enquadramento justo com
+        // apenas a folha, independente do que exista fora dela.
         private static void RecortarMargemBranca(string caminhoArquivo)
         {
             try
@@ -179,10 +180,15 @@ namespace AutoCheckMechanical.Services
                         byte g = pixels[i + 1];
                         byte r = pixels[i + 2];
 
-                        // Considera "conteúdo" qualquer pixel que não seja
-                        // praticamente branco (o fundo da folha exportada é
-                        // branco).
-                        if (r < 245 || g < 245 || b < 245)
+                        // Procura os limites do PAPEL (branco), não do
+                        // "conteúdo não-branco" -- se a área gráfica do
+                        // SolidWorks fora da folha não for branca (ex.: tema
+                        // escuro), aquele fundo também conta como "não
+                        // branco" e o recorte antigo acabava incluindo o
+                        // fundo escuro em vez de só a folha.
+                        bool ehBranco = r > 235 && g > 235 && b > 235;
+
+                        if (ehBranco)
                         {
                             if (x < minX) minX = x;
                             if (x > maxX) maxX = x;
