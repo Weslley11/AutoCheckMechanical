@@ -796,20 +796,10 @@ namespace AutoCheckMechanical
             }
         }
 
-        private static readonly string[] CaminhosConhecidosEDrawings =
-        {
-            @"C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS eDrawings\eDrawings.exe",
-            @"C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS 2024\SOLIDWORKS eDrawings\eDrawings.exe",
-            @"C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS 2023\SOLIDWORKS eDrawings\eDrawings.exe",
-            @"C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS 2022\SOLIDWORKS eDrawings\eDrawings.exe",
-            @"C:\Program Files (x86)\SOLIDWORKS Corp\SOLIDWORKS eDrawings\eDrawings.exe",
-            @"C:\Program Files\eDrawings\eDrawings.exe",
-            @"C:\Program Files (x86)\eDrawings\eDrawings.exe",
-        };
-
         // Tenta localizar o eDrawings.exe: primeiro o caminho salvo
         // manualmente pelo usuário (se houver), depois os caminhos de
-        // instalação mais comuns.
+        // instalação mais comuns (confirmados pelo usuário: "Common Files"
+        // e dentro da própria pasta do SOLIDWORKS, um por versão/ano).
         private string LocalizarEDrawings()
         {
             string caminhoSalvo = EDrawingsSettingsStore.LoadCaminho();
@@ -817,7 +807,23 @@ namespace AutoCheckMechanical
             if (!string.IsNullOrEmpty(caminhoSalvo) && File.Exists(caminhoSalvo))
                 return caminhoSalvo;
 
-            return CaminhosConhecidosEDrawings.FirstOrDefault(File.Exists);
+            return GerarCaminhosConhecidosEDrawings().FirstOrDefault(File.Exists);
+        }
+
+        private static IEnumerable<string> GerarCaminhosConhecidosEDrawings()
+        {
+            for (int ano = 2026; ano >= 2018; ano--)
+            {
+                yield return $@"C:\Program Files\Common Files\eDrawings{ano}\eDrawings.exe";
+                yield return $@"C:\Program Files (x86)\Common Files\eDrawings{ano}\eDrawings.exe";
+                yield return $@"C:\Program Files\SOLIDWORKS {ano}\eDrawings\eDrawings.exe";
+                yield return $@"C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS {ano}\SOLIDWORKS eDrawings\eDrawings.exe";
+            }
+
+            yield return @"C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS eDrawings\eDrawings.exe";
+            yield return @"C:\Program Files (x86)\SOLIDWORKS Corp\SOLIDWORKS eDrawings\eDrawings.exe";
+            yield return @"C:\Program Files\eDrawings\eDrawings.exe";
+            yield return @"C:\Program Files (x86)\eDrawings\eDrawings.exe";
         }
 
         // Deixa o Windows resolver "eDrawings.exe" (App Paths / PATH), como
