@@ -15,7 +15,8 @@ namespace AutoCheckMechanical.Services
             SldWorks app,
             CheckEngine engine,
             IEnumerable<string> filePaths,
-            Action<BatchFileResult> aoConcluirArquivo = null)
+            Action<BatchFileResult> aoConcluirArquivo = null,
+            bool forcarChecksDeChapa = false)
         {
             List<BatchFileResult> results = new List<BatchFileResult>();
 
@@ -23,7 +24,7 @@ namespace AutoCheckMechanical.Services
 
             foreach (string filePath in filePaths)
             {
-                BatchFileResult item = RunSingleFile(app, engine, filePath);
+                BatchFileResult item = RunSingleFile(app, engine, filePath, forcarChecksDeChapa);
 
                 results.Add(item);
 
@@ -45,7 +46,7 @@ namespace AutoCheckMechanical.Services
             return results;
         }
 
-        private static BatchFileResult RunSingleFile(SldWorks app, CheckEngine engine, string filePath)
+        private static BatchFileResult RunSingleFile(SldWorks app, CheckEngine engine, string filePath, bool forcarChecksDeChapa = false)
         {
             BatchFileResult item = new BatchFileResult
             {
@@ -82,7 +83,10 @@ namespace AutoCheckMechanical.Services
                     }
                 }
 
-                CheckContext context = new CheckContext(app, doc);
+                CheckContext context = new CheckContext(app, doc)
+                {
+                    ForcarChecksDeChapa = forcarChecksDeChapa
+                };
 
                 item.SheetCount = context.SheetCount;
                 item.Results = engine.Execute(context);

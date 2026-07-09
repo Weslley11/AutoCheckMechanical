@@ -764,9 +764,10 @@ namespace AutoCheckMechanical
                 ClipToBounds = true
             };
 
-            List<string> avisos = item.Results.SelectMany(r => r.Warnings).ToList();
+            List<string> avisos = item.Results.SelectMany(r => r.Warnings).Distinct().ToList();
+            bool temChecksDispensados = item.Results.Any(r => r.Skipped);
 
-            border.Child = new TextBlock
+            TextBlock texto = new TextBlock
             {
                 Text = avisos.Count == 0 ? "—" : string.Join(" | ", avisos),
                 FontSize = 12,
@@ -777,12 +778,83 @@ namespace AutoCheckMechanical
                 VerticalAlignment = VerticalAlignment.Center
             };
 
+            texto.MouseLeftButtonUp += (s, e) => ShowFileDetails(item);
+
             border.ToolTip = avisos.Count == 0 ? null : string.Join("\n", avisos);
-            border.MouseLeftButtonUp += (s, e) => ShowFileDetails(item);
+
+            if (temChecksDispensados)
+            {
+                Button btnExecutarMesmoAssim = new Button
+                {
+                    Content = "EXECUTAR MESMO ASSIM",
+                    Style = (Style)FindResource("SecondaryButtonStyle"),
+                    FontSize = 10,
+                    Padding = new Thickness(6, 2, 6, 2),
+                    Margin = new Thickness(0, 4, 0, 0),
+                    HorizontalAlignment = HorizontalAlignment.Left
+                };
+
+                btnExecutarMesmoAssim.Click += (s, e) => ForcarChecksDeChapa(item);
+
+                StackPanel painel = new StackPanel { Orientation = Orientation.Vertical };
+                painel.Children.Add(texto);
+                painel.Children.Add(btnExecutarMesmoAssim);
+
+                border.Child = painel;
+            }
+            else
+            {
+                border.Child = texto;
+                border.MouseLeftButtonUp += (s, e) => ShowFileDetails(item);
+            }
 
             Grid.SetColumn(border, column);
             Grid.SetRow(border, row);
             gridResults.Children.Add(border);
+        }
+
+        // Permite ao usuário forçar a execução dos checks de Layer/Flat
+        // Pattern/Scale para um arquivo cujo check foi dispensado
+        // automaticamente (sem info de chapa), caso ele julgue necessário.
+        private void ForcarChecksDeChapa(BatchFileResult item)
+        {
+            SolidWorksSession session = RefreshConnectionStatus();
+
+            if (!session.IsConnected)
+                return;
+
+            CheckEngine engine = new CheckEngine();
+            CheckerManager.Register(engine, _checkersDesativados);
+
+            Mouse.OverrideCursor = Cursors.Wait;
+
+            try
+            {
+                AddLog($"Forçando execução dos checks em {item.FileName}...");
+
+                List<BatchFileResult> resultados = BatchCheckRunner.Run(
+                    session.Application,
+                    engine,
+                    new[] { item.FilePath },
+                    forcarChecksDeChapa: true);
+
+                BatchFileResult novoResultado = resultados.FirstOrDefault();
+
+                if (novoResultado != null)
+                {
+                    UpsertBatchResult(novoResultado);
+                    RebuildResultsGrid();
+                    HistoryStore.Save(_batchResults);
+
+                    string statusItem = novoResultado.OpenFailed ? "FALHA AO ABRIR" : "OK";
+                    AddLog($"{novoResultado.FileName} — {statusItem}");
+                    txtStatus.Text = $"Checks executados em {novoResultado.FileName}.";
+                }
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+            }
         }
 
         private void AddHeaderCell(string text, int column, int row, bool centralizado = true)
@@ -1170,7 +1242,7 @@ namespace AutoCheckMechanical
 
                 colunas.Add(item.OpenFailed ? "" : item.SheetCount.ToString());
 
-                List<string> avisos = item.Results.SelectMany(r => r.Warnings).ToList();
+                List<string> avisos = item.Results.SelectMany(r => r.Warnings).Distinct().ToList();
                 colunas.Add(string.Join(" | ", avisos));
 
                 sb.AppendLine(string.Join(";", colunas.Select(CampoCsv)));

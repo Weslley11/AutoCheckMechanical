@@ -22,8 +22,9 @@ namespace AutoCheckMechanical.Checkers
             if (WauBlockHelper.DesenhoDispensaChecksDeChapa(context))
             {
                 result.Skipped = true;
-                result.Message = "Check dispensado (sem bloco/Matéria-Prima de chapa).";
-                AddLog(result, "Bloco de legenda WAU sem Matéria-Prima e sem vista planificada: check dispensado.");
+                result.Message = "Check dispensado (sem info de chapa).";
+                AddLog(result, "Sem Matéria-Prima e sem vista planificada: check dispensado.");
+                result.AddWarning("Sem info de chapa: checks de layer/planificado dispensados.");
                 return result;
             }
 

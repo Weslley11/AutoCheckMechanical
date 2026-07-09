@@ -77,17 +77,19 @@ namespace AutoCheckMechanical.Helpers
             return false;
         }
 
-        // Regra: bloco de legenda WAU inserido + Matéria-Prima NÃO preenchida +
-        // nenhuma vista com a planificada => provavelmente o desenho é apenas
-        // um auxílio de montagem (ou similar), sem obrigatoriedade de ter
-        // informações de chapa/dobra. Nesse caso os checks de Layer, Flat
-        // Pattern e Scale devem ser dispensados (não é "OK" e nem "ERRO").
+        // Regra: Matéria-Prima NÃO preenchida + nenhuma vista com a planificada
+        // (com ou sem o bloco de legenda WAU inserido) => provavelmente o
+        // desenho é apenas um auxílio de montagem (ou similar), sem
+        // obrigatoriedade de ter informações de chapa/dobra. Nesse caso os
+        // checks de Layer, Flat Pattern e Scale devem ser dispensados (não é
+        // "OK" e nem "ERRO"). O usuário pode forçar a execução mesmo assim
+        // (context.ForcarChecksDeChapa) através de um botão na tela.
         public static bool DesenhoDispensaChecksDeChapa(CheckContext context)
         {
-            if (!context.IsDrawing)
+            if (context.ForcarChecksDeChapa)
                 return false;
 
-            if (!TemBlocoLegendaWau(context.Model))
+            if (!context.IsDrawing)
                 return false;
 
             if (!string.IsNullOrWhiteSpace(GetMateriaPrima(context)))

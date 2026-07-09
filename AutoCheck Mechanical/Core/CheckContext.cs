@@ -19,6 +19,11 @@ namespace AutoCheckMechanical.Core
             Drawing = model as DrawingDoc;
         }
 
+        // Quando true, ignora a isenção dos checks de Layer/Flat Pattern/Scale
+        // para desenhos sem info de chapa (usado quando o usuário força a
+        // execução manualmente, mesmo o app tendo dispensado o check).
+        public bool ForcarChecksDeChapa { get; set; }
+
         public List<View> Views
         {
             get
