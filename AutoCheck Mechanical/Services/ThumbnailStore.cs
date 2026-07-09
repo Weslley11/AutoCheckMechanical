@@ -27,13 +27,59 @@ namespace AutoCheckMechanical.Services
 
                 doc.ViewZoomtofit2();
 
-                bool ok = doc.SaveBMP(caminhoCompleto, 240, 180);
+                int largura, altura;
+                CalcularDimensoes(doc, out largura, out altura);
+
+                bool ok = doc.SaveBMP(caminhoCompleto, largura, altura);
 
                 return ok && File.Exists(caminhoCompleto) ? caminhoCompleto : null;
             }
             catch (Exception)
             {
                 return null;
+            }
+        }
+
+        // Usar uma proporção fixa (ex.: 240x180) diferente da proporção real
+        // da folha faz o SaveBMP cortar parte do desenho, já que o
+        // ViewZoomtofit2 enquadra o conteúdo na proporção da folha atual, não
+        // na proporção do bitmap de saída. Por isso a proporção é calculada
+        // a partir do tamanho real da folha. O tamanho base também foi
+        // aumentado (era 240x180) para a prévia ficar nítida ao ser exibida
+        // maior (tooltip / hover).
+        private static void CalcularDimensoes(ModelDoc2 doc, out int largura, out int altura)
+        {
+            const int tamanhoBase = 480;
+
+            double proporcao = 4.0 / 3.0;
+
+            DrawingDoc desenho = doc as DrawingDoc;
+
+            if (desenho != null)
+            {
+                Sheet folha = desenho.GetCurrentSheet();
+
+                if (folha != null)
+                {
+                    double larguraFolha = 0;
+                    double alturaFolha = 0;
+
+                    folha.GetSize(ref larguraFolha, ref alturaFolha);
+
+                    if (larguraFolha > 0 && alturaFolha > 0)
+                        proporcao = larguraFolha / alturaFolha;
+                }
+            }
+
+            if (proporcao >= 1)
+            {
+                largura = tamanhoBase;
+                altura = (int)Math.Round(tamanhoBase / proporcao);
+            }
+            else
+            {
+                altura = tamanhoBase;
+                largura = (int)Math.Round(tamanhoBase * proporcao);
             }
         }
 

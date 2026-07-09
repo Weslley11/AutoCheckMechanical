@@ -692,7 +692,7 @@ namespace AutoCheckMechanical
 
             if (thumbnail != null)
             {
-                conteudo.Children.Add(new Image
+                Image imagemPequena = new Image
                 {
                     Source = thumbnail,
                     Width = 88,
@@ -700,15 +700,23 @@ namespace AutoCheckMechanical
                     Stretch = Stretch.UniformToFill,
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center
-                });
+                };
 
-                border.ToolTip = new Image
+                RenderOptions.SetBitmapScalingMode(imagemPequena, BitmapScalingMode.HighQuality);
+
+                conteudo.Children.Add(imagemPequena);
+
+                Image imagemAmpliada = new Image
                 {
                     Source = thumbnail,
-                    Width = 400,
-                    Height = 300,
+                    Width = 500,
+                    Height = 375,
                     Stretch = Stretch.Uniform
                 };
+
+                RenderOptions.SetBitmapScalingMode(imagemAmpliada, BitmapScalingMode.HighQuality);
+
+                border.ToolTip = imagemAmpliada;
             }
             else
             {
@@ -1061,13 +1069,17 @@ namespace AutoCheckMechanical
 
             if (thumbnail != null)
             {
-                border.ToolTip = new Image
+                Image imagemAmpliada = new Image
                 {
                     Source = thumbnail,
-                    Width = 400,
-                    Height = 300,
+                    Width = 500,
+                    Height = 375,
                     Stretch = Stretch.Uniform
                 };
+
+                RenderOptions.SetBitmapScalingMode(imagemAmpliada, BitmapScalingMode.HighQuality);
+
+                border.ToolTip = imagemAmpliada;
             }
 
             border.MouseLeftButtonUp += (s, e) => AbrirNoSolidWorks(item);
