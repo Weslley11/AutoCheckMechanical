@@ -17,8 +17,10 @@ using AutoCheckMechanical.Models;
 using CheckContextModel = AutoCheckMechanical.Core.CheckContext;
 using AutoCheckMechanical.Services;
 using Microsoft.Win32;
-using SolidWorks.Interop.sldworks;
 using SolidWorks.Interop.swconst;
+using SwApp = SolidWorks.Interop.sldworks.SldWorks;
+using SwModelDoc2 = SolidWorks.Interop.sldworks.ModelDoc2;
+using SwFrame = SolidWorks.Interop.sldworks.IFrame;
 
 namespace AutoCheckMechanical
 {
@@ -1099,9 +1101,9 @@ namespace AutoCheckMechanical
 
             try
             {
-                SldWorks app = session.Application;
+                SwApp app = session.Application;
 
-                ModelDoc2 doc = app.GetOpenDocumentByName(item.FilePath) as ModelDoc2;
+                SwModelDoc2 doc = app.GetOpenDocumentByName(item.FilePath) as SwModelDoc2;
 
                 if (doc == null)
                 {
@@ -1114,7 +1116,7 @@ namespace AutoCheckMechanical
                         (int)swOpenDocOptions_e.swOpenDocOptions_Silent,
                         "",
                         ref errors,
-                        ref warnings) as ModelDoc2;
+                        ref warnings) as SwModelDoc2;
 
                     if (doc == null)
                     {
@@ -1131,7 +1133,7 @@ namespace AutoCheckMechanical
 
                 try
                 {
-                    IFrame frame = app.Frame() as IFrame;
+                    SwFrame frame = app.Frame() as SwFrame;
                     if (frame != null)
                         SetForegroundWindow((IntPtr)frame.GetHWnd());
                 }
