@@ -40,14 +40,12 @@ namespace AutoCheckMechanical.Services
                 // viewport, sem margem. Como o SaveBMP recorta a partir dessa
                 // viewport pro tamanho pedido (não faz um novo fit), qualquer
                 // pequena diferença de proporção corta as bordas da folha
-                // (zonas, bloco de título, rodapé com o texto de
-                // propriedade). Vários zoom outs criam uma margem de
-                // segurança generosa -- como o RecortarMargemBranca reenquadra
-                // tudo depois pelos limites reais do papel, não tem problema
-                // capturar com folga grande aqui, o resultado final continua
-                // justo.
-                doc.ViewZoomout();
-                doc.ViewZoomout();
+                // (zonas, bloco de título). Um zoom out extra cria uma
+                // margem de segurança pra esse recorte não alcançar o
+                // conteúdo. Mais que isso (testado com 2 e 3 zoom outs) faz
+                // o RecortarMargemBranca confundir o fundo da área gráfica,
+                // longe da folha, com o próprio papel (ambos brancos),
+                // resultando numa margem enorme -- por isso ficou só 1.
                 doc.ViewZoomout();
 
                 int largura, altura;
