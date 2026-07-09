@@ -1,5 +1,8 @@
 using System;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using SolidWorks.Interop.sldworks;
@@ -47,7 +50,12 @@ namespace AutoCheckMechanical.Services
 
                 bool ok = doc.SaveBMP(caminhoCompleto, largura, altura);
 
-                return ok && File.Exists(caminhoCompleto) ? caminhoCompleto : null;
+                if (!ok || !File.Exists(caminhoCompleto))
+                    return null;
+
+                RecortarMargemBranca(caminhoCompleto);
+
+                return caminhoCompleto;
             }
             catch (Exception)
             {
@@ -64,7 +72,7 @@ namespace AutoCheckMechanical.Services
         // maior (tooltip / hover).
         private static void CalcularDimensoes(ModelDoc2 doc, out int largura, out int altura)
         {
-            const int tamanhoBase = 480;
+            const int tamanhoBase = 640;
 
             double proporcao = 4.0 / 3.0;
 
@@ -95,6 +103,103 @@ namespace AutoCheckMechanical.Services
             {
                 altura = tamanhoBase;
                 largura = (int)Math.Round(tamanhoBase * proporcao);
+            }
+        }
+
+        // Em vez de tentar acertar o zoom exato da câmera do SolidWorks (o
+        // que deixava uma margem branca grande e imprevisível em volta da
+        // folha), a imagem já salva é recortada automaticamente até os
+        // limites reais do conteúdo (não-branco), com uma folga pequena.
+        // Isso garante um enquadramento justo independente de quanto zoom
+        // out foi dado antes de salvar.
+        private static void RecortarMargemBranca(string caminhoArquivo)
+        {
+            try
+            {
+                using (Bitmap original = new Bitmap(caminhoArquivo))
+                {
+                    Rectangle limites = CalcularLimitesConteudo(original);
+
+                    if (limites.Width <= 0 || limites.Height <= 0)
+                        return;
+
+                    int folga = Math.Max(4, (int)(Math.Max(limites.Width, limites.Height) * 0.03));
+
+                    int x = Math.Max(0, limites.X - folga);
+                    int y = Math.Max(0, limites.Y - folga);
+                    int largura = Math.Min(original.Width - x, limites.Width + folga * 2);
+                    int altura = Math.Min(original.Height - y, limites.Height + folga * 2);
+
+                    if (largura <= 0 || altura <= 0)
+                        return;
+
+                    using (Bitmap recortado = original.Clone(
+                        new Rectangle(x, y, largura, altura),
+                        original.PixelFormat))
+                    {
+                        recortado.Save(caminhoArquivo, ImageFormat.Bmp);
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // Se o recorte falhar por qualquer motivo, mantém a imagem
+                // original (sem recorte) em vez de perder a prévia.
+            }
+        }
+
+        private static Rectangle CalcularLimitesConteudo(Bitmap bitmap)
+        {
+            Rectangle area = new Rectangle(0, 0, bitmap.Width, bitmap.Height);
+
+            BitmapData dados = bitmap.LockBits(area, ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+
+            try
+            {
+                int stride = dados.Stride;
+                int tamanho = stride * bitmap.Height;
+                byte[] pixels = new byte[tamanho];
+
+                Marshal.Copy(dados.Scan0, pixels, 0, tamanho);
+
+                int minX = bitmap.Width;
+                int minY = bitmap.Height;
+                int maxX = -1;
+                int maxY = -1;
+
+                for (int y = 0; y < bitmap.Height; y++)
+                {
+                    int linhaBase = y * stride;
+
+                    for (int x = 0; x < bitmap.Width; x++)
+                    {
+                        int i = linhaBase + x * 3;
+
+                        byte b = pixels[i];
+                        byte g = pixels[i + 1];
+                        byte r = pixels[i + 2];
+
+                        // Considera "conteúdo" qualquer pixel que não seja
+                        // praticamente branco (o fundo da folha exportada é
+                        // branco).
+                        if (r < 245 || g < 245 || b < 245)
+                        {
+                            if (x < minX) minX = x;
+                            if (x > maxX) maxX = x;
+                            if (y < minY) minY = y;
+                            if (y > maxY) maxY = y;
+                        }
+                    }
+                }
+
+                if (maxX < minX || maxY < minY)
+                    return Rectangle.Empty;
+
+                return Rectangle.FromLTRB(minX, minY, maxX + 1, maxY + 1);
+            }
+            finally
+            {
+                bitmap.UnlockBits(dados);
             }
         }
 
