@@ -212,6 +212,7 @@
 
                     <TextBlock Grid.Column="3"
                                Name="txtUser"
+                               Text="{Binding UserName}"
                                Foreground="{DynamicResource BrushTextSecondary}"
                                VerticalAlignment="Center"
                                Margin="0,0,16,0"
@@ -221,17 +222,17 @@
                         <Button x:Name="btnMinimize"
                                 Content="&#xE921;"
                                 Style="{StaticResource WindowButtonStyle}"
-                                Click="BtnMinimize_Click"
+                                Command="{Binding MinimizeCommand}"
                                 shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
                         <Button x:Name="btnMaximizeRestore"
                                 Content="&#xE922;"
                                 Style="{StaticResource WindowButtonStyle}"
-                                Click="BtnMaximizeRestore_Click"
+                                Command="{Binding MaximizeRestoreCommand}"
                                 shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
                         <Button x:Name="btnClose"
                                 Content="&#xE8BB;"
                                 Style="{StaticResource CloseButtonStyle}"
-                                Click="BtnClose_Click"
+                                Command="{Binding CloseCommand}"
                                 shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
                     </StackPanel>
 
@@ -293,13 +294,13 @@
                                 Content="&#xE72C;"
                                 Style="{StaticResource SidebarButtonStyle}"
                                 ToolTip="Verificar conexão com o SolidWorks"
-                                Click="BtnReconnect_Click"
+                                Command="{Binding ReconnectCommand}"
                                 shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
                         <Button x:Name="btnRunCheckSidebar"
                                 Content="&#xE721;"
                                 Style="{StaticResource SidebarButtonStyle}"
                                 ToolTip="Rodar Check Drawing"
-                                Click="BtnCheckDrawing_Click"
+                                Command="{Binding RunCheckDrawingCommand}"
                                 shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
                         <Button x:Name="btnHistorico"
                                 Content="&#xE81C;"
@@ -311,13 +312,13 @@
                                 Content="&#xE713;"
                                 Style="{StaticResource SidebarButtonStyle}"
                                 ToolTip="Alternar tema claro/escuro"
-                                Click="BtnConfiguracoes_Click"
+                                Command="{Binding ToggleThemeCommand}"
                                 shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
                         <Button x:Name="btnChecks"
                                 Content="&#xE8FD;"
                                 Style="{StaticResource SidebarButtonStyle}"
                                 ToolTip="Escolher quais checks executar"
-                                Click="BtnChecks_Click"
+                                Command="{Binding OpenChecksConfigCommand}"
                                 shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
                     </StackPanel>
                 </Border>
@@ -362,6 +363,7 @@
                                     BorderThickness="1"
                                     CornerRadius="4">
                                 <TextBox x:Name="txtEcm"
+                                         Text="{Binding EcmText, UpdateSourceTrigger=PropertyChanged}"
                                          Background="Transparent"
                                          Foreground="{DynamicResource BrushTextPrimary}"
                                          CaretBrush="{DynamicResource BrushTextPrimary}"
@@ -378,7 +380,7 @@
                                     Padding="16,8"
                                     Margin="12,0,0,0"
                                     ToolTip="Busca no SAP (ZTPLM025) os documentos SWD da ECM, baixa e roda os checks habilitados"
-                                    Click="BtnBuscarSap_Click"/>
+                                    Command="{Binding BuscarSapCommand}"/>
 
                             <Button Grid.Column="3"
                                     x:Name="btnTrocarPlanilha"
@@ -386,7 +388,7 @@
                                     Padding="8"
                                     Margin="8,0,0,0"
                                     ToolTip="Trocar a planilha Excel usada para buscar no SAP"
-                                    Click="BtnTrocarPlanilha_Click">
+                                    Command="{Binding TrocarPlanilhaCommand}">
                                 <TextBlock Text="&#xE8DE;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
                             </Button>
                         </Grid>
@@ -413,7 +415,7 @@
                                            Foreground="{DynamicResource BrushTextSecondary}"
                                            Margin="0,0,0,4"/>
                                 <TextBlock Name="txtArquivo"
-                                           Text="Nenhum arquivo carregado"
+                                           Text="{Binding ArquivoAtual}"
                                            FontSize="16"
                                            Foreground="{DynamicResource BrushTextPrimary}"/>
                             </StackPanel>
@@ -423,11 +425,11 @@
                                         VerticalAlignment="Center">
                                 <Ellipse Width="10"
                                          Height="10"
-                                         Fill="Red"
+                                         Fill="{Binding SolidWorksLedBrush}"
                                          Margin="0,0,8,0"
                                          Name="ledSolidWorks"
                                          VerticalAlignment="Center"/>
-                                <TextBlock Text="SolidWorks Desconectado"
+                                <TextBlock Text="{Binding SolidWorksStatusText}"
                                            Foreground="{DynamicResource BrushTextPrimary}"
                                            FontSize="13"
                                            Name="txtSolidWorks"
@@ -442,14 +444,14 @@
                         <Button Name="btnCheckDrawing"
                                 Content="CHECK DRAWING"
                                 Style="{StaticResource PrimaryButtonStyle}"
-                                Click="BtnCheckDrawing_Click"/>
+                                Command="{Binding RunCheckDrawingCommand}"/>
                         <Button Name="btnVerificarArquivos"
                                 Content="VERIFICAR ARQUIVOS..."
                                 Style="{StaticResource SecondaryButtonStyle}"
                                 FontSize="14"
                                 Padding="18,10"
                                 Margin="12,0,0,0"
-                                Click="BtnVerificarArquivos_Click"/>
+                                Command="{Binding VerificarArquivosCommand}"/>
                     </StackPanel>
 
                     <Grid Grid.Row="3">
@@ -499,14 +501,14 @@
 
                                             <TextBox Grid.Column="1"
                                                      x:Name="txtFiltro"
+                                                     Text="{Binding FiltroTexto, UpdateSourceTrigger=PropertyChanged}"
                                                      Background="Transparent"
                                                      Foreground="{DynamicResource BrushTextPrimary}"
                                                      CaretBrush="{DynamicResource BrushTextPrimary}"
                                                      BorderThickness="0"
                                                      Padding="0,5"
                                                      Margin="0,0,8,0"
-                                                     ToolTip="Filtrar por nome do arquivo"
-                                                     TextChanged="TxtFiltro_TextChanged"/>
+                                                     ToolTip="Filtrar por nome do arquivo"/>
                                         </Grid>
                                     </Border>
 
@@ -515,7 +517,7 @@
                                             Style="{StaticResource SecondaryButtonStyle}"
                                             Margin="8,0,0,0"
                                             ToolTip="Exportar a tabela de resultados (CSV para Excel)"
-                                            Click="BtnExportarRelatorio_Click">
+                                            Command="{Binding ExportarRelatorioCommand}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="&#xE74E;" FontFamily="Segoe MDL2 Assets" FontSize="12" VerticalAlignment="Center"/>
                                             <TextBlock Text="Relatório" Margin="6,0,0,0" VerticalAlignment="Center"/>
@@ -527,7 +529,7 @@
                                             Style="{StaticResource SecondaryButtonStyle}"
                                             Margin="8,0,0,0"
                                             ToolTip="Limpar todo o histórico salvo"
-                                            Click="BtnLimparHistorico_Click">
+                                            Command="{Binding ClearHistoryCommand}">
                                         <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
                                     </Button>
                                 </Grid>
@@ -553,7 +555,7 @@
                                     </Grid.ColumnDefinitions>
 
                                     <TextBlock Name="txtDetalheTitulo"
-                                               Text="LOG"
+                                               Text="{Binding DetalheTitulo}"
                                                FontSize="11"
                                                Foreground="{DynamicResource BrushTextSecondary}"
                                                VerticalAlignment="Center"/>
@@ -561,7 +563,7 @@
                                     <Button Grid.Column="1"
                                             x:Name="btnExportLog"
                                             Style="{StaticResource SecondaryButtonStyle}"
-                                            Click="BtnExportLog_Click">
+                                            Command="{Binding ExportLogCommand}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="&#xE74E;" FontFamily="Segoe MDL2 Assets" FontSize="12" VerticalAlignment="Center"/>
                                             <TextBlock Text="Exportar" Margin="6,0,0,0" VerticalAlignment="Center"/>
@@ -569,6 +571,7 @@
                                     </Button>
                                 </Grid>
                                 <TextBox Name="txtLog"
+                                         Text="{Binding LogText, Mode=OneWay}"
                                          Background="Transparent"
                                          Foreground="{DynamicResource BrushTextPrimary}"
                                          CaretBrush="{DynamicResource BrushTextPrimary}"
@@ -591,7 +594,7 @@
                     BorderBrush="{DynamicResource BrushBorder}"
                     BorderThickness="0,1,0,0">
                 <TextBlock Name="txtStatus"
-                           Text="Pronto."
+                           Text="{Binding StatusText}"
                            Foreground="{DynamicResource BrushTextSecondary}"
                            FontSize="12"
                            VerticalAlignment="Center"
