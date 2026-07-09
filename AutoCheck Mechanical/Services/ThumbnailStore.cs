@@ -40,9 +40,14 @@ namespace AutoCheckMechanical.Services
                 // viewport, sem margem. Como o SaveBMP recorta a partir dessa
                 // viewport pro tamanho pedido (não faz um novo fit), qualquer
                 // pequena diferença de proporção corta as bordas da folha
-                // (zonas, bloco de título). Um zoom out extra cria uma
-                // margem de segurança pra esse recorte não alcançar o
-                // conteúdo.
+                // (zonas, bloco de título, rodapé com o texto de
+                // propriedade). Vários zoom outs criam uma margem de
+                // segurança generosa -- como o RecortarMargemBranca reenquadra
+                // tudo depois pelos limites reais do papel, não tem problema
+                // capturar com folga grande aqui, o resultado final continua
+                // justo.
+                doc.ViewZoomout();
+                doc.ViewZoomout();
                 doc.ViewZoomout();
 
                 int largura, altura;
@@ -72,7 +77,7 @@ namespace AutoCheckMechanical.Services
         // maior (tooltip / hover).
         private static void CalcularDimensoes(ModelDoc2 doc, out int largura, out int altura)
         {
-            const int tamanhoBase = 640;
+            const int tamanhoBase = 900;
 
             double proporcao = 4.0 / 3.0;
 
