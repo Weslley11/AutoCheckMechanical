@@ -33,16 +33,6 @@ namespace AutoCheckMechanical.Services
                 doc.ForceRebuild3(false);
                 doc.ViewZoomtofit2();
 
-                // O ViewZoomtofit2 enquadra a folha exatamente no limite da
-                // viewport, sem margem. Como o SaveBMP faz um recorte pro
-                // tamanho pedido a partir dessa viewport (não um novo fit),
-                // qualquer pequena diferença entre a proporção calculada e a
-                // proporção real da viewport corta as bordas da folha (zonas,
-                // bloco de título). Dar um zoom out extra cria uma margem de
-                // segurança pra esse recorte nunca alcançar o conteúdo.
-                doc.ViewZoomOut2();
-                doc.ViewZoomOut2();
-
                 int largura, altura;
                 CalcularDimensoes(doc, out largura, out altura);
 
