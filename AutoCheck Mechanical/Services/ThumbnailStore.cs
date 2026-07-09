@@ -40,10 +40,8 @@ namespace AutoCheckMechanical.Services
                 // proporção real da viewport corta as bordas da folha (zonas,
                 // bloco de título). Dar um zoom out extra cria uma margem de
                 // segurança pra esse recorte nunca alcançar o conteúdo.
-                View vistaAtiva = doc.ActiveView;
-
-                if (vistaAtiva != null)
-                    vistaAtiva.ZoomScale2 = vistaAtiva.ZoomScale2 * 0.8;
+                doc.ViewZoomOut2();
+                doc.ViewZoomOut2();
 
                 int largura, altura;
                 CalcularDimensoes(doc, out largura, out altura);
