@@ -709,8 +709,8 @@ namespace AutoCheckMechanical
                 Image imagemAmpliada = new Image
                 {
                     Source = thumbnail,
-                    MaxWidth = 500,
-                    MaxHeight = 500,
+                    MaxWidth = 400,
+                    MaxHeight = 300,
                     Stretch = Stretch.Uniform
                 };
 
@@ -1072,8 +1072,8 @@ namespace AutoCheckMechanical
                 Image imagemAmpliada = new Image
                 {
                     Source = thumbnail,
-                    MaxWidth = 500,
-                    MaxHeight = 500,
+                    MaxWidth = 400,
+                    MaxHeight = 300,
                     Stretch = Stretch.Uniform
                 };
 
