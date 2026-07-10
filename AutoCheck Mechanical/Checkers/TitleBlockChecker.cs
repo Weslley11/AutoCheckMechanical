@@ -86,6 +86,8 @@ namespace AutoCheckMechanical.Checkers
                 AddError(result, "Vista planificada encontrada, mas o bloco de legenda WAU não está inserido.");
             }
 
+            VerificarDivergenciaMaterial(result);
+
             if (result.Errors.Count == 0)
             {
                 result.Message = "Todos os campos do Bloco Legenda WAU preenchidos.";
@@ -137,6 +139,86 @@ namespace AutoCheckMechanical.Checkers
             {
                 AddError(result, $"Campo \"{rotulo}\" não preenchido no Bloco Legenda WAU.");
             }
+        }
+
+        private class RegraDivergenciaMaterial
+        {
+            public readonly string[] GatilhosMaterial;
+            public readonly string[] EsperadosMateriaPrima;
+
+            public RegraDivergenciaMaterial(string[] gatilhosMaterial, string[] esperadosMateriaPrima)
+            {
+                GatilhosMaterial = gatilhosMaterial;
+                EsperadosMateriaPrima = esperadosMateriaPrima;
+            }
+        }
+
+        // Correspondência esperada entre o campo "Material" (propriedade
+        // nativa do SolidWorks) e o campo "Matéria-Prima" (bloco de legenda
+        // WAU) -- se o Material contém um dos gatilhos abaixo, a
+        // Matéria-Prima precisa conter pelo menos um dos textos esperados
+        // correspondentes.
+        private static readonly RegraDivergenciaMaterial[] RegrasDivergenciaMaterial =
+        {
+            new RegraDivergenciaMaterial(new[] { "Aluminio", "Aluminio 6063-T6" }, new[] { "Alum" }),
+            new RegraDivergenciaMaterial(new[] { "ZINCADO" }, new[] { "ACO Zn", "GALVALUME" }),
+            new RegraDivergenciaMaterial(new[] { "policarbonato" }, new[] { "policarbonato" }),
+            new RegraDivergenciaMaterial(new[] { "Cobre" }, new[] { "COBRE" }),
+            new RegraDivergenciaMaterial(new[] { "Aco inox" }, new[] { "INOX" }),
+            new RegraDivergenciaMaterial(new[] { "Aco 1045", "Aco 1020" }, new[] { "aco" }),
+            new RegraDivergenciaMaterial(new[] { "Galvanized Plate" }, new[] { "GALVANIZED" }),
+            new RegraDivergenciaMaterial(new[] { "Aluzinc Plate" }, new[] { "ALUZINC" }),
+            new RegraDivergenciaMaterial(new[] { "Steel Plate" }, new[] { "STEEL" }),
+            new RegraDivergenciaMaterial(new[] { "Aluminum" }, new[] { "ALUM" }),
+            new RegraDivergenciaMaterial(new[] { "Copper" }, new[] { "COPPER" }),
+            new RegraDivergenciaMaterial(new[] { "Stainless Steel" }, new[] { "STAINLESS" }),
+            new RegraDivergenciaMaterial(new[] { "Polycarbonate" }, new[] { "Polycarbonate" }),
+        };
+
+        // Regra: o campo Material (nativo do SolidWorks) e o campo
+        // Matéria-Prima (do bloco de legenda WAU) devem descrever o mesmo
+        // tipo de material. Se um bater com um dos gatilhos conhecidos mas o
+        // outro não contiver o texto esperado correspondente, marca como
+        // divergência (erro + aviso + destaque nas duas colunas).
+        private void VerificarDivergenciaMaterial(CheckResult result)
+        {
+            string material;
+            result.Fields.TryGetValue("Material", out material);
+
+            string materiaPrima;
+            result.Fields.TryGetValue("Matéria-Prima", out materiaPrima);
+
+            if (string.IsNullOrWhiteSpace(material) || string.IsNullOrWhiteSpace(materiaPrima))
+                return;
+
+            foreach (RegraDivergenciaMaterial regra in RegrasDivergenciaMaterial)
+            {
+                if (!ContemAlgum(material, regra.GatilhosMaterial))
+                    continue;
+
+                if (ContemAlgum(materiaPrima, regra.EsperadosMateriaPrima))
+                    return;
+
+                AddLog(result, $"Divergência: Material = \"{material}\", Matéria-Prima = \"{materiaPrima}\".");
+                AddError(result, $"Divergência entre Material (\"{material}\") e Matéria-Prima (\"{materiaPrima}\").");
+                result.AddWarning("Divergência entre os campos Material e Matéria-Prima.");
+
+                result.CamposDivergentes.Add("Material");
+                result.CamposDivergentes.Add("Matéria-Prima");
+
+                return;
+            }
+        }
+
+        private static bool ContemAlgum(string texto, string[] substrings)
+        {
+            foreach (string substring in substrings)
+            {
+                if (texto.IndexOf(substring, StringComparison.OrdinalIgnoreCase) >= 0)
+                    return true;
+            }
+
+            return false;
         }
     }
 }

@@ -231,6 +231,7 @@ namespace AutoCheckMechanical
             resultadoBlocoTitulo?.Fields.TryGetValue(nomeCampo, out valor);
 
             bool preenchido = !string.IsNullOrWhiteSpace(valor);
+            bool divergente = resultadoBlocoTitulo != null && resultadoBlocoTitulo.CamposDivergentes.Contains(nomeCampo);
 
             border.Child = new TextBlock
             {
@@ -238,12 +239,14 @@ namespace AutoCheckMechanical
                 FontSize = 12,
                 TextTrimming = TextTrimming.CharacterEllipsis,
                 VerticalAlignment = VerticalAlignment.Center,
-                Foreground = preenchido
+                Foreground = (preenchido && !divergente)
                     ? (Brush)FindResource("BrushTextPrimary")
                     : (Brush)FindResource("BrushAccentOrange")
             };
 
-            border.ToolTip = preenchido ? valor : $"Campo \"{nomeCampo}\" vazio.";
+            border.ToolTip = divergente
+                ? "Divergência entre os campos Material e Matéria-Prima."
+                : (preenchido ? valor : $"Campo \"{nomeCampo}\" vazio.");
             border.MouseLeftButtonUp += (s, e) => ViewModel.ShowFileDetails(item);
 
             Grid.SetColumn(border, column);

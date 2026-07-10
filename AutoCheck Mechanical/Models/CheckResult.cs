@@ -13,12 +13,18 @@ namespace AutoCheckMechanical.Models
         public List<string> Logs { get; }
         public Dictionary<string, string> Fields { get; }
 
+        // Nomes de campos (chaves de Fields) que devem ser destacados na
+        // tabela mesmo estando preenchidos, por divergência com outro campo
+        // (ex.: Material x Matéria-Prima).
+        public HashSet<string> CamposDivergentes { get; }
+
         public CheckResult()
         {
             Errors = new List<string>();
             Warnings = new List<string>();
             Logs = new List<string>();
             Fields = new Dictionary<string, string>();
+            CamposDivergentes = new HashSet<string>();
         }
 
         public void AddLog(string text)
