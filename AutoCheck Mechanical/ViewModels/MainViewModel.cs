@@ -1172,6 +1172,62 @@ namespace AutoCheckMechanical.ViewModels
             return caminhoRelatorio;
         }
 
+        // Gera uma única linha (mesmas colunas da tabela/relatório), separada
+        // por TAB em vez de ";", pra colar direto numa planilha do Excel ao
+        // copiar a linha selecionada.
+        public string GerarLinhaParaCopia(BatchFileResult item)
+        {
+            List<string> checkerNames = GetCheckerNames();
+
+            string[] camposTitulo = checkerNames.Contains("Bloco Legenda WAU")
+                ? TitleBlockChecker.OrdemCampos
+                : new string[0];
+
+            List<string> colunas = new List<string> { item.FileName };
+
+            foreach (string nomeChecker in checkerNames)
+            {
+                CheckResult resultado = item.Results.Find(x => x.Checker == nomeChecker);
+
+                string status;
+
+                if (item.OpenFailed || resultado == null)
+                    status = "";
+                else if (resultado.Skipped)
+                    status = "N/A";
+                else if (resultado.Success)
+                    status = "OK";
+                else
+                    status = "ERRO: " + string.Join(" | ", resultado.Errors);
+
+                colunas.Add(status);
+            }
+
+            CheckResult resultadoBlocoTitulo = item.Results.Find(x => x.Checker == "Bloco Legenda WAU");
+
+            foreach (string nomeCampo in camposTitulo)
+            {
+                string valor = null;
+
+                if (resultadoBlocoTitulo != null)
+                    resultadoBlocoTitulo.Fields.TryGetValue(nomeCampo, out valor);
+
+                colunas.Add(valor ?? "");
+            }
+
+            colunas.Add(item.OpenFailed ? "" : item.SheetCount.ToString());
+
+            List<string> avisos = item.Results.SelectMany(r => r.Warnings).Distinct().ToList();
+            colunas.Add(string.Join(" | ", avisos));
+
+            return string.Join("\t", colunas.Select(SanitizarParaLinhaCopiada));
+        }
+
+        private static string SanitizarParaLinhaCopiada(string valor)
+        {
+            return (valor ?? "").Replace('\t', ' ').Replace('\r', ' ').Replace('\n', ' ');
+        }
+
         private string GerarCsvRelatorio(List<BatchFileResult> resultados)
         {
             List<string> checkerNames = GetCheckerNames();

@@ -29,6 +29,7 @@ namespace AutoCheckMechanical
     {
         private bool _isPseudoMaximized;
         private Rect _restoreBounds;
+        private string _caminhoLinhaSelecionada;
 
         public MainViewModel ViewModel { get; }
 
@@ -214,6 +215,73 @@ namespace AutoCheckMechanical
             }
         }
 
+        // Seleção de linha (destaque visual) pra permitir copiar as
+        // informações do arquivo, via Ctrl+C ou pelo menu de botão direito.
+        private void SelecionarLinha(BatchFileResult item)
+        {
+            _caminhoLinhaSelecionada = item?.FilePath;
+            RebuildResultsGrid();
+        }
+
+        private bool LinhaEstaSelecionada(BatchFileResult item)
+        {
+            return !string.IsNullOrEmpty(item.FilePath) && item.FilePath == _caminhoLinhaSelecionada;
+        }
+
+        private Brush CorFundoLinha(BatchFileResult item)
+        {
+            return LinhaEstaSelecionada(item)
+                ? (Brush)FindResource("BrushHoverSurface")
+                : Brushes.Transparent;
+        }
+
+        private ContextMenu CriarMenuCopiarLinha(BatchFileResult item)
+        {
+            MenuItem menuCopiar = new MenuItem { Header = "Copiar linha" };
+
+            menuCopiar.Click += (s, e) =>
+            {
+                SelecionarLinha(item);
+                CopiarLinha(item);
+            };
+
+            ContextMenu menu = new ContextMenu();
+            menu.Items.Add(menuCopiar);
+
+            return menu;
+        }
+
+        private void CopiarLinha(BatchFileResult item)
+        {
+            string linha = ViewModel.GerarLinhaParaCopia(item);
+
+            Clipboard.SetText(linha);
+
+            ViewModel.StatusText = $"Linha de \"{item.FileName}\" copiada para a área de transferência.";
+        }
+
+        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.C || (Keyboard.Modifiers & ModifierKeys.Control) != ModifierKeys.Control)
+                return;
+
+            // Deixa o Ctrl+C padrão (copiar texto selecionado) funcionar
+            // normalmente quando o foco está numa caixa de texto.
+            if (Keyboard.FocusedElement is TextBox)
+                return;
+
+            if (string.IsNullOrEmpty(_caminhoLinhaSelecionada))
+                return;
+
+            BatchFileResult item = ViewModel.BatchResults.Find(x => x.FilePath == _caminhoLinhaSelecionada);
+
+            if (item == null)
+                return;
+
+            CopiarLinha(item);
+            e.Handled = true;
+        }
+
         private void AddFieldValueCell(BatchFileResult item, CheckResult resultadoBlocoTitulo, string nomeCampo, int column, int row)
         {
             Border border = new Border
@@ -221,9 +289,10 @@ namespace AutoCheckMechanical
                 BorderBrush = (Brush)FindResource("BrushBorder"),
                 BorderThickness = new Thickness(0, 0, 1, 1),
                 Padding = new Thickness(8),
-                Background = Brushes.Transparent,
+                Background = CorFundoLinha(item),
                 Cursor = Cursors.Hand,
-                ClipToBounds = true
+                ClipToBounds = true,
+                ContextMenu = CriarMenuCopiarLinha(item)
             };
 
             string valor = null;
@@ -247,7 +316,11 @@ namespace AutoCheckMechanical
             border.ToolTip = divergente
                 ? "Divergência entre os campos Material e Matéria-Prima."
                 : (preenchido ? valor : $"Campo \"{nomeCampo}\" vazio.");
-            border.MouseLeftButtonUp += (s, e) => ViewModel.ShowFileDetails(item);
+            border.MouseLeftButtonUp += (s, e) =>
+            {
+                SelecionarLinha(item);
+                ViewModel.ShowFileDetails(item);
+            };
 
             Grid.SetColumn(border, column);
             Grid.SetRow(border, row);
@@ -284,9 +357,10 @@ namespace AutoCheckMechanical
                 BorderBrush = (Brush)FindResource("BrushBorder"),
                 BorderThickness = new Thickness(0, 0, 1, 1),
                 Padding = new Thickness(4),
-                Background = Brushes.Transparent,
+                Background = CorFundoLinha(item),
                 Cursor = Cursors.Hand,
-                ClipToBounds = true
+                ClipToBounds = true,
+                ContextMenu = CriarMenuCopiarLinha(item)
             };
 
             BitmapImage thumbnail = CarregarThumbnail(item.ThumbnailPath);
@@ -359,7 +433,11 @@ namespace AutoCheckMechanical
             }
 
             border.Child = conteudo;
-            border.MouseLeftButtonUp += (s, e) => ViewModel.ShowFileDetails(item);
+            border.MouseLeftButtonUp += (s, e) =>
+            {
+                SelecionarLinha(item);
+                ViewModel.ShowFileDetails(item);
+            };
 
             Grid.SetColumn(border, column);
             Grid.SetRow(border, row);
@@ -373,9 +451,10 @@ namespace AutoCheckMechanical
                 BorderBrush = (Brush)FindResource("BrushBorder"),
                 BorderThickness = new Thickness(0, 0, 1, 1),
                 Padding = new Thickness(8),
-                Background = Brushes.Transparent,
+                Background = CorFundoLinha(item),
                 Cursor = Cursors.Hand,
-                ClipToBounds = true
+                ClipToBounds = true,
+                ContextMenu = CriarMenuCopiarLinha(item)
             };
 
             border.Child = new TextBlock
@@ -390,7 +469,11 @@ namespace AutoCheckMechanical
                 VerticalAlignment = VerticalAlignment.Center
             };
 
-            border.MouseLeftButtonUp += (s, e) => ViewModel.ShowFileDetails(item);
+            border.MouseLeftButtonUp += (s, e) =>
+            {
+                SelecionarLinha(item);
+                ViewModel.ShowFileDetails(item);
+            };
 
             Grid.SetColumn(border, column);
             Grid.SetRow(border, row);
@@ -404,9 +487,10 @@ namespace AutoCheckMechanical
                 BorderBrush = (Brush)FindResource("BrushBorder"),
                 BorderThickness = new Thickness(0, 0, 1, 1),
                 Padding = new Thickness(8),
-                Background = Brushes.Transparent,
+                Background = CorFundoLinha(item),
                 Cursor = Cursors.Hand,
-                ClipToBounds = true
+                ClipToBounds = true,
+                ContextMenu = CriarMenuCopiarLinha(item)
             };
 
             List<string> avisos = item.Results.SelectMany(r => r.Warnings).Distinct().ToList();
@@ -423,7 +507,11 @@ namespace AutoCheckMechanical
                 VerticalAlignment = VerticalAlignment.Center
             };
 
-            texto.MouseLeftButtonUp += (s, e) => ViewModel.ShowFileDetails(item);
+            texto.MouseLeftButtonUp += (s, e) =>
+            {
+                SelecionarLinha(item);
+                ViewModel.ShowFileDetails(item);
+            };
 
             border.ToolTip = avisos.Count == 0 ? null : string.Join("\n", avisos);
 
@@ -450,7 +538,11 @@ namespace AutoCheckMechanical
             else
             {
                 border.Child = texto;
-                border.MouseLeftButtonUp += (s, e) => ViewModel.ShowFileDetails(item);
+                border.MouseLeftButtonUp += (s, e) =>
+                {
+                    SelecionarLinha(item);
+                    ViewModel.ShowFileDetails(item);
+                };
             }
 
             Grid.SetColumn(border, column);
@@ -494,9 +586,10 @@ namespace AutoCheckMechanical
                 BorderBrush = (Brush)FindResource("BrushBorder"),
                 BorderThickness = new Thickness(0, 0, 1, 1),
                 Padding = new Thickness(8),
-                Background = Brushes.Transparent,
+                Background = CorFundoLinha(item),
                 Cursor = Cursors.Hand,
-                ClipToBounds = true
+                ClipToBounds = true,
+                ContextMenu = CriarMenuCopiarLinha(item)
             };
 
             border.Child = new TextBlock
@@ -524,7 +617,11 @@ namespace AutoCheckMechanical
                 border.ToolTip = imagemAmpliada;
             }
 
-            border.MouseLeftButtonUp += (s, e) => ViewModel.AbrirNoSolidWorks(item);
+            border.MouseLeftButtonUp += (s, e) =>
+            {
+                SelecionarLinha(item);
+                ViewModel.AbrirNoSolidWorks(item);
+            };
             border.ToolTip = border.ToolTip ?? "Clique para abrir no SolidWorks.";
 
             Grid.SetColumn(border, column);
@@ -539,9 +636,10 @@ namespace AutoCheckMechanical
                 BorderBrush = (Brush)FindResource("BrushBorder"),
                 BorderThickness = new Thickness(0, 0, 1, 1),
                 Padding = new Thickness(8),
-                Background = Brushes.Transparent,
+                Background = CorFundoLinha(item),
                 Cursor = Cursors.Hand,
-                ClipToBounds = true
+                ClipToBounds = true,
+                ContextMenu = CriarMenuCopiarLinha(item)
             };
 
             string texto;
@@ -578,7 +676,11 @@ namespace AutoCheckMechanical
                 VerticalAlignment = VerticalAlignment.Center
             };
 
-            border.MouseLeftButtonUp += (s, e) => ViewModel.ShowFileDetails(item);
+            border.MouseLeftButtonUp += (s, e) =>
+            {
+                SelecionarLinha(item);
+                ViewModel.ShowFileDetails(item);
+            };
 
             Grid.SetColumn(border, column);
             Grid.SetRow(border, row);

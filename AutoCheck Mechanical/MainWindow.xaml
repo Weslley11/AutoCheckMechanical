@@ -13,7 +13,8 @@
         Background="{DynamicResource BrushPanel}"
         Foreground="{DynamicResource BrushTextPrimary}"
         FontFamily="Segoe UI"
-        Loaded="Window_Loaded">
+        Loaded="Window_Loaded"
+        PreviewKeyDown="Window_PreviewKeyDown">
 
     <shell:WindowChrome.WindowChrome>
         <shell:WindowChrome CaptionHeight="44"
