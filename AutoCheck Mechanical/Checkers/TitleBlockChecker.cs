@@ -10,7 +10,7 @@ namespace AutoCheckMechanical.Checkers
 {
     public class TitleBlockChecker : CheckerBase
     {
-        public override string Name => "Bloco de Título";
+        public override string Name => "Bloco Legenda WAU";
 
         // Ordem dos campos exibida na tabela de resultados (MainWindow usa esta lista).
         public static readonly string[] OrdemCampos =
@@ -80,7 +80,7 @@ namespace AutoCheckMechanical.Checkers
 
             if (result.Errors.Count == 0)
             {
-                result.Message = "Todos os campos do bloco de título preenchidos.";
+                result.Message = "Todos os campos do Bloco Legenda WAU preenchidos.";
             }
 
             return result;
@@ -123,7 +123,7 @@ namespace AutoCheckMechanical.Checkers
 
             if (vazio)
             {
-                AddError(result, $"Campo \"{rotulo}\" não preenchido no bloco de título.");
+                AddError(result, $"Campo \"{rotulo}\" não preenchido no Bloco Legenda WAU.");
             }
         }
     }

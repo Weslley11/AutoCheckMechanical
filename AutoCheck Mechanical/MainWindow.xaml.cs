@@ -165,7 +165,7 @@ namespace AutoCheckMechanical
             List<string> checkerNames = ViewModel.GetCheckerNames();
             List<BatchFileResult> resultados = ViewModel.GetResultadosFiltrados();
 
-            string[] camposTitulo = checkerNames.Contains("Bloco de Título")
+            string[] camposTitulo = checkerNames.Contains("Bloco Legenda WAU")
                 ? TitleBlockChecker.OrdemCampos
                 : new string[0];
 
@@ -218,7 +218,7 @@ namespace AutoCheckMechanical
                     AddStatusCell(item, result, colCheckerStart + c, rowIndex);
                 }
 
-                CheckResult resultadoBlocoTitulo = item.Results.Find(x => x.Checker == "Bloco de Título");
+                CheckResult resultadoBlocoTitulo = item.Results.Find(x => x.Checker == "Bloco Legenda WAU");
 
                 for (int c = 0; c < camposTitulo.Length; c++)
                     AddFieldValueCell(item, resultadoBlocoTitulo, camposTitulo[c], colTituloStart + c, rowIndex);

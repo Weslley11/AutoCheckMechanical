@@ -988,7 +988,7 @@ namespace AutoCheckMechanical.ViewModels
         {
             List<string> checkerNames = GetCheckerNames();
 
-            string[] camposTitulo = checkerNames.Contains("Bloco de Título")
+            string[] camposTitulo = checkerNames.Contains("Bloco Legenda WAU")
                 ? TitleBlockChecker.OrdemCampos
                 : new string[0];
 
@@ -1024,7 +1024,7 @@ namespace AutoCheckMechanical.ViewModels
                     colunas.Add(status);
                 }
 
-                CheckResult resultadoBlocoTitulo = item.Results.Find(x => x.Checker == "Bloco de Título");
+                CheckResult resultadoBlocoTitulo = item.Results.Find(x => x.Checker == "Bloco Legenda WAU");
 
                 foreach (string nomeCampo in camposTitulo)
                 {
