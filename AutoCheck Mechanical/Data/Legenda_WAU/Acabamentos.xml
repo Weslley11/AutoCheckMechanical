@@ -1,0 +1,504 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfFinishing>
+
+	<!--PORTUGUESE-->
+    <Finishing>
+        <Description>CONFORME DADOS CONSTRUTIVOS</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>CONFORME NOTA</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>CONFORME TABELA</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>EPOXI</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>NATURAL</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>ESCOVADO</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>ENEGRECIDO</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>SHOP PRIMER</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TERMOCONTRATIL</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>PEÇA ISENTA DE RISCOS E REBARBAS</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>ISOLAÇÃO CONFORME NORMA WPS 7321</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>JATEAMENTO POR MICRO ESFERA DE INOX S30</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>MT CINZA RAL 7022</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX CINZA RAL 7022</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>MT CINZA RAL 7032</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX CINZA RAL 7032</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>MT CINZA RAL 7033</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>CINZA RAL 7035</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>LI CINZA RAL 7035</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>MT CINZA RAL 7035</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX CINZA RAL 7035</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX CINZA RAL 7037</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX CINZA RAL 7042</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX CINZA RAL 6021</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>MT CINZA 19750</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>MT CINZA 19760</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>CINZA MUNSELL N6,5</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>LI CINZA MUNSELL N6,5</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>MT CINZA MUNSELL N6,5</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+	<Finishing>
+        <Description>TX CINZA MUNSELL N6,5</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX CINZA MUNSELL N8</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>CINZA MUNSELL 5B 5/1</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX CINZA MUNSELL 5B 5/1</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>LI CINZA 18160 LISO/BRILHANTE</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX GRAF RAL 7011 BR</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>LI BRAN 66450</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+	<Finishing>
+        <Description>TX BRANCO RAL 9002</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>BRANCO RAL 9003</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>LI BRANCO RAL 9003</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>MT BRANCO RAL 9003</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX BRANCO RAL 9003</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>BRANCO RAL 9010</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX BRANCO RAL 9010</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>	
+        <Description>BRANCO RAL 9016</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>MT BRANCO RAL 9016</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX BRANCO RAL 9016</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>LI BRANCO MUNSELL</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>MT BRANCO MUNSELL</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX BRANCO MUNSELL</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>MT BRANCO N6,5</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX BRANCO N6,5</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>BRANCO MUNSELL N9,5</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX BRANCO MUNSELL N9,5</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>LI BRANCO MUNSELL N9,5 NOBAC</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>MT BRANCO MUNSELL N9,5 NOBAC</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX BRANCO MUNSELL N9,5 NOBAC</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>MT BRANCO W N9,5 BR</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX BRANCO W N9,5 BR</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+	<Finishing>
+        <Description>AZUL RAL 5002</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+	<Finishing>
+        <Description>LI AZUL RAL 5002</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+	<Finishing>
+        <Description>TX AZUL RAL 5002</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+	<Finishing>
+        <Description>MT AZUL RAL 5002</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>AZUL RAL 5009</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX AZUL RAL 5017</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>AZUL DEL REY 40360</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>MT AZUL CLARO 14040</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX AZUL CLARO 14040</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>MT AZUL ESCURO 42350</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX AZUL MUNSELL 2,5PB 5/6</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>LI AMARELO 10YR 8/14</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>AMARELO SEGURANÇA 5Y 8/12</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX AMARELO SEGURANÇA 5Y 8/12</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+	<Finishing>
+        <Description>LI AMARELO SEGURANÇA 5Y 8/12</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX AMARELO MUNSELL 10YR 7/12</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>BEGE 2,5Y 9/4</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX BEGE 2,5Y 9/4</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX BEGE RAL 1015</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>LARANJA</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>LARANJA RAL 2008</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>LARANJA RAL 2008/2010</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>LI LARANJA RAL 2003</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>MT LARANJA RAL 2004</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>MT LARANJA 2,5YR 6/14</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX LARANJA 2,5YR 6/14</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX LARANJA MUNSELL 2,5YR 6/14</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+	<Finishing>
+        <Description>TX VERDE RAL 6002</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX VERDE RAL 6019</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX VERDE MUNSELL 5G8/4</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+	<Finishing>
+        <Description>VERDE CLARO 2,5 G 8/2</Description>
+        <Language>Portuguese</Language>
+  </Finishing>	
+  <Finishing>
+        <Description>VERDE ESCURO 2,5 G 6/2</Description>
+        <Language>Portuguese</Language>
+    </Finishing>	
+    <Finishing>
+        <Description>MT VERMELHO SEGURANÇA 5R 4/14</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX VERMELHO SEGURANÇA 5R 4/14</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>VERMELHO OXIDO</Description>
+        <Language>Portuguese</Language>
+    </Finishing>	
+    <Finishing>
+        <Description>PRATA RAL 9006</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>PRETO N1</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>LI PRETO N1</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX PRETO 73000</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TX PRETO RAL 9011</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>MT PRETO 71320 SF</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>MT PRETO 73250 FOSCO</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>MT PRET W RAL 9005 FO</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>TINTA PO 26 R MT PRET W RAL 9005 FO</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+    <Finishing>
+        <Description>POLITHERM 26 TX MUNSELL 2,5 PB 4/10</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+	<Finishing>
+        <Description>POLITHERM 20 MT CINZA ULTRA-FOSCO</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+	
+	<Finishing>
+        <Description>(SERIGRAFIA) PANTONE BLACK 6C</Description>
+        <Language>Portuguese</Language>
+    </Finishing>
+	
+	<!--SPANISH-->
+    <Finishing>
+        <Description>SIN</Description>
+        <Language>Spanish</Language>
+    </Finishing>
+	<Finishing>
+        <Description>ENFUNDADO</Description>
+        <Language>Spanish</Language>
+    </Finishing>
+	<Finishing>
+        <Description>PINTURA</Description>
+        <Language>Spanish</Language>
+    </Finishing>
+	<Finishing>
+        <Description>LISTA ZENG</Description>
+        <Language>Spanish</Language>
+    </Finishing>
+	
+	<!--ENGLISH-->
+    <Finishing>
+        <Description>WITHOUT FINISHING</Description>
+        <Language>English</Language>
+    </Finishing>
+	<Finishing>
+        <Description>TINNED</Description>
+        <Language>English</Language>
+    </Finishing>
+	<Finishing>
+        <Description>NATURAL</Description>
+        <Language>English</Language>
+    </Finishing>
+	 <Finishing>
+        <Description>WITH EPOXY</Description>
+        <Language>English</Language>
+    </Finishing>
+	<Finishing>
+        <Description>PAINTING</Description>
+        <Language>English</Language>
+    </Finishing>
+	<Finishing>
+        <Description>COLORIZED</Description>
+        <Language>English</Language>
+    </Finishing>
+	<Finishing>
+        <Description>TINNED WITH PAINT</Description>
+        <Language>English</Language>
+    </Finishing>
+	<Finishing>
+        <Description>INSULATING SHRINK TUBE</Description>
+        <Language>English</Language>
+    </Finishing>
+	<Finishing>
+        <Description>INSULATING  RED SHRINK TUBE</Description>
+        <Language>English</Language>
+    </Finishing>
+	<Finishing>
+        <Description>INSULATING  WHITE SHRINK TUBE</Description>
+        <Language>English</Language>
+    </Finishing>
+	<Finishing>
+        <Description>INSULATING  BLUE SHRINK TUBE</Description>
+        <Language>English</Language>
+    </Finishing>
+	<Finishing>
+        <Description>ACCORDING TO GENERAL ARRANGEMENT</Description>
+        <Language>English</Language>
+    </Finishing>
+	<Finishing>
+        <Description>ACCORDING TO THE TABLE</Description>
+        <Language>English</Language>
+    </Finishing>
+	<Finishing>
+        <Description>ACCORDING TO THE NOTE</Description>
+        <Language>English</Language>
+    </Finishing>
+
+	
+</ArrayOfFinishing>

@@ -1,0 +1,2164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfRawMaterial>
+
+    <!--ACO DEFAULT PORTUGUESE-->
+    <RawMaterial>
+        <Description>CH.ACO 4,75mm (3/16&quot;)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO 4,25mm (#8)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO 3,50mm (#10)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO 3,00mm (#11)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO 2,65mm (#12)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO 1,90mm (#14)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>CH.ACO USI-STAR 1,60mm #16 (1,6) </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO 1,50mm (#16)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO 1,20mm (#18)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO 0,90mm (#20)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO Zn 3,00mm (#11)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO Zn 2,70mm (#12)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO Zn 1,95mm (#14)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO Zn 1,55mm (#16)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO Zn 0,95mm (#20)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO INOX 316L ESCOVADO 1,5mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO INOX 316L ESCOVADO 2,0mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO INOX 316L ESCOVADO 3,0mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO INOX 304 ESCOVADO 1,2mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO INOX 304 ESCOVADO 1,5mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO INOX 304 ESCOVADO 2,0mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO INOX 304 ESCOVADO 3,0mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO INOX 304 LISO 1,2mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO INOX 316L LISO 1,5mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO INOX 316L LISO 2,0mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO INOX 316L LISO 3,0mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO GALVALUME 0,95mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO GALVALUME 1,55mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CHAPA PISO XDRZ 3,00mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CHAPA PISO XDRZ 4,75mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CHAPA PISO XDRZ 6,33mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CHAPA ACO ASTM A36 6,35mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	 <RawMaterial>
+        <Description>CHAPA ACO ASTM A36 5/8" (15,87mm)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CHAPA ACO SAE1008/1015 4,75mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>4,75mm (3/16&quot;)VER NOTA / SEE NOTE </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>4,25mm (#8)VER NOTA / SEE NOTE </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>3,50mm (#10)VER NOTA / SEE NOTE </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>3,00mm (#11)VER NOTA / SEE NOTE </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>2,70mm Zn(#12)VER NOTA / SEE NOTE </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>2,65mm(#12)VER NOTA / SEE NOTE </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>1,95mm Zn(#14)VER NOTA / SEE NOTE </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>1,90mm(#14)VER NOTA / SEE NOTE </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>1,55mm Zn(#16)VER NOTA / SEE NOTE </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>1,50mm(#16)VER NOTA / SEE NOTE </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>1,20mm(#18)VER NOTA / SEE NOTE </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>0,95mm Zn(#20)VER NOTA / SEE NOTE </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>0,90mm (#20)VER NOTA / SEE NOTE </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>VIDE NOTA/SEE NOTE</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+
+
+	
+	<!--ACO SPECIAL PORTUGUESE-->
+	<RawMaterial>
+        <Description>CONFORME TABELA</Description>
+        <Type>Aco</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>CONFORME NOTA</Description>
+        <Type>Aco</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CHAPA ACO WPS-2829 37,5mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CHAPA ACO WPS-2829 25,0mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CHAPA ACO WPS-2829 50,0mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>ACO INOX</Description>
+        <Type>Aco</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>ACO INOX 304</Description>
+        <Type>Aco</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>G AL SI 12 CU CNF. NORMA TGP-8E</Description>
+        <Type>Aco</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>ACO ABNT 1010/1020</Description>
+        <Type>Aco</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>ACO ABNT 1040/1045</Description>
+        <Type>Aco</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>TUBO ACO RET. 30x50x1,5mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>ACO MOLA DIA. 1,6x656</Description>
+        <Type>Aco</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO Zn PERFUR 1,00mm (#20)</Description>
+        <Type>Aco</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO Zn PERFUR 1,55mm (#16)</Description>
+        <Type>Aco</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH.ACO 3,35mm (#10 ABNT)</Description>
+        <Type>Aco</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>CH.ACO SAE J403 1045 9,5mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>TUBO ACO QUAD. 40x40x2,25mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>TUBO ACO RET. 50x30x3mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>CH.ACO SAE J403 1045 12,5mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	
+	
+	<!--ACO DEFAULT SPANISH-->
+	<RawMaterial>
+        <Description>LAM.CR 0,90mm (#20)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>LAM.CR 1,20mm (#18)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>LAM.CR 1,50mm (#16)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>LAM.CR 1,90mm (#14)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>LAM.CR 1,90mm (#14)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>LAM.CR 2,50mm (#12)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>LAM.CR 2,50mm (#12) 5x10</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>LAM.GV 0,90mm (#20)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>LAM.GV 1,20mm (#18)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>LAM.GV 1,50mm (#16)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>LAM.GV 1,90mm (#14)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>LAM.GV 2,50mm (#12)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>LAM.HR 3,00mm (#11)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>LAM.HR 4,00mm (#8)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>LAM.HR 4,00mm (#8) 5x10</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>LAM.HR 4,75mm (3/16")</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>LAM.HR 6,00mm (#3)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>LAM. ACERO INOX 304 SATINADO 0,90mm (#20)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>LAM. ACERO INOX 304 SATINADO 1,20mm (#18)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>LAM. ACERO INOX 304 SATINADO 1,50mm (#16)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>LAM. ACERO INOX 304 SATINADO 1,90mm (#14)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>LAM. ACERO INOX 304 SATINADO 2,50mm (#12)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>LAM. ACERO INOX 304 SATINADO 3,00mm (#11)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>LAM. ACERO INOX 304 SATINADO 4,00mm (#8)</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+
+	<!--ACO SPECIAL SPANISH-->
+	<RawMaterial>
+        <Description>A.INOX 304</Description>
+        <Type>Aco</Type>
+        <Pattern>Special</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>AISI 1020</Description>
+        <Type>Aco</Type>
+        <Pattern>Special</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>ASTM A36</Description>
+        <Type>Aco</Type>
+        <Pattern>Special</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+
+    <!--COBRE DEFAULT PORTUGUESE-->
+    <RawMaterial>
+        <Description>CH. COBRE 2,0mm</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH. COBRE 3,2mm</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH. COBRE 4,0mm</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH. COBRE 5,0mm</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 12x2</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 10x3</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 15x3</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 20x3,5</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 30x5</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 40x5</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 71,7x5</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 20x6</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 40x6</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 50x6</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>BARRA COBRE 60x6</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 65x6</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 70x6</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 80x6</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>BARRA COBRE 100x6</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 110x6</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>BARRA COBRE 160x6</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 25,4x6,35</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 152,4x6,35</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 20x10</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 25x10</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 30x10</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 40x10</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 50x10</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 60x10</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 80x10</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 100x10</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 120x10</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 160x10</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 200x10</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 12x2 M.LUA</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 25x5 M.LUA</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 60x5 M.LUA</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 80x5 M.LUA</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 30x10 M.LUA</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 40x10 M.LUA</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE 60x10 M.LUA</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	
+	<!--COBRE SPECIAL PORTUGUESE-->
+	<RawMaterial>
+        <Description>CONFORME TABELA</Description>
+        <Type>Cobre</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>CONFORME NOTA</Description>
+        <Type>Cobre</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA COBRE EM L</Description>
+        <Type>Cobre</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COBRE ELETROL. TES-182</Description>
+        <Type>Cobre</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	
+	<!--COBRE DEFAULT SPANISH-->
+	<RawMaterial>
+        <Description>LAMINA COBRE 3mm</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PLATINA COBRE 12x3</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PLATINA COBRE 15x3</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PLATINA COBRE 12x5</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PLATINA COBRE 20x5</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PLATINA COBRE 25x5</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PLATINA COBRE 30x5</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PLATINA COBRE 40x5</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PLATINA COBRE 50x5</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PLATINA COBRE 60x5</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PLATINA COBRE 80x5</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PLATINA COBRE 100x5</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PLATINA COBRE 120x5</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PLATINA COBRE 20x10</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PLATINA COBRE 25x10</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PLATINA COBRE 30x10</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PLATINA COBRE 40x10</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PLATINA COBRE 50x10</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PLATINA COBRE 60x10</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PLATINA COBRE 80x10</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PLATINA COBRE 100x10</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PLATINA COBRE 120x10</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PLATINA COBRE 150x10</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PLATINA COBRE 160x10</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+
+    <!--ALUMINIO DEFAULT PORTUGUESE-->
+    <RawMaterial>
+        <Description>CH. ALUMINIO 1,5mm</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH. ALUMINIO 2,0mm</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH. ALUMINIO 3,0mm</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH. ALUMINIO 4,0mm</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CH. ALUMINIO 5,0mm</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA DE ALUMINIO 20x6</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA DE ALUMINIO 40x6</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA DE ALUMINIO 50x6</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA DE ALUMINIO 60x6</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA DE ALUMINIO 65x6</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA DE ALUMINIO 70x6</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA DE ALUMINIO 80x6</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA DE ALUMINIO 100x6</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA DE ALUMINIO 110x6</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA DE ALUMINIO 160x6</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA DE ALUMINIO 200x6</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA DE ALUMINIO 240x6</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA DE ALUMINIO 25,4x6,35</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA DE ALUMINIO 152,4x6,35</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>BARRA DE ALUMINIO 25,4x9,53</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>BARRA DE ALUMINIO 38,1x9,52</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA DE ALUMINIO 127x9,52</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA DE ALUMINIO 40x10</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA DE ALUMINIO 50x10</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA DE ALUMINIO 60x10</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>BARRA DE ALUMINIO 80x10</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA DE ALUMINIO 100x10</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA DE ALUMINIO 120x10</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BARRA DE ALUMINIO 160x10</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>PERFIL ALUMINIO 6063-T5 60x22</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>PERFIL ALUMINIO 6063-T6 63x52,5</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>PERFIL ALUMINIO 6063-T6 83x52,5</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>PERFIL ALUMINIO 6063-T6 103x52,5</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PERFIL ALUMINIO 6063-T6 127x55</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>PERFIL ALUMINIO 6063-T6 163x52,5</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>PERFIL ALUMINIO 6063-T6 203x52,5</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>PERFIL ALUMINIO 6063-T6 243x52,5</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PERFIL ALUMINIO 6063-T6 10x122</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>PERFIL ALUMINIO 6063-T6 10x128</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PERFIL ALUMINIO 6063-T6 24,25x135</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>PERFIL ALUMINIO 6063-T6 24,25x141</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>PERFIL ALUMINIO 6063-T6 26,25x133</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	
+	<!--ALUMINIO SPECIAL PORTUGUESE-->
+	<RawMaterial>
+        <Description>CONFORME TABELA</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>CONFORME NOTA</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>ALUMINIO SAE 306</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>DURALUMINIO LIGA 6063</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>DURALUMINIO LIGA 6060-T5</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>DURALUMINIO LIGA 6060-T6</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>DURALUMINIO LIGA 6061</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>DISSIPADOR INJETADO</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>DISSIPADOR EXTRUDADO</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>CH. ALUMINIO 2,5mm</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	
+	<!--ALUMINIO DEFAULT SPANISH-->
+    <RawMaterial>
+        <Description>LAM. ALUMINIO 3,0mm</Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+
+    <!--MADEIRA DEFAULT PORTUGUESE-->
+    <RawMaterial>
+        <Description>MADEIRA</Description>
+        <Type>Madeira</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>CHAPA OSB</Description>
+        <Type>Madeira</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>PINUS</Description>
+        <Type>Madeira</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>EUCALIPTO</Description>
+        <Type>Madeira</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COMPENSADO 5 LAMINAS</Description>
+        <Type>Madeira</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	
+	<!--MADEIRA SPECIAL PORTUGUESE-->
+	<RawMaterial>
+        <Description>CONFORME TABELA</Description>
+        <Type>Madeira</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>CONFORME NOTA</Description>
+        <Type>Madeira</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+
+    <!--PLASTICOCHAPA DEFAULT PORTUGUESE-->
+    <RawMaterial>
+        <Description>ACRILICO TRANSPARENTE 4mm</Description>
+        <Type>PlasticoChapa</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>VINIL AUTO ADESIVO 100um</Description>
+        <Type>PlasticoChapa</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>POLICARBONATO CRISTAL 0,18mm</Description>
+        <Type>PlasticoChapa</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>POLICARBONATO CRISTAL 0,25mm</Description>
+        <Type>PlasticoChapa</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>POLICARBONATO MT 0,25mm</Description>
+        <Type>PlasticoChapa</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>POLICARBONATO 0,5mm</Description>
+        <Type>PlasticoChapa</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>POLICARBONATO 1mm</Description>
+        <Type>PlasticoChapa</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>POLICARBONATO TRANSLUCIDO FUME 1mm</Description>
+        <Type>PlasticoChapa</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>POLICARBONATO 1,5mm</Description>
+        <Type>PlasticoChapa</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>POLICARBONATO 2mm</Description>
+        <Type>PlasticoChapa</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>POLICARBONATO TRANSLUCIDO FUME 2mm</Description>
+        <Type>PlasticoChapa</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>POLICARBONATO 3mm</Description>
+        <Type>PlasticoChapa</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>POLICARBONATO 4mm</Description>
+        <Type>PlasticoChapa</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>POLICARBONATO 5mm</Description>
+        <Type>PlasticoChapa</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>POLICARBONATO 6mm</Description>
+        <Type>PlasticoChapa</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>POLICARBONATO 8mm</Description>
+        <Type>PlasticoChapa</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>POLICARBONATO 10mm</Description>
+        <Type>PlasticoChapa</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>POLICARBONATO 12mm</Description>
+        <Type>PlasticoChapa</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>POLICARBONATO 12,7mm</Description>
+        <Type>PlasticoChapa</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	
+	<!--PLASTICOCHAPA SPECIAL PORTUGUESE-->
+	<RawMaterial>
+        <Description>CONFORME TABELA</Description>
+        <Type>PlasticoChapa</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>CONFORME NOTA</Description>
+        <Type>PlasticoChapa</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	
+	<!--PLASTICOCHAPA DEFAULT SPANISH-->
+	<RawMaterial>
+        <Description>ACRILICO</Description>
+        <Type>PlasticoChapa</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>POLICARBONATO</Description>
+        <Type>PlasticoChapa</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+
+    <!--PLASTICOOUTROS DEFAULT PORTUGUESE-->
+	<RawMaterial>
+        <Description>POLIESTILENO 0,5mm (BRANCO)</Description>
+        <Type>Outros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>ABS/PC-C2950-GY673103</Description>
+        <Type>PlasticoOutros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>ABS/PC-C2950-BL171303</Description>
+        <Type>PlasticoOutros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>ABS/PC - C2950</Description>
+        <Type>PlasticoOutros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>PC - LEXAN 503 R</Description>
+        <Type>PlasticoOutros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>PC-LEXAN EXL 9330-GY6C135</Description>
+        <Type>PlasticoOutros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>PC-LEXAN EXL 9330-BL1C114</Description>
+        <Type>PlasticoOutros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>PC-LEXAN EXL 9330-GY7C182 - RAL7032</Description>
+        <Type>PlasticoOutros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>NYLON</Description>
+        <Type>PlasticoOutros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>POLIAMIDA</Description>
+        <Type>PlasticoOutros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>PC-LEXAN ML7682 BL1C114 B1 - AZUL ESCURO</Description>
+        <Type>PlasticoOutros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>PC-LEXAN ML7682 GY6C135 B1 - AZUL CLARO</Description>
+        <Type>PlasticoOutros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	
+	<!--PLASTICOOUTROS SPECIAL PORTUGUESE-->
+	<RawMaterial>
+        <Description>CONFORME TABELA</Description>
+        <Type>PlasticoOutros</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>CONFORME NOTA</Description>
+        <Type>PlasticoOutros</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+
+    <!--OUTROS DEFAULT PORTUGUESE-->
+    <RawMaterial>
+        <Description>COMPOSTO BMC</Description>
+        <Type>Outros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>LAMINADO EPOXI ESP.: 1mm</Description>
+        <Type>Outros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>LAMINADO EPOXI ESP.: 2mm</Description>
+        <Type>Outros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>VIDE NOTAS</Description>
+        <Type>Outros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>RESINA POLIESTER + FIBRA VIDRO</Description>
+        <Type>Outros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>EPS-POLIESTILENO EXP.T710</Description>
+        <Type>Outros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>EPS-POLIESTILENO EXP.T5A</Description>
+        <Type>Outros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>BORRACHA NATURAL</Description>
+        <Type>Outros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>NEOPRENE SSNEO150 AE PR AA</Description>
+        <Type>Outros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>PAPELAO KRAFT DUPLO OND. 6mm</Description>
+        <Type>Outros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>ZAMAK-5</Description>
+        <Type>Outros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>FILME ISOLANTE RESINADO SATURADO</Description>
+        <Type>Outros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>FILME ISOLANTE POLIESTER 0,35mm</Description>
+        <Type>Outros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>ACOPLAMENTO ELASTICO MADEFLEX CR03 (FAB. MADEMIL)</Description>
+        <Type>Outros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>TELA SOLD. DE MALHA 10x10 E FIO DIA 1mm</Description>
+        <Type>Outros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>VIDE NOTA/SEE NOTE</Description>
+        <Type>Outros</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+
+	<!--OUTROS SPECIAL PORTUGUESE-->
+	<RawMaterial>
+        <Description>CONFORME TABELA</Description>
+        <Type>Outros</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>CONFORME NOTA</Description>
+        <Type>Outros</Type>
+        <Pattern>Special</Pattern>
+        <Language>Portuguese</Language>
+    </RawMaterial>
+	
+	<!--OUTROS DEFAULT SPANISH-->
+	<RawMaterial>
+        <Description>UTR GPO03</Description>
+        <Type>Outros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>VIDRIO</Description>
+        <Type>Outros</Type>
+        <Pattern>Default</Pattern>
+        <Language>Spanish</Language>
+    </RawMaterial>
+	
+    <!--ACO DEFAULT ENGLISH-->
+	<RawMaterial>
+        <Description>ALUZINC STEEL SHEET 1,5mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>ALUZINC STEEL SHEET 2mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>MILD STEEL SHEET 1,6mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>MILD STEEL SHEET 2mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>MILD STEEL SHEET 2,4mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>MILD STEEL SHEET 3mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	 <RawMaterial>
+        <Description>MILD STEEL SHEET 4mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>MILD STEEL SHEET 4,5mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>FLOOR STEEL SHEET VASTRAP 4,5mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>MILD STEEL SHEET 5mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>MILD STEEL SHEET 6mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>MILD STEEL SHEET 8mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>MILD STEEL SHEET 10mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>MILD STEEL SHEET 12mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>MILD STEEL SHEET 16mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>MILD STEEL SHEET 20mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>MILD STEEL 25mm</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>GALVANIZED STEEL SHEET 1mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>GALVANIZED STEEL SHEET 1,6mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>GALVANIZED STEEL SHEET 2mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>GALVANIZED STEEL SHEET 2,5mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>GALVANIZED STEEL SHEET 3,0mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>STAINLESS STEEL 3CR12 1,5mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>STAINLESS STEEL 3CR12 2mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>STAINLESS STEEL I304 2mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>STAINLESS STEEL I316 3mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>STAINLESS STEEL 3CR12 4,5mm </Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>MESH 0,5mm GALVANIZED STEEL</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>ACCORDING TO THE TABLE</Description>
+        <Type>Aco</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+
+ 	
+    <!--COBRE DEFAULT ENGLISH-->
+    <RawMaterial>
+        <Description>COPPER BAR 0,6x6,3 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 6x6 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 10x3</Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 12,5x3,15 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 20x3,15 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>COPPER BAR 20x5 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 20x6 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 20x10 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 25x6,3 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 25x10 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 30x6 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 30x10 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 30x12,5 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	    <RawMaterial>
+        <Description>COPPER BAR 40x5 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 40x6,3 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>COPPER BAR 40x10 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 40x12,5 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 50x6,3 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 50x10 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>COPPER BAR 50x12,5 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 50x16 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>COPPER BAR 60x6 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>COPPER BAR 60x10 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>COPPER BAR 60x15 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>COPPER BAR 63x6,3 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>COPPER BAR 63x10 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 80x6,3 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 80x10 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 80x12,5 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 80x15,8 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 100x10 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 100x12,5 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 100x16 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 125x10 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 125x12,5 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>COPPER BAR 125x16 </Description>
+        <Type>Cobre</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	
+    <!--ALUMINI0 PATTERN ENGLISH-->
+    <RawMaterial>
+        <Description>ALUMINUM 2mm </Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>ALUMINUM BRUSHED 2mm </Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+    <RawMaterial>
+        <Description>ALUMINUM 4,5mm </Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	<RawMaterial>
+        <Description>ALUMINUM 8mm </Description>
+        <Type>Aluminio</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+	
+	    <!--PLASTICOCHAPA DEFAULT ENGLISH-->
+    <RawMaterial>
+        <Description> PLATE POLYCARBONATE 2mm</Description>
+        <Type>PlasticoChapa</Type>
+        <Pattern>Default</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+
+<!--ACO SPECIAL ENGLISH-->
+	<RawMaterial>
+        <Description> MILD STELL SAE 1010/1020</Description>
+        <Type>Aco</Type>
+        <Pattern>Special</Pattern>
+        <Language>English</Language>
+    </RawMaterial>
+
+</ArrayOfRawMaterial>

@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfTreatment>
+
+	<!--PORTUGUESE-->
+    <Treatment>
+        <Description>CONFORME DADOS CONSTRUTIVOS</Description>
+        <Language>Portuguese</Language>
+    </Treatment>
+    <Treatment>
+        <Description>CONFORME NOTA</Description>
+        <Language>Portuguese</Language>
+    </Treatment>
+    <Treatment>
+        <Description>CONFORME TABELA</Description>
+        <Language>Portuguese</Language>
+    </Treatment>
+    <Treatment>
+        <Description>ESTANHAGEM ELETROLÍTICA CONF. WPS-7321 - 3.1</Description>
+        <Language>Portuguese</Language>
+    </Treatment>
+    <Treatment>
+        <Description>ESTANHAGEM ELETROLÍTICA CONF. WPS-7321 - 3.1.1</Description>
+        <Language>Portuguese</Language>
+    </Treatment>
+    <Treatment>
+        <Description>PRATA ELETRODEPOSITADA CONF. WPS-7321 - 3.4</Description>
+        <Language>Portuguese</Language>
+    </Treatment>
+    <Treatment>
+        <Description>PRATA ELETRODEPOSITADA CONF. WPS-7321 - 3.4.1</Description>
+        <Language>Portuguese</Language>
+    </Treatment>
+    <Treatment>
+        <Description>NÍQUEL ELETROQUÍMICO CONF. WPS-7321 - 3.7</Description>
+        <Language>Portuguese</Language>
+    </Treatment>
+    <Treatment>
+        <Description>NÍQUEL ELETROQUÍMICO CONF. WPS-7321 - 3.7.1</Description>
+        <Language>Portuguese</Language>
+    </Treatment>
+    <Treatment>
+        <Description>NÍQUEL ELETROQUÍMICO CONF. WPS-7321 - 3.7.2</Description>
+        <Language>Portuguese</Language>
+    </Treatment>
+    <Treatment>
+        <Description>NÍQUEL ELETROQUÍMICO CONF. WPS-7321 - 3.7.3</Description>
+        <Language>Portuguese</Language>
+    </Treatment>
+    <Treatment>
+        <Description>GALVANIZAÇÃO A FOGO CONF. WPS-7321 - 3.8</Description>
+        <Language>Portuguese</Language>
+    </Treatment>
+    <Treatment>
+        <Description>GALVANIZAÇÃO A FOGO CONF. WPS-7321 - 3.8.1</Description>
+        <Language>Portuguese</Language>
+    </Treatment>
+    <Treatment>
+        <Description>GALVANIZAÇÃO A FOGO CONF. WPS-7321 - 3.8.2</Description>
+        <Language>Portuguese</Language>
+    </Treatment>
+    <Treatment>
+        <Description>ZINCAGEM AZUL CONF. WPS-7321 - 3.9</Description>
+        <Language>Portuguese</Language>
+    </Treatment>
+    <Treatment>
+        <Description>ZINCAGEM AZUL CONF. WPS-7321 - 3.9.1</Description>
+        <Language>Portuguese</Language>
+    </Treatment>
+    <Treatment>
+        <Description>ZINCAGEM AZUL CONF. WPS-7321 - 3.9.2</Description>
+        <Language>Portuguese</Language>
+    </Treatment>
+    <Treatment>
+        <Description>ZINCAGEM CONF. WPS-7321 - 3.9.3</Description>
+        <Language>Portuguese</Language>
+    </Treatment>
+    <Treatment>
+        <Description>FOSFATIZACAO CONF. WPS-7321 - 3.10</Description>
+        <Language>Portuguese</Language>
+    </Treatment>
+    <Treatment>
+        <Description>JATEAMENTO</Description>
+        <Language>Portuguese</Language>
+    </Treatment>
+    <Treatment>
+        <Description>JATEAMENTO GRAN.INOX N30</Description>
+        <Language>Portuguese</Language>
+    </Treatment>
+	    <Treatment>
+        <Description>NANOCERÂMICO CONF. WPS-7321 - 3.11</Description>
+        <Language>Portuguese</Language>
+    </Treatment>
+    <Treatment>
+        <Description>NATURAL</Description>
+        <Language>Portuguese</Language>
+    </Treatment>
+    <Treatment>
+        <Description>VIDE NOTA/SEE NOTE</Description>
+        <Language>Portuguese</Language>
+    </Treatment>
+
+	<!--SPANISH-->
+	<Treatment>
+        <Description>SIN</Description>
+        <Language>Spanish</Language>
+    </Treatment>
+	<Treatment>
+        <Description>CONFORME DATOS CONSTRUCTIVOS</Description>
+        <Language>Spanish</Language>
+    </Treatment>
+	<Treatment>
+        <Description>CONFORME NOTA</Description>
+        <Language>Spanish</Language>
+    </Treatment>
+	<Treatment>
+        <Description>CONFORME TABLA</Description>
+        <Language>Spanish</Language>
+    </Treatment>
+	<Treatment>
+        <Description>ESTAÑADO COMPLETO</Description>
+        <Language>Spanish</Language>
+    </Treatment>
+	<Treatment>
+        <Description>ESTAÑADO PUNTO CONEXIÓN</Description>
+        <Language>Spanish</Language>
+    </Treatment>
+	<Treatment>
+        <Description>PLATEADO COMPLETO</Description>
+        <Language>Spanish</Language>
+    </Treatment>
+	<Treatment>
+        <Description>PLATEADO PUNTO CONEXIÓN</Description>
+        <Language>Spanish</Language>
+    </Treatment>
+	<Treatment>
+        <Description>ZINCADO</Description>
+        <Language>Spanish</Language>
+    </Treatment>
+	
+	<!--ENGLISH-->
+
+
+    <Treatment>
+        <Description>NATURAL</Description>
+        <Language>English</Language>
+    </Treatment>
+    <Treatment>
+        <Description>SEE NOTE</Description>
+        <Language>English</Language>
+    </Treatment>
+	<Treatment>
+        <Description>TINNED</Description>
+        <Language>English</Language>
+    </Treatment>
+	<Treatment>
+        <Description>ACCORDING TO THE TABLE</Description>
+        <Language>English</Language>
+    </Treatment>
+	<Treatment>
+        <Description>ZINC PLATING</Description>
+        <Language>English</Language>
+    </Treatment>
+	<Treatment>
+        <Description>BLUE GALVANIZING TO WPS-7321-3.10</Description>
+        <Language>English</Language>
+    </Treatment>
+    <Treatment>
+        <Description>PHOSPHATIZATION ACCORDING TO WPS-7321-3.10</Description>
+        <Language>English</Language>
+    </Treatment>	
+	
+</ArrayOfTreatment>

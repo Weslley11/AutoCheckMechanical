@@ -162,6 +162,101 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Data\Legenda_WAU\Acabamentos.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Legenda_WAU\Materiais(02).xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Legenda_WAU\Materiais.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Legenda_WAU\Matrizes.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Legenda_WAU\PlanosPintura.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Legenda_WAU\Raios.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Legenda_WAU\Tolerancias.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Legenda_WAU\Tratamentos.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Tabelas_de_Dobra\01 AÇO WAU F CANAL.xls">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Tabelas_de_Dobra\02 AÇO WAU.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Tabelas_de_Dobra\03 BARR. COBRE ESP.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Tabelas_de_Dobra\04 BARR. COBRE LARG.xls">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Tabelas_de_Dobra\05 BARR. COBRE LARG. 40x10.xls">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Tabelas_de_Dobra\06 CHAPAS DE COBRE.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Tabelas_de_Dobra\07 ALUMÍNIO WAU.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Tabelas_de_Dobra\08 BARR. ALUMINIO ESP.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Tabelas_de_Dobra\09 POLICARBONATO.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Tabelas_de_Dobra\10 CHAPA INOX.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Tabelas_de_Dobra\11 BARR. ALUMINIO LARG.xls">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Tabelas_de_Dobra\12 OFFSET TR BARR. #Al &amp; #Cu.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Tabelas_de_Dobra\Raios Recomendados\01 Tb- Aço F canal.xls">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Tabelas_de_Dobra\Raios Recomendados\02 Tb- Aço.xls">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Tabelas_de_Dobra\Raios Recomendados\03 Tb- Barr. de cobre esp.xls">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Tabelas_de_Dobra\Raios Recomendados\04 Tb- Barr. de cobre larg.xls">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Tabelas_de_Dobra\Raios Recomendados\06 Tb- Chapas de cobre.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Tabelas_de_Dobra\Raios Recomendados\07 Tb- Alumínio.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Tabelas_de_Dobra\Raios Recomendados\08 Tb- Barr. de alumínio esp.xls">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Tabelas_de_Dobra\Raios Recomendados\09 Tb- Policarbonato.xls">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Tabelas_de_Dobra\Raios Recomendados\10 Tb- INOX.xls">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Tabelas_de_Dobra\Raios Recomendados\11 Tb- Barr. de alumínio larg.xls">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Data\Tabelas_de_Dobra\Raios Recomendados\12 Tb- Offset TR Barr. de #Al &amp; #Cu.xls">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
     <Folder Include="ViewModels\" />
     <Folder Include="Views\" />
   </ItemGroup>

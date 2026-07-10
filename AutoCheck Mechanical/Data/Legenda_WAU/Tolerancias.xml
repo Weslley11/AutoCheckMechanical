@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ArrayOfTolerance>
+	<Tolerance>
+		<ToleranceDescription>#177 0,1 mm</ToleranceDescription>
+	</Tolerance>
+	<Tolerance>
+		<ToleranceDescription>#177 0,2 mm</ToleranceDescription>
+	</Tolerance>
+	<Tolerance>
+		<ToleranceDescription>#177 0,5 mm</ToleranceDescription>
+	</Tolerance>
+	<Tolerance>
+		<ToleranceDescription>#177 1 mm</ToleranceDescription>
+	</Tolerance>
+	<Tolerance>
+		<ToleranceDescription>WPS-41506 </ToleranceDescription>
+	</Tolerance>
+</ArrayOfTolerance>
