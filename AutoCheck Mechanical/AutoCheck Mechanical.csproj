@@ -109,6 +109,7 @@
     <Compile Include="Services\ExcelSapService.cs" />
     <Compile Include="Services\HistoryStore.cs" />
     <Compile Include="Services\SapService.cs" />
+    <Compile Include="Services\SolidWorksSettingsStore.cs" />
     <Compile Include="Services\ThemeStore.cs" />
     <Compile Include="Services\ThumbnailStore.cs" />
     <Compile Include="ViewModels\BaseViewModel.cs" />

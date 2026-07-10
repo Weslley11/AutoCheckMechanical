@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -147,6 +148,17 @@ namespace AutoCheckMechanical.ViewModels
             CheckersDesativados = CheckerSettingsStore.LoadDesativados();
 
             TemaEscuro = ThemeStore.LoadTemaEscuro();
+
+            // Monitora em segundo plano se o SolidWorks continua aberto,
+            // pra refletir "Desconectado" na tela caso o usuário feche ele
+            // com o app ainda aberto.
+            DispatcherTimer timerConexao = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(5)
+            };
+
+            timerConexao.Tick += (s, e) => VerificarConexaoSilenciosamente();
+            timerConexao.Start();
         }
 
         public ICommand ToggleThemeCommand => new DelegateCommand(_ =>
@@ -207,7 +219,7 @@ namespace AutoCheckMechanical.ViewModels
             LogText = "";
             AddLog("Verificando conexão...");
 
-            RefreshConnectionStatus();
+            GarantirConexao();
         });
 
         public ICommand RunCheckDrawingCommand => new DelegateCommand(_ => RunCheckDrawing(), () => !IsBusy);
@@ -224,7 +236,7 @@ namespace AutoCheckMechanical.ViewModels
             if (dialog.ShowDialog() != true)
                 return;
 
-            SolidWorksSession session = RefreshConnectionStatus();
+            SolidWorksSession session = GarantirConexao();
 
             if (!session.IsConnected)
                 return;
@@ -366,13 +378,189 @@ namespace AutoCheckMechanical.ViewModels
             return session;
         }
 
+        // Verificação silenciosa (sem log/prompt) usada pelo monitoramento
+        // periódico em segundo plano, só pra manter o LED/status atualizados
+        // caso o SolidWorks seja fechado enquanto o app está aberto.
+        private bool? _ultimoEstadoConectado;
+
+        private void VerificarConexaoSilenciosamente()
+        {
+            SolidWorksSession session = SolidWorksSession.Connect();
+
+            if (_ultimoEstadoConectado == session.IsConnected)
+                return;
+
+            _ultimoEstadoConectado = session.IsConnected;
+
+            if (session.IsConnected)
+            {
+                SolidWorksLedBrush = Brushes.LimeGreen;
+                SolidWorksStatusText = "Conectado";
+                AddLog("SolidWorks conectado.");
+            }
+            else
+            {
+                SolidWorksLedBrush = Brushes.Red;
+                SolidWorksStatusText = "Desconectado";
+                AddLog("SolidWorks foi fechado.");
+            }
+        }
+
+        // Ponto de entrada usado por toda ação que precisa do SolidWorks
+        // (e também na abertura do app): se não estiver conectado, pergunta
+        // se o usuário quer abrir o SolidWorks agora.
+        public SolidWorksSession GarantirConexao()
+        {
+            SolidWorksSession session = RefreshConnectionStatus();
+
+            _ultimoEstadoConectado = session.IsConnected;
+
+            if (session.IsConnected)
+                return session;
+
+            MessageBoxResult resposta = MessageBox.Show(
+                "O SolidWorks não está aberto. Deseja abri-lo agora?",
+                "SolidWorks desconectado",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (resposta != MessageBoxResult.Yes)
+                return session;
+
+            return AbrirSolidWorksEAguardarConexao();
+        }
+
+        private SolidWorksSession AbrirSolidWorksEAguardarConexao()
+        {
+            string caminhoSolidWorks = LocalizarSolidWorks();
+
+            if (caminhoSolidWorks == null && !TentarAbrirSolidWorksViaShell())
+            {
+                caminhoSolidWorks = EscolherSolidWorksManualmente();
+
+                if (caminhoSolidWorks == null)
+                    return SolidWorksSession.Connect();
+            }
+
+            if (caminhoSolidWorks != null)
+            {
+                try
+                {
+                    Process.Start(caminhoSolidWorks);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Não foi possível abrir o SolidWorks:\n" + ex.Message,
+                        "Abrir SolidWorks", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return SolidWorksSession.Connect();
+                }
+            }
+
+            StatusText = "Abrindo o SolidWorks, aguarde...";
+            AddLog("Abrindo o SolidWorks...");
+            Mouse.OverrideCursor = Cursors.Wait;
+
+            SolidWorksSession session = SolidWorksSession.Connect();
+            DateTime limite = DateTime.Now.AddSeconds(120);
+
+            while (!session.IsConnected && DateTime.Now < limite)
+            {
+                Thread.Sleep(1000);
+
+                // Mantém a UI respondendo durante a espera (o app roda tudo
+                // de forma síncrona na thread da UI).
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(() => { }));
+
+                session = SolidWorksSession.Connect();
+            }
+
+            Mouse.OverrideCursor = null;
+
+            if (session.IsConnected)
+            {
+                RefreshConnectionStatus();
+                _ultimoEstadoConectado = true;
+            }
+            else
+            {
+                StatusText = "Não foi possível conectar ao SolidWorks (tempo esgotado).";
+                AddLog("Tempo esgotado esperando o SolidWorks abrir.");
+            }
+
+            return session;
+        }
+
+        // Tenta localizar o SLDWORKS.exe: primeiro o caminho salvo
+        // manualmente pelo usuário (se houver), depois os caminhos de
+        // instalação mais comuns (mesmo padrão usado pelo HintPath do
+        // projeto: "SOLIDWORKS {ano}\SOLIDWORKS\").
+        private string LocalizarSolidWorks()
+        {
+            string caminhoSalvo = SolidWorksSettingsStore.LoadCaminho();
+
+            if (!string.IsNullOrEmpty(caminhoSalvo) && File.Exists(caminhoSalvo))
+                return caminhoSalvo;
+
+            return GerarCaminhosConhecidosSolidWorks().FirstOrDefault(File.Exists);
+        }
+
+        private static IEnumerable<string> GerarCaminhosConhecidosSolidWorks()
+        {
+            for (int ano = 2026; ano >= 2018; ano--)
+            {
+                yield return $@"C:\Program Files\SOLIDWORKS {ano}\SOLIDWORKS\SLDWORKS.exe";
+                yield return $@"C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS {ano}\SOLIDWORKS\SLDWORKS.exe";
+                yield return $@"C:\Program Files (x86)\SOLIDWORKS {ano}\SOLIDWORKS\SLDWORKS.exe";
+            }
+        }
+
+        // Deixa o Windows resolver "SLDWORKS.exe" (App Paths / PATH), como
+        // aconteceria se o usuário desse duplo clique num atalho dele.
+        private bool TentarAbrirSolidWorksViaShell()
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "SLDWORKS.exe",
+                    UseShellExecute = true
+                });
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        private string EscolherSolidWorksManualmente()
+        {
+            MessageBox.Show(
+                "Não foi possível localizar o SolidWorks automaticamente.\nSelecione o executável (SLDWORKS.exe) manualmente.",
+                "Abrir SolidWorks", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            OpenFileDialog dialog = new OpenFileDialog
+            {
+                Filter = "SolidWorks (SLDWORKS.exe)|SLDWORKS.exe|Executável (*.exe)|*.exe",
+                Title = "Selecionar o SLDWORKS.exe"
+            };
+
+            if (dialog.ShowDialog() != true)
+                return null;
+
+            SolidWorksSettingsStore.Save(dialog.FileName);
+
+            return dialog.FileName;
+        }
+
         private void RunCheckDrawing()
         {
             DetalheTitulo = "LOG";
             LogText = "";
             AddLog("Iniciando AutoCheck...");
 
-            SolidWorksSession session = RefreshConnectionStatus();
+            SolidWorksSession session = GarantirConexao();
 
             if (!session.IsConnected || session.ActiveDocument == null)
                 return;
@@ -586,7 +774,7 @@ namespace AutoCheckMechanical.ViewModels
                     "Os arquivos serão abertos no SolidWorks e verificados agora.",
                     "Buscar no SAP", MessageBoxButton.OK, MessageBoxImage.Information);
 
-                SolidWorksSession session = RefreshConnectionStatus();
+                SolidWorksSession session = GarantirConexao();
 
                 if (!session.IsConnected)
                     return;
@@ -705,7 +893,7 @@ namespace AutoCheckMechanical.ViewModels
                 return;
             }
 
-            SolidWorksSession session = RefreshConnectionStatus();
+            SolidWorksSession session = GarantirConexao();
 
             if (!session.IsConnected)
                 return;
@@ -887,7 +1075,7 @@ namespace AutoCheckMechanical.ViewModels
         // automaticamente (sem info de chapa), caso ele julgue necessário.
         public void ForcarChecksDeChapa(BatchFileResult item)
         {
-            SolidWorksSession session = RefreshConnectionStatus();
+            SolidWorksSession session = GarantirConexao();
 
             if (!session.IsConnected)
                 return;

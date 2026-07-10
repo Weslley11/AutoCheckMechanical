@@ -107,21 +107,7 @@ namespace AutoCheckMechanical
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            SolidWorksSession session = SolidWorksSession.Connect();
-
-            if (!session.IsConnected)
-            {
-                MessageBox.Show("SolidWorks não encontrado.");
-                return;
-            }
-
-            if (session.ActiveDocument == null)
-            {
-                MessageBox.Show("Nenhum documento aberto.");
-                return;
-            }
-
-            MessageBox.Show("Conectado!\n\n" + session.ActiveDocument.GetTitle());
+            ViewModel.GarantirConexao();
         }
 
         private void BtnHistorico_Click(object sender, RoutedEventArgs e)
