@@ -39,8 +39,6 @@ namespace AutoCheckMechanical.Checkers
                 AddLog(result, $"Vista: {view.Name}");
                 AddLog(result, $"Configuração: {view.ReferencedConfiguration}");
 
-                VerificarBlocoEMateriaPrimaComFlatPattern(context, result);
-
                 foreach (var bend in ViewHelper.GetBendLinesInfo(view))
                 {
                     AddLog(result, "====================================");
@@ -80,25 +78,6 @@ namespace AutoCheckMechanical.Checkers
             AddError(result, "Nenhuma Flat Pattern encontrada.");
 
             return result;
-        }
-
-        // Regra: se existe vista planificada, o desenho é de chapa/dobra --
-        // logo o bloco de legenda WAU precisa estar inserido e a
-        // Matéria-Prima precisa estar preenchida. Faltando qualquer um dos
-        // dois, é erro (diferente da regra inversa abaixo, que é só aviso).
-        private void VerificarBlocoEMateriaPrimaComFlatPattern(CheckContext context, CheckResult result)
-        {
-            bool temBloco = WauBlockHelper.TemBlocoLegendaWau(context.Model);
-            string materiaPrima = WauBlockHelper.GetMateriaPrima(context);
-
-            AddLog(result, $"[Diagnóstico] Bloco de legenda WAU encontrado: {temBloco}");
-            AddLog(result, $"[Diagnóstico] Matéria-Prima: \"{materiaPrima}\"");
-
-            if (!temBloco)
-                AddError(result, "Vista planificada encontrada, mas o bloco de legenda WAU não está inserido.");
-
-            if (string.IsNullOrWhiteSpace(materiaPrima))
-                AddError(result, "Vista planificada encontrada, mas o campo Matéria-Prima não está preenchido.");
         }
 
         // Regra: se o bloco de legenda WAU está inserido no desenho e o campo

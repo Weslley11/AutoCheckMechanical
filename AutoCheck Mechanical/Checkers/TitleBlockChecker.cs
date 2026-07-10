@@ -78,6 +78,14 @@ namespace AutoCheckMechanical.Checkers
                 return result;
             }
 
+            // Existe vista planificada -- então o bloco de legenda WAU
+            // precisa estar inserido (os campos individuais, como
+            // Matéria-Prima, já são checados acima via CamposObrigatorios).
+            if (!WauBlockHelper.TemBlocoLegendaWau(context.Model))
+            {
+                AddError(result, "Vista planificada encontrada, mas o bloco de legenda WAU não está inserido.");
+            }
+
             if (result.Errors.Count == 0)
             {
                 result.Message = "Todos os campos do Bloco Legenda WAU preenchidos.";
