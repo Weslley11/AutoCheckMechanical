@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using AutoCheckMechanical.Core;
 using AutoCheckMechanical.Helpers;
 using AutoCheckMechanical.Models;
@@ -22,6 +24,7 @@ namespace AutoCheckMechanical.Checkers
             "Plano de Pintura",
             "Matriz de Dobra",
             "Raio de Dobra",
+            "Massa Líquida",
         };
 
         // Nomes reais das propriedades customizadas extraídos do BLOCO-WAU-A3_3.SLDBLK
@@ -33,7 +36,13 @@ namespace AutoCheckMechanical.Checkers
             new KeyValuePair<string, string>("Plano de Pintura", "planoPintura"),
             new KeyValuePair<string, string>("Matriz de Dobra", "matrizDobra"),
             new KeyValuePair<string, string>("Raio de Dobra", "raioDobra"),
+            new KeyValuePair<string, string>("Massa Líquida", "ZMASSA_LIQUIDA_01"),
         };
+
+        // Tolerância aceita entre a Massa Líquida do bloco e a massa
+        // calculada pelo SolidWorks (o valor da legenda pode estar
+        // arredondado).
+        private const double ToleranciaMassa = 0.01;
 
         public override CheckResult Execute(CheckContext context)
         {
@@ -70,6 +79,8 @@ namespace AutoCheckMechanical.Checkers
                     string valor = PropertyHelper.GetValue(context.Model, peca, campo.Value);
                     RegistrarCampo(result, campo.Key, valor);
                 }
+
+                VerificarMassa(result, peca);
             }
 
             if (!flatPatternEncontrada)
@@ -124,6 +135,69 @@ namespace AutoCheckMechanical.Checkers
                 material = PropertyHelper.GetValue(peca, "Material");
 
             RegistrarCampo(result, "Material", material);
+        }
+
+        // Regra: a Massa Líquida declarada no bloco de legenda WAU precisa
+        // bater com a massa calculada pelo SolidWorks a partir da geometria
+        // da peça (tolerância de 1%, já que o valor na legenda costuma estar
+        // arredondado).
+        private void VerificarMassa(CheckResult result, ModelDoc2 peca)
+        {
+            string massaBlocoTexto;
+            result.Fields.TryGetValue("Massa Líquida", out massaBlocoTexto);
+
+            if (string.IsNullOrWhiteSpace(massaBlocoTexto))
+                return;
+
+            double massaBloco;
+
+            if (!TentarConverterMassa(massaBlocoTexto, out massaBloco))
+            {
+                AddLog(result, $"Não foi possível interpretar a Massa Líquida do bloco: \"{massaBlocoTexto}\".");
+                return;
+            }
+
+            if (peca == null)
+                return;
+
+            double massaCalculada;
+
+            try
+            {
+                IMassProperty propriedadesDeMassa = peca.Extension.CreateMassProperty();
+                massaCalculada = propriedadesDeMassa.Mass;
+            }
+            catch (COMException ex)
+            {
+                AddLog(result, "Não foi possível calcular a massa da peça: " + ex.Message);
+                return;
+            }
+
+            AddLog(result,
+                $"Massa Líquida do bloco : {massaBloco:0.###} kg | Massa calculada da peça : {massaCalculada:0.###} kg");
+
+            double diferenca = Math.Abs(massaCalculada - massaBloco);
+            double toleranciaAbsoluta = Math.Max(massaCalculada, massaBloco) * ToleranciaMassa;
+
+            if (diferenca > toleranciaAbsoluta)
+            {
+                AddError(result,
+                    $"Massa Líquida do bloco ({massaBloco:0.###} kg) diverge da massa calculada da peça ({massaCalculada:0.###} kg) em mais de 1%.");
+
+                result.CamposDivergentes.Add("Massa Líquida");
+                result.AddWarning("Divergência entre a Massa Líquida do bloco e a massa calculada da peça.");
+            }
+        }
+
+        // Converte um texto de massa da legenda (ex.: "2,383 kg") pra um
+        // double, aceitando vírgula decimal e o sufixo "kg".
+        private static bool TentarConverterMassa(string texto, out double valor)
+        {
+            valor = 0;
+
+            string limpo = Regex.Replace(texto, "[^0-9,.-]", "").Replace(',', '.');
+
+            return double.TryParse(limpo, NumberStyles.Float, CultureInfo.InvariantCulture, out valor);
         }
 
         private void RegistrarCampo(CheckResult result, string rotulo, string valor)
