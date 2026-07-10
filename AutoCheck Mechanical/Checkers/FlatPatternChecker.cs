@@ -88,10 +88,14 @@ namespace AutoCheckMechanical.Checkers
         // dois, é erro (diferente da regra inversa abaixo, que é só aviso).
         private void VerificarBlocoEMateriaPrimaComFlatPattern(CheckContext context, CheckResult result)
         {
-            if (!WauBlockHelper.TemBlocoLegendaWau(context.Model))
-                AddError(result, "Vista planificada encontrada, mas o bloco de legenda WAU não está inserido.");
-
+            bool temBloco = WauBlockHelper.TemBlocoLegendaWau(context.Model);
             string materiaPrima = WauBlockHelper.GetMateriaPrima(context);
+
+            AddLog(result, $"[Diagnóstico] Bloco de legenda WAU encontrado: {temBloco}");
+            AddLog(result, $"[Diagnóstico] Matéria-Prima: \"{materiaPrima}\"");
+
+            if (!temBloco)
+                AddError(result, "Vista planificada encontrada, mas o bloco de legenda WAU não está inserido.");
 
             if (string.IsNullOrWhiteSpace(materiaPrima))
                 AddError(result, "Vista planificada encontrada, mas o campo Matéria-Prima não está preenchido.");
