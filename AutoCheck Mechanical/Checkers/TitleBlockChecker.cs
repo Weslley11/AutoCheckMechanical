@@ -90,6 +90,10 @@ namespace AutoCheckMechanical.Checkers
             {
                 result.Message = "Todos os campos do Bloco Legenda WAU preenchidos.";
             }
+            else
+            {
+                result.AddWarning("Está faltando informação no bloco de legenda WAU.");
+            }
 
             return result;
         }
