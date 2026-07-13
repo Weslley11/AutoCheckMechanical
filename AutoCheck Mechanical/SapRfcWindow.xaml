@@ -83,11 +83,11 @@
                                     </ControlTemplate>
                                 </ToggleButton.Template>
                             </ToggleButton>
-                            <ContentPresenter Margin="{TemplateBinding Padding}"
-                                              Content="{TemplateBinding SelectionBoxItem}"
-                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                              IsHitTestVisible="False"
-                                              VerticalAlignment="Center"/>
+                            <TextBlock Margin="{TemplateBinding Padding}"
+                                       Text="{Binding SelectedItem.Exibicao, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                       Foreground="{TemplateBinding Foreground}"
+                                       IsHitTestVisible="False"
+                                       VerticalAlignment="Center"/>
                             <Popup x:Name="popup" IsOpen="{TemplateBinding IsDropDownOpen}"
                                    Placement="Bottom" AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
                                 <Border Background="#2E2E2E" BorderBrush="#8C8C8C" BorderThickness="1"
