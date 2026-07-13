@@ -41,22 +41,24 @@ namespace AutoCheckMechanical.Services.DocumentOutput
         [XmlElement(IsNullable = true)]
         public string GetObjectLinks;
 
-        [XmlElement(IsNullable = true)]
+        // IsNullable=true não é permitido em tipos de valor (bool/DateTime)
+        // sem ser Nullable<T> -- XmlSerializer lança "IsNullable não pode
+        // ser 'true' para tipo de valor". Como sempre preenchemos esses
+        // campos (mesmo que com o default), não precisamos do IsNullable
+        // aqui; para os DateTime, o padrão "XxxSpecified" já controla se o
+        // elemento é emitido ou não.
         public bool ReturnCurrentVersion;
 
-        [XmlElement(IsNullable = true)]
         public DateTime ValidFrom;
 
         [XmlIgnore]
         public bool ValidFromSpecified;
 
-        [XmlElement(IsNullable = true)]
         public DateTime ValidTo;
 
         [XmlIgnore]
         public bool ValidToSpecified;
 
-        [XmlElement(IsNullable = true)]
         public bool ReturnDocumentStructure;
 
         public DTP_DOCUMENT_OUTPUTDMSSearchBy SearchBy;
@@ -81,7 +83,6 @@ namespace AutoCheckMechanical.Services.DocumentOutput
     {
         public bool CheckIn;
         public string Path;
-        [XmlElement(IsNullable = true)]
         public bool URL;
     }
 
@@ -226,12 +227,10 @@ namespace AutoCheckMechanical.Services.DocumentOutput
         public string ChangeNumber;
         public DTP_DOCUMENT_HEADER SuperiorDocument;
 
-        [XmlElement(IsNullable = true)]
         public DateTime ValidFrom;
         [XmlIgnore]
         public bool ValidFromSpecified;
 
-        [XmlElement(IsNullable = true)]
         public DateTime ValidTo;
         [XmlIgnore]
         public bool ValidToSpecified;
