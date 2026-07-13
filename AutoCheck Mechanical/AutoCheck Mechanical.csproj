@@ -61,6 +61,7 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
+    <Reference Include="System.Web.Services" />
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
@@ -79,6 +80,20 @@
     <Reference Include="sapnco_utils, Version=3.1.0.42, Culture=neutral, PublicKeyToken=50436dca5c7f7d23, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\sapnco_utils.dll</HintPath>
+    </Reference>
+    <!-- Wau.Util / Weg.Iceberg: bibliotecas internas proprietárias da WEG
+         (não redistribuídas neste repositório). Usadas pelo
+         DocumentSearchService.cs pra chamar o Web Service SOA
+         ITF_O_S_DOCUMENT_OUTPUT do mesmo jeito que o WBC/WAU Factory Viewer
+         fazem (SoapClientFactory + SapServices.GetServiceCredential()).
+         Copie Wau.Util.dll e Weg.Iceberg.dll para References\ antes de
+         compilar (ver References\README.md). -->
+    <Reference Include="Wau.Util">
+      <HintPath>..\References\Wau.Util.dll</HintPath>
+    </Reference>
+    <Reference Include="Weg.Iceberg, Version=1.2.2.0, Culture=neutral, PublicKeyToken=16455f422058d3a3, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\Weg.Iceberg.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -125,6 +140,8 @@
     <Compile Include="Services\BatchCheckRunner.cs" />
     <Compile Include="Services\CheckEngine.cs" />
     <Compile Include="Services\CheckerSettingsStore.cs" />
+    <Compile Include="Services\DocumentOutput\ITF_O_S_DOCUMENT_OUTPUTService.cs" />
+    <Compile Include="Services\DocumentSearchService.cs" />
     <Compile Include="Services\EDrawingsSettingsStore.cs" />
     <Compile Include="Services\ExcelMacroSettingsStore.cs" />
     <Compile Include="Services\ExcelReportService.cs" />

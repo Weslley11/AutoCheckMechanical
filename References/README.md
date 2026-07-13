@@ -18,5 +18,16 @@ usada pelo WBC de produção). Obtenha-os na área de downloads da SAP (SAP
 Support Portal → SAP NCo 3.0) ou copie de outra instalação já licenciada
 (ex.: pasta do projeto WBC).
 
+## Wau.Util / Weg.Iceberg
+
+Bibliotecas internas proprietárias da WEG. Copie os seguintes arquivos:
+
+- `Wau.Util.dll`
+- `Weg.Iceberg.dll`
+
+Usadas pra chamar o Web Service SOA `ITF_O_S_DOCUMENT_OUTPUT` do mesmo jeito
+que o WBC e o WAU Factory Viewer fazem (`Weg.Iceberg.Infrastructure.Uddi.
+SoapClientFactory` + `Wau.Util.Services.SapServices.GetServiceCredential()`).
+
 Esta pasta (e os `.dll` dentro dela) é ignorada pelo git -- veja `.gitignore`
 na raiz do repositório.
