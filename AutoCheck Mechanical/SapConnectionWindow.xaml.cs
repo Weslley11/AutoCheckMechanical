@@ -1,4 +1,5 @@
 using System.Windows;
+using AutoCheckMechanical.Services;
 using AutoCheckMechanical.ViewModels;
 
 namespace AutoCheckMechanical
@@ -12,8 +13,18 @@ namespace AutoCheckMechanical
             InitializeComponent();
 
             _viewModel = new SapConnectionViewModel(obterSenha: () => txtSenha.Password);
+            _viewModel.CredenciaisEsquecidas += (s, e) => txtSenha.Password = "";
 
             DataContext = _viewModel;
+
+            SapCredentials salvo = SapCredentialStore.Load();
+
+            if (salvo != null)
+            {
+                _viewModel.CarregarCredenciaisSalvas(salvo);
+                txtSenha.Password = salvo.Senha;
+                _viewModel.TentarReconectarAutomaticamente();
+            }
         }
     }
 }

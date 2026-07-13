@@ -157,6 +157,25 @@
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
+
+        <Style x:Key="LinkButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#9A9A9A"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -240,6 +259,12 @@
                        TextAlignment="Center"
                        Margin="0,14,0,0"
                        FontSize="12"/>
+
+            <Button Content="Esquecer login salvo"
+                    Style="{StaticResource LinkButtonStyle}"
+                    HorizontalAlignment="Center"
+                    Margin="0,10,0,0"
+                    Command="{Binding EsquecerLoginCommand}"/>
         </StackPanel>
 
         <Button Content="?"

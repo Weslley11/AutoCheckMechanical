@@ -401,7 +401,7 @@
                                     FontSize="13"
                                     Padding="16,8"
                                     Margin="8,0,0,0"
-                                    ToolTip="Tela de login SAP -- base pra integração futura, ainda sem lógica de conexão"
+                                    ToolTip="Conexão SAP via RFC/BAPI (SAP .NET Connector)"
                                     Command="{Binding AbrirSapConexaoCommand}"/>
                         </Grid>
                     </Border>

@@ -189,9 +189,8 @@ namespace AutoCheckMechanical.ViewModels
             }
         });
 
-        // Base da integração SAP -- ainda sem lógica de conexão real (a
-        // abordagem, RFC/NCo, SOAP ou SAP GUI Scripting, ainda não foi
-        // decidida). Por enquanto só abre a tela de login.
+        // Integração SAP via RFC/BAPI (SAP .NET Connector / NCo), no mesmo
+        // padrão do WBC (SapConnectionInterface.cs).
         public ICommand AbrirSapConexaoCommand => new DelegateCommand(_ => _abrirSapConexao());
 
         public ICommand GoToHistoryCommand => new DelegateCommand(_ =>

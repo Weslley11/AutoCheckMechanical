@@ -21,3 +21,7 @@ packages/
 
 # Logs
 *.log
+
+# SAP .NET Connector (NCo) -- DLLs proprietárias licenciadas pela SAP,
+# nunca comitadas. Ver References/README.md.
+References/*.dll

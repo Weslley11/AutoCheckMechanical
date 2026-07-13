@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using AutoCheckMechanical.Services;
 
 namespace AutoCheckMechanical.ViewModels
 {
@@ -19,16 +20,20 @@ namespace AutoCheckMechanical.ViewModels
         }
     }
 
-    // Base visual da tela de conexão com o SAP -- só o formulário (System/
-    // Client/User/Password/Language) e o botão LOGIN, sem nenhuma chamada
-    // real ao SAP ainda. A abordagem de conexão (RFC/NCo, SOAP, SAP GUI
-    // Scripting) ainda não foi decidida; as duas tentativas anteriores
-    // esbarraram em bloqueios de infraestrutura da WEG (DLL x86 do SAP NCo
-    // não disponível, porta do Web Service SOAP bloqueada na rede) que
-    // precisam ser resolvidos com o time de Basis/rede antes de continuar.
+    // Tela de conexão com o SAP via RFC/BAPI (SAP .NET Connector / NCo), no
+    // mesmo padrão real do WBC (SapConnectionInterface.cs + CommonVM.cs,
+    // fornecidos como referência direta).
+    //
+    // Igual o WBC: depois do primeiro login bem-sucedido, as credenciais
+    // ficam salvas (criptografadas) e as próximas aberturas reconectam
+    // sozinhas, sem precisar digitar usuário/senha de novo -- só volta a
+    // pedir login se a reconexão automática falhar ou se o usuário usar
+    // "Esquecer login salvo".
     public class SapConnectionViewModel : BaseViewModel
     {
         private readonly Func<string> _obterSenha;
+
+        public event EventHandler CredenciaisEsquecidas;
 
         public ObservableCollection<SistemaSapOption> SistemasDisponiveis { get; } = new ObservableCollection<SistemaSapOption>
         {
@@ -75,7 +80,16 @@ namespace AutoCheckMechanical.ViewModels
             set { _statusText = value; OnPropertyChanged(); }
         }
 
-        public ICommand TestConnectionCommand => new DelegateCommand(_ => TestarConexao());
+        private bool _conectando;
+        public bool Conectando
+        {
+            get { return _conectando; }
+            set { _conectando = value; OnPropertyChanged(); }
+        }
+
+        public ICommand TestConnectionCommand => new DelegateCommand(_ => Conectar(false), () => !Conectando);
+
+        public ICommand EsquecerLoginCommand => new DelegateCommand(_ => EsquecerLogin());
 
         public SapConnectionViewModel(Func<string> obterSenha)
         {
@@ -83,14 +97,36 @@ namespace AutoCheckMechanical.ViewModels
             SistemaSelecionado = SistemasDisponiveis[4]; // EP0 - ECC Produção
         }
 
-        // Ainda não faz nenhuma chamada real ao SAP -- só valida que os
-        // campos foram preenchidos. A conexão de verdade entra aqui quando a
-        // abordagem for decidida (RFC/NCo, SOAP ou SAP GUI Scripting).
-        private void TestarConexao()
+        // Preenche os campos (exceto a senha, que o code-behind seta direto
+        // na PasswordBox) a partir de uma credencial salva anteriormente.
+        public void CarregarCredenciaisSalvas(SapCredentials salvo)
+        {
+            foreach (SistemaSapOption opcao in SistemasDisponiveis)
+            {
+                if (opcao.Codigo == salvo.SistemaCodigo)
+                {
+                    SistemaSelecionado = opcao;
+                    break;
+                }
+            }
+
+            Client = salvo.Client;
+            Usuario = salvo.Usuario;
+            Idioma = salvo.Idioma;
+        }
+
+        public void TentarReconectarAutomaticamente()
+        {
+            Conectar(automatico: true);
+        }
+
+        private void Conectar(bool automatico)
         {
             if (SistemaSelecionado == null || string.IsNullOrWhiteSpace(Usuario))
             {
-                StatusText = "Preencha ao menos System e User.";
+                if (!automatico)
+                    StatusText = "Preencha ao menos System e User.";
+
                 return;
             }
 
@@ -98,11 +134,63 @@ namespace AutoCheckMechanical.ViewModels
 
             if (string.IsNullOrWhiteSpace(senha))
             {
-                StatusText = "Preencha a senha.";
+                if (!automatico)
+                    StatusText = "Preencha a senha.";
+
                 return;
             }
 
-            StatusText = "Conexão ainda não implementada -- esta tela é só a base visual.";
+            Conectando = true;
+            StatusText = automatico ? "Reconectando automaticamente..." : "Conectando...";
+
+            try
+            {
+                // O SAP Logon (SAPUILandscape.xml) indexa os destinos pelo
+                // nome completo exibido no SAP Logon Pad (ex.: "EP0 - ECC
+                // Produção"), não pelo código curto de 3 letras (systemid).
+                bool conectado = SapRfcService.Instance.OpenConnection(
+                    SistemaSelecionado.Exibicao, Client, Usuario, senha, Idioma);
+
+                if (conectado)
+                {
+                    StatusText =
+                        $"Conectado com sucesso.\nUsuário: {SapRfcService.Instance.ConnectedUser}\nSistema: {SapRfcService.Instance.ConnectedSystem}";
+
+                    SapCredentialStore.Save(new SapCredentials
+                    {
+                        SistemaCodigo = SistemaSelecionado.Codigo,
+                        Client = Client,
+                        Usuario = Usuario,
+                        Senha = senha,
+                        Idioma = Idioma,
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                StatusText = (automatico ? "Falha ao reconectar automaticamente: " : "Falha na conexão: ") + ex.Message;
+
+                // Credencial salva não serve mais (senha trocada, usuário
+                // bloqueado, etc.) -- descarta pra forçar um login manual.
+                if (automatico)
+                    SapCredentialStore.Clear();
+            }
+            finally
+            {
+                Conectando = false;
+            }
+        }
+
+        private void EsquecerLogin()
+        {
+            SapRfcService.Instance.CloseConnection();
+            SapCredentialStore.Clear();
+
+            Usuario = "";
+            Client = "";
+            StatusText = "Login salvo esquecido. Informe as credenciais novamente.";
+
+            CredenciaisEsquecidas?.Invoke(this, EventArgs.Empty);
         }
     }
 }
