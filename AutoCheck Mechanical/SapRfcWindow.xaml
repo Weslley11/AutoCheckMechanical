@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Logon SAP"
         Height="480"
-        Width="820"
+        Width="460"
         WindowStartupLocation="CenterOwner"
         WindowStyle="ToolWindow"
         ResizeMode="NoResize"
@@ -179,12 +179,7 @@
     </Window.Resources>
 
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="360"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-
-        <StackPanel Grid.Column="0" Margin="34,10,34,10" VerticalAlignment="Center">
+        <StackPanel Margin="34,10,34,10" VerticalAlignment="Center">
 
             <!-- Logo (aproximação do logo SAP, sem usar a arte oficial) -->
             <Border Background="Black" Width="170" Height="64" HorizontalAlignment="Center" Margin="0,0,0,24">
@@ -272,74 +267,10 @@
                     Command="{Binding EsquecerLoginCommand}"/>
         </StackPanel>
 
-        <!-- Busca de documentos do DMS por ECM (Web Service ITF_O_S_DOCUMENT_OUTPUT,
-             SOA da WEG: mecanismo separado da conexão RFC ao lado, reaproveita
-             só o Usuário/Senha já digitados). -->
-        <Grid Grid.Column="1" Margin="20,24,24,24">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-
-            <TextBlock Grid.Row="0"
-                       Text="Buscar documentos por ECM"
-                       Foreground="White"
-                       FontWeight="Bold"
-                       FontSize="14"
-                       Margin="0,0,0,12"/>
-
-            <Grid Grid.Row="1" Margin="0,0,0,10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBox Grid.Column="0"
-                         Style="{StaticResource SapFieldStyle}"
-                         Text="{Binding EcmBusca, UpdateSourceTrigger=PropertyChanged}"
-                         Margin="0,0,10,0"/>
-                <Button Grid.Column="1"
-                        Content="BUSCAR"
-                        Width="100"
-                        Style="{StaticResource SapLoginButtonStyle}"
-                        Command="{Binding BuscarDocumentosCommand}"/>
-            </Grid>
-
-            <TextBlock Grid.Row="2"
-                       Text="{Binding StatusBusca}"
-                       Foreground="#C9C9C9"
-                       TextWrapping="Wrap"
-                       Margin="0,0,0,10"
-                       FontSize="12"/>
-
-            <Border Grid.Row="3"
-                    BorderBrush="#8C8C8C"
-                    BorderThickness="1">
-                <ListView ItemsSource="{Binding ResultadosBusca}"
-                          Background="#2E2E2E"
-                          Foreground="White"
-                          BorderThickness="0">
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="Documento" DisplayMemberBinding="{Binding DocumentNumber}" Width="90"/>
-                            <GridViewColumn Header="Tipo" DisplayMemberBinding="{Binding Type}" Width="45"/>
-                            <GridViewColumn Header="Parte" DisplayMemberBinding="{Binding Part}" Width="45"/>
-                            <GridViewColumn Header="Versão" DisplayMemberBinding="{Binding Version}" Width="55"/>
-                            <GridViewColumn Header="Status" DisplayMemberBinding="{Binding Status}" Width="50"/>
-                            <GridViewColumn Header="ECM" DisplayMemberBinding="{Binding ChangeNumber}" Width="80"/>
-                            <GridViewColumn Header="Descrição" DisplayMemberBinding="{Binding Descricao}" Width="160"/>
-                        </GridView>
-                    </ListView.View>
-                </ListView>
-            </Border>
-        </Grid>
-
         <Button Content="?"
                 Style="{StaticResource SapHelpButtonStyle}"
-                HorizontalAlignment="Left"
+                HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Grid.Column="0"
-                Margin="16,0,0,16"/>
+                Margin="0,0,16,16"/>
     </Grid>
 </Window>
