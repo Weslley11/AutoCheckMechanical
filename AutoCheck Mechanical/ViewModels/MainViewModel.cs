@@ -984,10 +984,14 @@ namespace AutoCheckMechanical.ViewModels
             }
         }
 
-        // Copia o arquivo original (DocumentoCaminhoOriginal, retornado pelo
-        // DMS) de cada documento da lista pra dentro de PastaDownloadDocumentos
-        // (o campo pré-definido pelo usuário), numa subpasta com o nome da
-        // ECM usada na busca de cada documento.
+        // Baixa o original SWD de cada documento da lista via SAP GUI
+        // Scripting (CV04N) -- o Web Service (SOAP) só devolve, pro
+        // original SWD, um caminho de convenção local ("C:\SAP_SW\...",
+        // igual o fluxo antigo via macro), não um caminho de rede que dê
+        // pra copiar direto; só o original PDF vem com um caminho de rede
+        // de verdade. Por isso o download de verdade do SWD precisa passar
+        // pelo SAP GUI mesmo, automatizando a mesma tela (CV04N > Originais
+        // > Exportar) que foi gravada manualmente pelo usuário.
         private void BaixarDocumentos()
         {
             List<BatchFileResult> documentos = BatchResults
@@ -1010,52 +1014,78 @@ namespace AutoCheckMechanical.ViewModels
                 return;
             }
 
+            object sessaoSap;
+
+            try
+            {
+                sessaoSap = SapService.Conectar();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Não foi possível conectar ao SAP GUI:\n" + ex.Message,
+                    "Baixar documentos", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
             IsBusy = true;
             Mouse.OverrideCursor = Cursors.Wait;
             DetalheTitulo = "LOG";
             LogText = "";
-            AddLog($"Baixando {documentos.Count} documento(s) para {pastaBase}...");
+            AddLog($"Baixando {documentos.Count} documento(s) para {pastaBase} via SAP GUI...");
 
             try
             {
                 int copiados = 0;
                 int falhas = 0;
 
-                foreach (BatchFileResult item in documentos)
+                // Agrupa por ECM porque a busca na CV04N já traz de uma vez
+                // todos os documentos de uma ECM -- evita reabrir a busca
+                // pra cada documento individualmente.
+                var gruposPorEcm = documentos.GroupBy(x =>
+                    string.IsNullOrWhiteSpace(x.DocumentoEcm) ? "SEM_ECM" : x.DocumentoEcm);
+
+                foreach (var grupo in gruposPorEcm)
                 {
-                    if (string.IsNullOrEmpty(item.DocumentoCaminhoOriginal) || !File.Exists(item.DocumentoCaminhoOriginal))
+                    string ecm = grupo.Key;
+                    string pastaEcm = Path.Combine(pastaBase, ecm);
+
+                    Directory.CreateDirectory(pastaEcm);
+
+                    List<string> numerosDocumento = grupo.Select(x => x.DocumentoNumero).ToList();
+
+                    Dictionary<string, string> resultadoEcm =
+                        SapService.BaixarOriginaisSwd(sessaoSap, ecm, numerosDocumento, pastaEcm);
+
+                    foreach (string documentNumber in numerosDocumento)
                     {
-                        falhas++;
-                        AddLog($"{item.DocumentoNumero} — sem arquivo original disponível no DMS.");
-                        continue;
+                        string status = resultadoEcm.TryGetValue(documentNumber, out string valor) ? valor : null;
+
+                        if (!string.IsNullOrEmpty(status) && File.Exists(status))
+                        {
+                            copiados++;
+                            AddLog($"{documentNumber} — baixado para {status}.");
+                        }
+                        else
+                        {
+                            falhas++;
+                            AddLog($"{documentNumber} — {status ?? "falha desconhecida"}.");
+                        }
                     }
 
-                    try
-                    {
-                        string nomeEcm = !string.IsNullOrWhiteSpace(item.DocumentoEcm) ? item.DocumentoEcm : "SEM_ECM";
-                        string pastaEcm = Path.Combine(pastaBase, nomeEcm);
-
-                        Directory.CreateDirectory(pastaEcm);
-
-                        string extensao = Path.GetExtension(item.DocumentoCaminhoOriginal);
-                        string nomeArquivo = $"{item.DocumentoNumero}_{item.DocumentoVersao}{extensao}";
-                        string caminhoLocal = Path.Combine(pastaEcm, nomeArquivo);
-
-                        File.Copy(item.DocumentoCaminhoOriginal, caminhoLocal, overwrite: true);
-
-                        copiados++;
-                        AddLog($"{item.DocumentoNumero} — copiado para {caminhoLocal}.");
-                    }
-                    catch (Exception ex)
-                    {
-                        falhas++;
-                        AddLog($"{item.DocumentoNumero} — falha ao copiar: {ex.Message}");
-                    }
+                    // Deixa a UI responder entre uma ECM e outra (tudo aqui
+                    // roda síncrono, igual o resto do app).
+                    Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(() => { }));
                 }
 
                 StatusText = falhas == 0
                     ? $"{copiados} documento(s) baixado(s) para {pastaBase}."
                     : $"{copiados} documento(s) baixado(s), {falhas} com falha (veja o log).";
+            }
+            catch (Exception ex)
+            {
+                AddLog("Erro ao automatizar o SAP GUI: " + ex.Message);
+                StatusText = "Falha ao baixar documentos: " + ex.Message;
             }
             finally
             {

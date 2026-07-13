@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
@@ -209,6 +210,168 @@ namespace AutoCheckMechanical.Services
                 "Automação do diálogo de download (\"Copiar local\") ainda não configurada. " +
                 "Grave essa ação no SAP GUI Scripting e informe os IDs dos campos para " +
                 "completar SapService.PreencherDialogoDownload.");
+        }
+
+        // Baixa o original SWD de cada documento via CV04N (SAP GUI Scripting),
+        // portado de uma gravação real do usuário: busca os documentos da ECM
+        // (tipo SWD) na CV04N, abre o detalhe de cada um, localiza o original
+        // SWD na lista de originais e usa a exportação (CF_EXP_COPY) pra copiar
+        // direto pro caminho de destino -- pulando os diálogos de navegação de
+        // pasta que apareceram na gravação manual (F4 em cascata): aqui a gente
+        // já escreve o caminho final direto no campo de destino.
+        //
+        // Devolve, por número de documento: o caminho final se deu certo, ou
+        // uma mensagem de erro/motivo se não deu.
+        public static Dictionary<string, string> BaixarOriginaisSwd(
+            object session, string ecm, IEnumerable<string> documentos, string pastaDestino)
+        {
+            Dictionary<string, string> resultado = new Dictionary<string, string>();
+
+            object grid = AbrirCv04nEBuscar(session, ecm);
+
+            foreach (string documentNumber in documentos)
+            {
+                try
+                {
+                    int linha = EncontrarLinhaPorDocumento(grid, documentNumber);
+
+                    if (linha < 0)
+                    {
+                        resultado[documentNumber] = "Documento não encontrado na grid de resultados da CV04N.";
+                        continue;
+                    }
+
+                    Invoke(grid, "setCurrentCell", linha, "DOKNR");
+                    Invoke(grid, "doubleClickCurrentCell");
+                    EsperarSap(session);
+
+                    string caminhoFinal = ExportarOriginalSwd(session, pastaDestino);
+
+                    resultado[documentNumber] = caminhoFinal
+                        ?? "Não achei um original SWD na lista de originais desse documento.";
+
+                    // Volta pra lista de resultados (F3), igual ao fluxo gravado
+                    // manualmente (BaixarOriginais.vb), pra processar o próximo.
+                    Invoke(FindById(session, "wnd[0]"), "SendVKey", 3);
+                    EsperarSap(session);
+                }
+                catch (Exception ex)
+                {
+                    resultado[documentNumber] = "Erro: " + DescreverErro(ex);
+
+                    // Tenta voltar pra lista mesmo com erro, pra não travar o
+                    // processamento dos documentos seguintes.
+                    try
+                    {
+                        Invoke(FindById(session, "wnd[0]"), "SendVKey", 3);
+                        EsperarSap(session);
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+            }
+
+            return resultado;
+        }
+
+        // Campos confirmados numa gravação real do SAP GUI Scripting do
+        // usuário (busca por tipo SWD + ECM na CV04N).
+        private static object AbrirCv04nEBuscar(object session, string ecm)
+        {
+            Set(FindById(session, "wnd[0]/tbar[0]/okcd"), "Text", "cv04n");
+            Invoke(FindById(session, "wnd[0]"), "SendVKey", 0);
+
+            const string prefixoTela =
+                "wnd[0]/usr/tabsMAINSTRIP/tabpTAB1/ssubSUBSCRN:SAPLCV100:0401/subSCR_MAIN:SAPLCV100:0402/";
+
+            Set(FindById(session, prefixoTela + "ctxtSTDOKAR-LOW"), "Text", "SWD");
+            Set(FindById(session, prefixoTela + "txtRESTRICT"), "Text", "");
+            Set(FindById(session, prefixoTela + "ctxtSTAENNR-LOW"), "Text", ecm);
+
+            Invoke(FindById(session, "wnd[0]/tbar[1]/btn[8]"), "Press");
+            EsperarSap(session);
+
+            return FindById(session, "wnd[0]/usr/cntlGRID1/shellcont/shell");
+        }
+
+        // Varre as linhas da grid de resultados da CV04N procurando o número
+        // de documento -- mesmo padrão de varredura já usado em
+        // BuscarDocumentosPorEcm pra ZTPLM025, mas na coluna DOKNR desta
+        // grid (não confirmado numa gravação, mas é o nome técnico padrão do
+        // campo "Número do documento" em qualquer tela DMS do SAP).
+        private static int EncontrarLinhaPorDocumento(object grid, string documentNumber)
+        {
+            int totalLinhas = (int)Get(grid, "RowCount");
+
+            for (int i = 0; i < totalLinhas; i++)
+            {
+                string doc = ((string)Invoke(grid, "GetCellValue", i, "DOKNR")).Trim();
+
+                if (string.Equals(doc, documentNumber, StringComparison.OrdinalIgnoreCase))
+                    return i;
+            }
+
+            return -1;
+        }
+
+        // Na tela de detalhe do documento (CV04N), tenta cada nó da lista de
+        // originais até achar o que é o SWD -- identificado pelo nome que o
+        // SAP propõe no campo de destino da exportação terminar em .SLDDRW.
+        // A ordem dos nós não é garantida (já vimos SWD e PDF em ordens
+        // diferentes dependendo do documento, no diagnóstico da busca via
+        // Web Service), por isso testa em vez de assumir uma posição fixa.
+        // Devolve o caminho final se achou e copiou, ou null se não achou
+        // nenhum original SWD entre os nós testados.
+        private static string ExportarOriginalSwd(object session, string pastaDestino)
+        {
+            const string prefixoOriginais =
+                "wnd[0]/usr/tabsTAB_MAIN/tabpTSMAIN/ssubSCR_MAIN:SAPLCV110:0102/cntlCTL_FILES1/shellcont/shell/shellcont[1]/shell";
+
+            object arvoreOriginais = FindById(session, prefixoOriginais);
+
+            // Nenhum documento visto até agora (via diagnóstico do Web
+            // Service) teve mais de 2 originais (SWD + PDF), mas testamos
+            // mais alguns nós por segurança.
+            for (int i = 1; i <= 5; i++)
+            {
+                string chaveNode = i.ToString().PadLeft(11);
+
+                try
+                {
+                    Invoke(arvoreOriginais, "selectNode", chaveNode);
+                }
+                catch (Exception)
+                {
+                    // Não existe mais nó nessa posição -- para de tentar.
+                    break;
+                }
+
+                Invoke(arvoreOriginais, "nodeContextMenu", chaveNode);
+                Invoke(arvoreOriginais, "selectContextMenuItem", "CF_EXP_COPY");
+                EsperarSap(session);
+
+                object campoDestino = FindById(session, "wnd[1]/usr/ctxtDRAW-FILEP");
+                string nomeProposto = ((string)Get(campoDestino, "Text") ?? "").Trim();
+
+                if (nomeProposto.EndsWith(".SLDDRW", StringComparison.OrdinalIgnoreCase))
+                {
+                    string caminhoFinal = Path.Combine(pastaDestino, Path.GetFileName(nomeProposto));
+
+                    Set(campoDestino, "Text", caminhoFinal);
+                    Invoke(FindById(session, "wnd[1]/tbar[0]/btn[0]"), "Press");
+                    EsperarSap(session);
+
+                    return caminhoFinal;
+                }
+
+                // Não era o original SWD -- cancela esse diálogo (F12) e
+                // tenta o próximo nó.
+                Invoke(FindById(session, "wnd[1]"), "SendVKey", 12);
+                EsperarSap(session);
+            }
+
+            return null;
         }
 
         private static object ObterGrid(object session)
