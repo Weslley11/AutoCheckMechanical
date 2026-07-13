@@ -277,8 +277,13 @@ namespace AutoCheckMechanical
                 CopiarLinha(item);
             };
 
+            MenuItem menuRemover = new MenuItem { Header = "Remover da lista" };
+
+            menuRemover.Click += (s, e) => RemoverLinha(item);
+
             ContextMenu menu = new ContextMenu();
             menu.Items.Add(menuCopiar);
+            menu.Items.Add(menuRemover);
 
             return menu;
         }
@@ -290,6 +295,19 @@ namespace AutoCheckMechanical
             Clipboard.SetText(linha);
 
             ViewModel.StatusText = $"Linha de \"{item.FileName}\" copiada para a área de transferência.";
+        }
+
+        // Permite descartar da lista um documento vindo da busca por ECM
+        // que o usuário não quer checar (ou qualquer outra linha antiga).
+        private void RemoverLinha(BatchFileResult item)
+        {
+            if (_caminhoLinhaSelecionada == item.FilePath)
+                _caminhoLinhaSelecionada = null;
+
+            ViewModel.RemoverBatchResult(item);
+            RebuildResultsGrid();
+
+            ViewModel.StatusText = $"\"{item.FileName}\" removido da lista.";
         }
 
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)

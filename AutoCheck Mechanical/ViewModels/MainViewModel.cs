@@ -607,6 +607,20 @@ namespace AutoCheckMechanical.ViewModels
 
         private void RunCheckDrawing()
         {
+            // Se há documentos vindos da busca por ECM ainda não checados na
+            // lista, o botão CHECK DRAWING processa esse lote em vez do
+            // documento ativo no SolidWorks (comportamento original, usado
+            // quando a lista não tem documentos pendentes).
+            List<BatchFileResult> documentosPendentes = BatchResults
+                .Where(x => !string.IsNullOrEmpty(x.DocumentoNumero) && x.Results.Count == 0 && !x.OpenFailed)
+                .ToList();
+
+            if (documentosPendentes.Count > 0)
+            {
+                RunCheckDocumentosPendentes(documentosPendentes);
+                return;
+            }
+
             DetalheTitulo = "LOG";
             LogText = "";
             AddLog("Iniciando AutoCheck...");
@@ -686,6 +700,114 @@ namespace AutoCheckMechanical.ViewModels
             }
         }
 
+        // Roda o check em lote nos documentos vindos da busca por ECM
+        // (BuscarDocumentosPorEcmCommand) que ainda não foram checados,
+        // reaproveitando o caminho do "Original" do DMS (DocumentoCaminhoOriginal)
+        // como arquivo pra abrir no SolidWorks. Documentos sem original
+        // vinculado no DMS são marcados como falha, sem tentar abrir nada.
+        private void RunCheckDocumentosPendentes(List<BatchFileResult> documentosPendentes)
+        {
+            List<BatchFileResult> semArquivo = documentosPendentes
+                .Where(x => string.IsNullOrEmpty(x.DocumentoCaminhoOriginal))
+                .ToList();
+
+            List<BatchFileResult> comArquivo = documentosPendentes
+                .Except(semArquivo)
+                .ToList();
+
+            SolidWorksSession session = null;
+
+            if (comArquivo.Count > 0)
+            {
+                session = GarantirConexao();
+
+                if (!session.IsConnected)
+                    return;
+            }
+
+            DetalheTitulo = "LOG";
+            LogText = "";
+            IsBusy = true;
+            Mouse.OverrideCursor = Cursors.Wait;
+
+            try
+            {
+                foreach (BatchFileResult pendente in semArquivo)
+                {
+                    pendente.OpenFailed = true;
+                    pendente.OpenError = "Nenhum arquivo original vinculado a este documento no DMS.";
+
+                    UpsertBatchResult(pendente);
+                    AddLog($"{pendente.DocumentoNumero} — sem arquivo original vinculado no DMS.");
+                }
+
+                if (comArquivo.Count > 0)
+                {
+                    CheckEngine engine = new CheckEngine();
+                    CheckerManager.Register(engine, CheckersDesativados);
+
+                    // Loop em vez de ToDictionary: dois documentos diferentes
+                    // podem, em tese, apontar pro mesmo arquivo original --
+                    // ToDictionary lançaria exceção nesse caso.
+                    Dictionary<string, BatchFileResult> pendentesPorCaminho = new Dictionary<string, BatchFileResult>();
+
+                    foreach (BatchFileResult pendente in comArquivo)
+                        pendentesPorCaminho[pendente.DocumentoCaminhoOriginal] = pendente;
+
+                    AddLog($"Verificando {comArquivo.Count} documento(s) da lista... A janela do SolidWorks vai abrir e fechar cada arquivo automaticamente, isso é esperado.");
+
+                    int concluidos = 0;
+
+                    BatchCheckRunner.Run(session.Application, engine, comArquivo.Select(x => x.DocumentoCaminhoOriginal), item =>
+                    {
+                        concluidos++;
+
+                        if (pendentesPorCaminho.TryGetValue(item.FilePath, out BatchFileResult pendente))
+                        {
+                            item.DocumentoNumero = pendente.DocumentoNumero;
+                            item.DocumentoTipo = pendente.DocumentoTipo;
+                            item.DocumentoParte = pendente.DocumentoParte;
+                            item.DocumentoVersao = pendente.DocumentoVersao;
+                            item.DocumentoDescricao = pendente.DocumentoDescricao;
+                            item.DocumentoCaminhoOriginal = pendente.DocumentoCaminhoOriginal;
+                        }
+
+                        UpsertBatchResult(item);
+                        InvalidarResultados();
+                        HistoryStore.Save(BatchResults);
+
+                        string statusItem = item.OpenFailed ? "FALHA AO ABRIR" : "OK";
+                        AddLog($"[{concluidos}/{comArquivo.Count}] {item.FileName} — {statusItem}");
+                        StatusText = $"Verificando... {concluidos}/{comArquivo.Count} concluído(s) ({item.FileName}).";
+
+                        // Força o WPF a processar a fila de render agora, já que tudo
+                        // roda de forma síncrona nesta thread — sem isso a tabela só
+                        // apareceria atualizada quando o lote inteiro terminasse.
+                        Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(() => { }));
+                    });
+                }
+
+                InvalidarResultados();
+                HistoryStore.Save(BatchResults);
+
+                StatusText = $"{documentosPendentes.Count} documento(s) verificado(s).";
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+                IsBusy = false;
+            }
+        }
+
+        // Remove uma linha da tabela (usado pra descartar documentos que o
+        // usuário não quer checar, vindos da busca por ECM, ou qualquer
+        // resultado antigo do histórico).
+        public void RemoverBatchResult(BatchFileResult item)
+        {
+            BatchResults.Remove(item);
+            HistoryStore.Save(BatchResults);
+        }
+
         // Reaproveitado pelo fluxo manual (VERIFICAR ARQUIVOS...) e pelo fluxo
         // de download automático via SAP.
         private void VerificarArquivos(SolidWorksSession session, IEnumerable<string> filePaths)
@@ -763,19 +885,25 @@ namespace AutoCheckMechanical.ViewModels
 
                 foreach (DocumentoEncontrado documento in resultados)
                 {
+                    string caminhoOriginal = documento.CaminhosOriginais.FirstOrDefault();
+
                     UpsertBatchResult(new BatchFileResult
                     {
-                        // Não existe arquivo local baixado aqui -- FilePath
-                        // vira um identificador sintético só pra distinguir
-                        // as linhas no UpsertBatchResult/seleção de linha,
-                        // não um caminho de arquivo de verdade.
-                        FilePath = $"SAP:{documento.DocumentNumber}:{documento.Version}",
+                        // Usa o "Original" do DMS como FilePath quando existe
+                        // (é o que o RunCheckDrawing vai abrir no SolidWorks
+                        // depois); sem original, vira um identificador
+                        // sintético só pra distinguir a linha, não um
+                        // caminho de arquivo de verdade.
+                        FilePath = !string.IsNullOrEmpty(caminhoOriginal)
+                            ? caminhoOriginal
+                            : $"SAP:{documento.DocumentNumber}:{documento.Version}",
                         FileName = documento.DocumentNumber,
                         DocumentoNumero = documento.DocumentNumber,
                         DocumentoTipo = documento.Type,
                         DocumentoParte = documento.Part,
                         DocumentoVersao = documento.Version,
                         DocumentoDescricao = documento.Descricao,
+                        DocumentoCaminhoOriginal = caminhoOriginal,
                     });
                 }
 

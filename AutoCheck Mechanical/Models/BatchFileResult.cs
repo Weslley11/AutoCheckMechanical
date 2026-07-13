@@ -13,14 +13,17 @@ namespace AutoCheckMechanical.Models
         public List<CheckResult> Results { get; set; } = new List<CheckResult>();
 
         // Preenchidos só nas linhas vindas da busca de documentos por ECM
-        // (BuscarDocumentosPorEcmCommand, Web Service ITF_O_S_DOCUMENT_OUTPUT)
-        // -- nesse caso não há arquivo local baixado, então FilePath é um
-        // identificador sintético (não um caminho real) e ThumbnailPath fica
-        // vazio.
+        // (BuscarDocumentosPorEcmCommand, Web Service ITF_O_S_DOCUMENT_OUTPUT).
+        // Enquanto o documento não foi checado ainda (RunCheckDrawing ainda
+        // não rodou pra ele), FilePath é DocumentoCaminhoOriginal (o "Original"
+        // do DMS) quando existe, ou um identificador sintético ("SAP:...")
+        // quando não há original vinculado -- nos dois casos ThumbnailPath
+        // fica vazio até o check rodar de verdade.
         public string DocumentoNumero { get; set; }
         public string DocumentoTipo { get; set; }
         public string DocumentoParte { get; set; }
         public string DocumentoVersao { get; set; }
         public string DocumentoDescricao { get; set; }
+        public string DocumentoCaminhoOriginal { get; set; }
     }
 }
