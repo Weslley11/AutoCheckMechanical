@@ -50,7 +50,14 @@ namespace AutoCheckMechanical.Services
                 UserCode = usuario,
                 DMS = new DTP_DOCUMENT_OUTPUTDMS
                 {
-                    Originals = new DTP_DOCUMENT_OUTPUTDMSOriginals { CheckIn = false },
+                    // CheckIn precisa ser true pra o SAP devolver os
+                    // "Originals" (caminho do arquivo de verdade) em cada
+                    // documento -- com false, o response.DIRList[].Originals
+                    // vem vazio, e por isso BAIXAR DOCUMENTOS e CHECK DRAWING
+                    // não achavam nenhum arquivo pra abrir/copiar. Confirmado
+                    // contra o código real do WAU Factory Viewer (mesmo
+                    // Web Service, mesmo caso de uso de baixar o original).
+                    Originals = new DTP_DOCUMENT_OUTPUTDMSOriginals { CheckIn = true, URL = false, URLSpecified = false },
                     ReturnClassInfo = false,
                     ReturnCurrentVersion = retornarUltimaVersao,
                     SearchBy = new DTP_DOCUMENT_OUTPUTDMSSearchBy
