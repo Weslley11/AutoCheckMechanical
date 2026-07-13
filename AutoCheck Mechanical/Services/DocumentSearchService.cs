@@ -64,13 +64,13 @@ namespace AutoCheckMechanical.Services
                 },
             };
 
-            ITF_O_S_DOCUMENT_OUTPUTService service = new ITF_O_S_DOCUMENT_OUTPUTService();
-            service.Credentials = new NetworkCredential(usuario, senha);
-
             DTP_DOCUMENT_OUTPUT_R response;
 
             try
             {
+                ITF_O_S_DOCUMENT_OUTPUTService service = new ITF_O_S_DOCUMENT_OUTPUTService();
+                service.Credentials = new NetworkCredential(usuario, senha);
+
                 response = service.ITF_O_S_DOCUMENT_OUTPUT(request);
             }
             catch (Exception ex)
@@ -120,7 +120,9 @@ namespace AutoCheckMechanical.Services
         // InnerException que tem o motivo de verdade -- sem isso, a
         // mensagem mostrada na tela esconde exatamente o detalhe que
         // precisamos pra corrigir os atributos de serialização SOAP.
-        private static string DescreverErroCompleto(Exception ex)
+        // Público pra poder ser reaproveitado nos catches da ViewModel
+        // também, caso a exceção escape sem passar pelo wrapping local.
+        public static string DescreverErroCompleto(Exception ex)
         {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
             Exception atual = ex;

@@ -190,7 +190,7 @@ namespace AutoCheckMechanical.ViewModels
             }
             catch (Exception ex)
             {
-                StatusText = (automatico ? "Falha ao reconectar automaticamente: " : "Falha na conexão: ") + ex.Message;
+                StatusText = (automatico ? "Falha ao reconectar automaticamente: " : "Falha na conexão: ") + DocumentSearchService.DescreverErroCompleto(ex);
 
                 // Credencial salva não serve mais (senha trocada, usuário
                 // bloqueado, etc.) -- descarta pra forçar um login manual.
@@ -234,7 +234,7 @@ namespace AutoCheckMechanical.ViewModels
             }
             catch (Exception ex)
             {
-                StatusBusca = "Falha na busca: " + ex.Message;
+                StatusBusca = "Falha na busca: " + DocumentSearchService.DescreverErroCompleto(ex);
             }
             finally
             {
