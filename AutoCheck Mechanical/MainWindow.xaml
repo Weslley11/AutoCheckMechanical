@@ -348,6 +348,7 @@
                                 <ColumnDefinition Width="200"/>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
@@ -392,6 +393,16 @@
                                     Command="{Binding TrocarPlanilhaCommand}">
                                 <TextBlock Text="&#xE8DE;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
                             </Button>
+
+                            <Button Grid.Column="4"
+                                    x:Name="btnSapRfc"
+                                    Content="SAP RFC (BETA)"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    FontSize="13"
+                                    Padding="16,8"
+                                    Margin="8,0,0,0"
+                                    ToolTip="Integração SAP via RFC/BAPI (SAP .NET Connector) -- em desenvolvimento"
+                                    Command="{Binding AbrirSapRfcCommand}"/>
                         </Grid>
                     </Border>
 

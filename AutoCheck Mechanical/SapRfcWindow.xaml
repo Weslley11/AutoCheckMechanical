@@ -1,0 +1,48 @@
+<Window x:Class="AutoCheckMechanical.SapRfcWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Integração SAP (RFC/BAPI)"
+        Height="440"
+        Width="380"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="ToolWindow"
+        ResizeMode="NoResize"
+        FontFamily="Segoe UI">
+
+    <StackPanel Margin="18" Name="panelRoot">
+        <TextBlock Name="txtTitulo"
+                   Text="Conexão SAP via RFC/BAPI (SAP .NET Connector)"
+                   TextWrapping="Wrap"
+                   FontSize="13"
+                   FontWeight="Bold"
+                   Margin="0,0,0,16"/>
+
+        <TextBlock Text="Sistema (destino no SAP Logon)" FontSize="11" Margin="0,0,0,2"/>
+        <TextBox Text="{Binding Sistema, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10" Padding="6,4"/>
+
+        <TextBlock Text="Mandante (Client)" FontSize="11" Margin="0,0,0,2"/>
+        <TextBox Text="{Binding Client, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10" Padding="6,4"/>
+
+        <TextBlock Text="Usuário" FontSize="11" Margin="0,0,0,2"/>
+        <TextBox Text="{Binding Usuario, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10" Padding="6,4"/>
+
+        <TextBlock Text="Senha" FontSize="11" Margin="0,0,0,2"/>
+        <PasswordBox Name="txtSenha" Margin="0,0,0,10" Padding="6,4"/>
+
+        <TextBlock Text="Idioma" FontSize="11" Margin="0,0,0,2"/>
+        <TextBox Text="{Binding Idioma, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16" Padding="6,4"/>
+
+        <Button Name="btnTestar"
+                Content="TESTAR CONEXÃO"
+                Padding="16,8"
+                HorizontalAlignment="Right"
+                FontWeight="Bold"
+                Command="{Binding TestConnectionCommand}"/>
+
+        <TextBlock Name="txtStatus"
+                   Text="{Binding StatusText}"
+                   TextWrapping="Wrap"
+                   Margin="0,14,0,0"
+                   FontSize="12"/>
+    </StackPanel>
+</Window>

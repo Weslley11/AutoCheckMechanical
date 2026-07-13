@@ -59,6 +59,18 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <!-- SAP .NET Connector (NCo): software proprietário licenciado pela SAP,
+         não redistribuído neste repositório. Copie sapnco.dll e
+         sapnco_utils.dll (versão 3.1.0.42, x86) para a pasta References\ na
+         raiz do repositório antes de compilar (ver References\README.md). -->
+    <Reference Include="sapnco, Version=3.1.0.42, Culture=neutral, PublicKeyToken=50436dca5c7f7d23, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\sapnco.dll</HintPath>
+    </Reference>
+    <Reference Include="sapnco_utils, Version=3.1.0.42, Culture=neutral, PublicKeyToken=50436dca5c7f7d23, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\sapnco_utils.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -109,6 +121,7 @@
     <Compile Include="Services\ExcelReportService.cs" />
     <Compile Include="Services\ExcelSapService.cs" />
     <Compile Include="Services\HistoryStore.cs" />
+    <Compile Include="Services\SapRfcService.cs" />
     <Compile Include="Services\SapService.cs" />
     <Compile Include="Services\SolidWorksSettingsStore.cs" />
     <Compile Include="Services\ThemeStore.cs" />
@@ -118,11 +131,16 @@
     <Compile Include="ViewModels\CheckerOptionViewModel.cs" />
     <Compile Include="ViewModels\DelegateCommand.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\SapRfcViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="ChecksConfigWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="SapRfcWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -141,6 +159,10 @@
     </Compile>
     <Compile Include="ChecksConfigWindow.xaml.cs">
       <DependentUpon>ChecksConfigWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SapRfcWindow.xaml.cs">
+      <DependentUpon>SapRfcWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
