@@ -29,7 +29,6 @@ namespace AutoCheckMechanical.ViewModels
         private static extern bool SetForegroundWindow(IntPtr hWnd);
 
         private readonly Func<List<string>, HashSet<string>, HashSet<string>> _abrirChecksConfig;
-        private readonly Action _abrirSapRfc;
         private readonly Action _minimizar;
         private readonly Action _maximizarRestaurar;
         private readonly Action _fechar;
@@ -134,13 +133,11 @@ namespace AutoCheckMechanical.ViewModels
 
         public MainViewModel(
             Func<List<string>, HashSet<string>, HashSet<string>> abrirChecksConfig,
-            Action abrirSapRfc,
             Action minimizar,
             Action maximizarRestaurar,
             Action fechar)
         {
             _abrirChecksConfig = abrirChecksConfig;
-            _abrirSapRfc = abrirSapRfc;
             _minimizar = minimizar;
             _maximizarRestaurar = maximizarRestaurar;
             _fechar = fechar;
@@ -188,12 +185,6 @@ namespace AutoCheckMechanical.ViewModels
                 StatusText = $"{ativos} de {todosOsChecks.Count} check(s) ativado(s).";
             }
         });
-
-        // Tela básica da integração SAP via RFC/BAPI (SAP .NET Connector) --
-        // ainda separada do fluxo de busca via macro Excel (BuscarSapCommand),
-        // que continua funcionando em paralelo. Por enquanto só abre a janela
-        // de teste de conexão; as chamadas de RFC/BAPI em si vêm depois.
-        public ICommand AbrirSapRfcCommand => new DelegateCommand(_ => _abrirSapRfc());
 
         public ICommand GoToHistoryCommand => new DelegateCommand(_ =>
         {

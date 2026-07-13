@@ -47,15 +47,6 @@ namespace AutoCheckMechanical
 
                     return dialog.ShowDialog() == true ? dialog.CheckersDesativados : null;
                 },
-                abrirSapRfc: () =>
-                {
-                    SapRfcWindow janela = new SapRfcWindow
-                    {
-                        Owner = this
-                    };
-
-                    janela.ShowDialog();
-                },
                 minimizar: () => WindowState = WindowState.Minimized,
                 maximizarRestaurar: AlternarMaximizarRestaurar,
                 fechar: Close);
