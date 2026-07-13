@@ -31,6 +31,17 @@ namespace AutoCheckMechanical.Services
     // já usados na tela de login RFC).
     public static class DocumentSearchService
     {
+        // Testa se usuário/senha autenticam no Web Service, sem depender do
+        // SAP NCo/RFC (que está bloqueado pela falta da DLL x86 correta).
+        // Reaproveita a própria busca por ECM com um número que não deve
+        // existir de verdade -- uma falha de autenticação estoura exceção
+        // (401/erro de logon); uma busca "vazia" (0 documentos) já prova que
+        // autenticou e conseguiu conversar com o serviço.
+        public static void TestarConexao(string usuario, string senha)
+        {
+            BuscarPorEcm("000000000000", usuario, senha);
+        }
+
         public static List<DocumentoEncontrado> BuscarPorEcm(string ecm, string usuario, string senha)
         {
             DTP_DOCUMENT_OUTPUT request = new DTP_DOCUMENT_OUTPUT

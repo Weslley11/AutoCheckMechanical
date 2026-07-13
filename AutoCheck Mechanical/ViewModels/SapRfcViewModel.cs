@@ -21,9 +21,17 @@ namespace AutoCheckMechanical.ViewModels
         }
     }
 
-    // ViewModel da tela básica de integração SAP via RFC/BAPI (NCo). A senha
-    // não é bindada diretamente (PasswordBox não suporta binding seguro), por
-    // isso é lida do code-behind via o delegate injetado, igual o WBC faz.
+    // ViewModel da tela de integração SAP. A senha não é bindada diretamente
+    // (PasswordBox não suporta binding seguro), por isso é lida do
+    // code-behind via o delegate injetado, igual o WBC faz.
+    //
+    // O plano original era logar via RFC/BAPI (SAP.Middleware.Connector/NCo,
+    // igual o WBC), mas isso está bloqueado por enquanto: precisa da DLL
+    // sapnco/sapnco_utils em build x86, que não temos disponível nesta
+    // máquina (só achamos builds AMD64). O código RFC (SapRfcService.cs)
+    // fica pronto no projeto como base pra retomar depois. Até lá, o LOGIN
+    // valida usuário/senha usando o mesmo Web Service SOAP (SOA da WEG) já
+    // usado na busca por ECM -- não depende de nenhuma DLL proprietária.
     //
     // Igual o WBC: depois do primeiro login bem-sucedido, as credenciais
     // ficam salvas (criptografadas) e as próximas aberturas reconectam
@@ -163,14 +171,13 @@ namespace AutoCheckMechanical.ViewModels
             {
                 string senha = _obterSenha();
 
-                // O SAP Logon (SAPUILandscape.xml) indexa os destinos pelo nome
-                // completo exibido no SAP Logon Pad (ex.: "EP0 - ECC Produção"),
-                // não pelo código curto de 3 letras (systemid) -- por isso usamos
-                // Exibicao, não Codigo, na busca do destino.
-                SapRfcService.Instance.TestarConexao(SistemaSelecionado.Exibicao, Client, Usuario, senha, Idioma);
+                // Enquanto o RFC/NCo estiver bloqueado (falta a DLL x86),
+                // valida usuário/senha via o Web Service SOAP -- o campo
+                // "System" ainda não influencia essa chamada (o endereço do
+                // serviço está fixo no proxy gerado a partir do WSDL).
+                DocumentSearchService.TestarConexao(Usuario, senha);
 
-                StatusText =
-                    $"Conectado com sucesso.\nUsuário: {SapRfcService.Instance.UsuarioConectado}\nSistema: {SapRfcService.Instance.SistemaConectado}";
+                StatusText = $"Conectado com sucesso via Web Service.\nUsuário: {Usuario}";
 
                 SapCredentialStore.Save(new SapCredentials
                 {
@@ -237,7 +244,6 @@ namespace AutoCheckMechanical.ViewModels
 
         private void EsquecerLogin()
         {
-            SapRfcService.Instance.Desconectar();
             SapCredentialStore.Clear();
 
             Usuario = "";
