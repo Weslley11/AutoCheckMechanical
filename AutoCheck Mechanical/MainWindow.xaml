@@ -333,7 +333,7 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <!-- Busca de documentos no SAP (ZTPLM025) -->
+                    <!-- Busca de documentos no SAP (ZTPLM025 + busca por ECM via Web Service) -->
                     <Border Grid.Row="0"
                             Background="{DynamicResource BrushCard}"
                             BorderBrush="{DynamicResource BrushBorder}"
@@ -342,68 +342,114 @@
                             Padding="16"
                             Margin="0,0,0,12">
 
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="200"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
 
-                            <TextBlock Text="ECM"
-                                       FontSize="12"
-                                       FontWeight="Bold"
-                                       Foreground="{DynamicResource BrushTextSecondary}"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,10,0"/>
+                                <TextBlock Text="ECM"
+                                           FontSize="12"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource BrushTextSecondary}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,10,0"/>
 
-                            <Border Grid.Column="1"
-                                    Background="{DynamicResource BrushPanel}"
-                                    BorderBrush="{DynamicResource BrushBorder}"
-                                    BorderThickness="1"
-                                    CornerRadius="4">
-                                <TextBox x:Name="txtEcm"
-                                         Text="{Binding EcmText, UpdateSourceTrigger=PropertyChanged}"
-                                         Background="Transparent"
-                                         Foreground="{DynamicResource BrushTextPrimary}"
-                                         CaretBrush="{DynamicResource BrushTextPrimary}"
-                                         BorderThickness="0"
-                                         Padding="8,6"
-                                         ToolTip="Número da ECM no SAP"/>
-                            </Border>
+                                <Border Grid.Column="1"
+                                        Background="{DynamicResource BrushPanel}"
+                                        BorderBrush="{DynamicResource BrushBorder}"
+                                        BorderThickness="1"
+                                        CornerRadius="4">
+                                    <TextBox x:Name="txtEcm"
+                                             Text="{Binding EcmText, UpdateSourceTrigger=PropertyChanged}"
+                                             Background="Transparent"
+                                             Foreground="{DynamicResource BrushTextPrimary}"
+                                             CaretBrush="{DynamicResource BrushTextPrimary}"
+                                             BorderThickness="0"
+                                             Padding="8,6"
+                                             ToolTip="Número da ECM no SAP"/>
+                                </Border>
 
-                            <Button Grid.Column="2"
-                                    x:Name="btnBuscarSap"
-                                    Content="BUSCAR NO SAP"
-                                    Style="{StaticResource SecondaryButtonStyle}"
-                                    FontSize="13"
-                                    Padding="16,8"
-                                    Margin="12,0,0,0"
-                                    ToolTip="Busca no SAP (ZTPLM025) os documentos SWD da ECM, baixa e roda os checks habilitados"
-                                    Command="{Binding BuscarSapCommand}"/>
+                                <Button Grid.Column="2"
+                                        x:Name="btnBuscarSap"
+                                        Content="BUSCAR NO SAP"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        FontSize="13"
+                                        Padding="16,8"
+                                        Margin="12,0,0,0"
+                                        ToolTip="Busca no SAP (ZTPLM025) os documentos SWD da ECM, baixa e roda os checks habilitados"
+                                        Command="{Binding BuscarSapCommand}"/>
 
-                            <Button Grid.Column="3"
-                                    x:Name="btnTrocarPlanilha"
-                                    Style="{StaticResource SecondaryButtonStyle}"
-                                    Padding="8"
-                                    Margin="8,0,0,0"
-                                    ToolTip="Trocar a planilha Excel usada para buscar no SAP"
-                                    Command="{Binding TrocarPlanilhaCommand}">
-                                <TextBlock Text="&#xE8DE;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
-                            </Button>
+                                <Button Grid.Column="3"
+                                        x:Name="btnTrocarPlanilha"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Padding="8"
+                                        Margin="8,0,0,0"
+                                        ToolTip="Trocar a planilha Excel usada para buscar no SAP"
+                                        Command="{Binding TrocarPlanilhaCommand}">
+                                    <TextBlock Text="&#xE8DE;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
+                                </Button>
 
-                            <Button Grid.Column="4"
-                                    x:Name="btnSapConexao"
-                                    Content="CONEXÃO SAP"
-                                    Style="{StaticResource SecondaryButtonStyle}"
-                                    FontSize="13"
-                                    Padding="16,8"
-                                    Margin="8,0,0,0"
-                                    ToolTip="Conexão SAP via RFC/BAPI (SAP .NET Connector)"
-                                    Command="{Binding AbrirSapConexaoCommand}"/>
-                        </Grid>
+                                <Button Grid.Column="4"
+                                        x:Name="btnSapConexao"
+                                        Content="CONEXÃO SAP"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        FontSize="13"
+                                        Padding="16,8"
+                                        Margin="8,0,0,0"
+                                        ToolTip="Conexão SAP via RFC/BAPI (SAP .NET Connector)"
+                                        Command="{Binding AbrirSapConexaoCommand}"/>
+                            </Grid>
+
+                            <!-- Busca de documentos do DMS pela mesma ECM acima, via Web
+                                 Service ITF_O_S_DOCUMENT_OUTPUT (SOA), com opção de versão
+                                 igual ao SAP GUI (CV04N). -->
+                            <Grid Margin="0,12,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Text="VERSÃO"
+                                           FontSize="12"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource BrushTextSecondary}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,10,0"/>
+
+                                <RadioButton Grid.Column="1"
+                                             Content="Última versão liberada"
+                                             GroupName="VersaoDocumentoSap"
+                                             Foreground="{DynamicResource BrushTextPrimary}"
+                                             VerticalAlignment="Center"
+                                             Margin="0,0,16,0"
+                                             IsChecked="{Binding BuscarUltimaVersaoLiberada}"/>
+
+                                <RadioButton Grid.Column="2"
+                                             Content="Última versão"
+                                             GroupName="VersaoDocumentoSap"
+                                             Foreground="{DynamicResource BrushTextPrimary}"
+                                             VerticalAlignment="Center"
+                                             IsChecked="{Binding BuscarUltimaVersao}"/>
+
+                                <Button Grid.Column="4"
+                                        x:Name="btnBuscarDocumentosPorEcm"
+                                        Content="BUSCAR DOCUMENTOS (SAP)"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        FontSize="13"
+                                        Padding="16,8"
+                                        ToolTip="Busca no DMS (SOAP) os documentos vinculados à ECM acima"
+                                        Command="{Binding BuscarDocumentosPorEcmCommand}"/>
+                            </Grid>
+                        </StackPanel>
                     </Border>
 
                     <!-- Card de conexão / arquivo -->

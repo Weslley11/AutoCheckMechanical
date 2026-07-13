@@ -157,6 +157,7 @@
     <Compile Include="ViewModels\ChecksConfigViewModel.cs" />
     <Compile Include="ViewModels\CheckerOptionViewModel.cs" />
     <Compile Include="ViewModels\DelegateCommand.cs" />
+    <Compile Include="ViewModels\DocumentSearchResultsViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\SapConnectionViewModel.cs" />
     <Page Include="MainWindow.xaml">
@@ -168,6 +169,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="SapConnectionWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="DocumentSearchResultsWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -190,6 +195,10 @@
     </Compile>
     <Compile Include="SapConnectionWindow.xaml.cs">
       <DependentUpon>SapConnectionWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DocumentSearchResultsWindow.xaml.cs">
+      <DependentUpon>DocumentSearchResultsWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

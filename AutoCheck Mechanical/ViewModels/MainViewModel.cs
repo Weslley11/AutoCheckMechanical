@@ -30,6 +30,7 @@ namespace AutoCheckMechanical.ViewModels
 
         private readonly Func<List<string>, HashSet<string>, HashSet<string>> _abrirChecksConfig;
         private readonly Action _abrirSapConexao;
+        private readonly Action<string, List<DocumentoEncontrado>> _abrirResultadosBuscaDocumentos;
         private readonly Action _minimizar;
         private readonly Action _maximizarRestaurar;
         private readonly Action _fechar;
@@ -132,15 +133,56 @@ namespace AutoCheckMechanical.ViewModels
             set { _checkersDesativados = value; OnPropertyChanged(); }
         }
 
+        // Opção de versão pra busca de documentos por ECM (Web Service),
+        // igual ao SAP GUI (CV04N): mutuamente exclusivas, feito na mão
+        // porque RadioButtons de grupos diferentes não têm um binding
+        // nativo de "enum selecionado" sem conversor.
+        private bool _buscarUltimaVersaoLiberada = true;
+        public bool BuscarUltimaVersaoLiberada
+        {
+            get { return _buscarUltimaVersaoLiberada; }
+            set
+            {
+                _buscarUltimaVersaoLiberada = value;
+                OnPropertyChanged();
+
+                if (value)
+                    BuscarUltimaVersao = false;
+            }
+        }
+
+        private bool _buscarUltimaVersao;
+        public bool BuscarUltimaVersao
+        {
+            get { return _buscarUltimaVersao; }
+            set
+            {
+                _buscarUltimaVersao = value;
+                OnPropertyChanged();
+
+                if (value)
+                    BuscarUltimaVersaoLiberada = false;
+            }
+        }
+
+        private bool _buscandoDocumentos;
+        public bool BuscandoDocumentos
+        {
+            get { return _buscandoDocumentos; }
+            set { _buscandoDocumentos = value; OnPropertyChanged(); }
+        }
+
         public MainViewModel(
             Func<List<string>, HashSet<string>, HashSet<string>> abrirChecksConfig,
             Action abrirSapConexao,
+            Action<string, List<DocumentoEncontrado>> abrirResultadosBuscaDocumentos,
             Action minimizar,
             Action maximizarRestaurar,
             Action fechar)
         {
             _abrirChecksConfig = abrirChecksConfig;
             _abrirSapConexao = abrirSapConexao;
+            _abrirResultadosBuscaDocumentos = abrirResultadosBuscaDocumentos;
             _minimizar = minimizar;
             _maximizarRestaurar = maximizarRestaurar;
             _fechar = fechar;
@@ -192,6 +234,11 @@ namespace AutoCheckMechanical.ViewModels
         // Integração SAP via RFC/BAPI (SAP .NET Connector / NCo), no mesmo
         // padrão do WBC (SapConnectionInterface.cs).
         public ICommand AbrirSapConexaoCommand => new DelegateCommand(_ => _abrirSapConexao());
+
+        // Busca de documentos do DMS pela ECM (mesmo campo EcmText usado
+        // pelo BuscarSapCommand acima), via Web Service ITF_O_S_DOCUMENT_OUTPUT
+        // (SOA), mecanismo separado da macro Excel/ZTPLM025.
+        public ICommand BuscarDocumentosPorEcmCommand => new DelegateCommand(_ => BuscarDocumentosPorEcm(), () => !BuscandoDocumentos);
 
         public ICommand GoToHistoryCommand => new DelegateCommand(_ =>
         {
@@ -691,6 +738,50 @@ namespace AutoCheckMechanical.ViewModels
             {
                 Mouse.OverrideCursor = null;
                 IsBusy = false;
+            }
+        }
+
+        // retornarUltimaVersao (BuscarUltimaVersao) mapeia pra
+        // ReturnCurrentVersion do request SOAP -- ver a ressalva em
+        // DocumentSearchService.BuscarPorEcm sobre essa leitura ainda não
+        // estar confirmada contra o comportamento real do SAP GUI (CV04N).
+        private void BuscarDocumentosPorEcm()
+        {
+            string ecm = EcmText?.Trim();
+
+            if (string.IsNullOrEmpty(ecm))
+            {
+                MessageBox.Show("Informe a ECM antes de buscar os documentos.", "Buscar documentos (SAP)",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            BuscandoDocumentos = true;
+            Mouse.OverrideCursor = Cursors.Wait;
+            StatusText = $"Buscando documentos da ECM {ecm} no SAP...";
+
+            try
+            {
+                List<DocumentoEncontrado> resultados = DocumentSearchService.BuscarPorEcm(ecm, Environment.UserName, BuscarUltimaVersao);
+
+                StatusText = resultados.Count == 0
+                    ? $"Nenhum documento encontrado para a ECM {ecm}."
+                    : $"{resultados.Count} documento(s) encontrado(s) para a ECM {ecm}.";
+
+                _abrirResultadosBuscaDocumentos(ecm, resultados);
+            }
+            catch (Exception ex)
+            {
+                string mensagem = DocumentSearchService.DescreverErroCompleto(ex);
+                StatusText = "Falha ao buscar documentos: " + mensagem;
+
+                MessageBox.Show("Não foi possível buscar os documentos:\n" + mensagem,
+                    "Buscar documentos (SAP)", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                BuscandoDocumentos = false;
+                Mouse.OverrideCursor = null;
             }
         }
 

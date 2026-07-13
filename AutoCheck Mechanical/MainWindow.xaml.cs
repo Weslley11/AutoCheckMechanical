@@ -56,6 +56,15 @@ namespace AutoCheckMechanical
 
                     janela.ShowDialog();
                 },
+                abrirResultadosBuscaDocumentos: (ecm, resultados) =>
+                {
+                    DocumentSearchResultsWindow janela = new DocumentSearchResultsWindow(ecm, resultados)
+                    {
+                        Owner = this
+                    };
+
+                    janela.ShowDialog();
+                },
                 minimizar: () => WindowState = WindowState.Minimized,
                 maximizarRestaurar: AlternarMaximizarRestaurar,
                 fechar: Close);

@@ -36,7 +36,12 @@ namespace AutoCheckMechanical.Services
     //    AutoCheck Mechanical é reconhecido como app autorizado por ela.
     public static class DocumentSearchService
     {
-        public static List<DocumentoEncontrado> BuscarPorEcm(string ecm, string usuario)
+        // retornarUltimaVersao: false = comportamento padrão do DMS (última
+        // versão LIBERADA); true = ReturnCurrentVersion=true (última versão
+        // de verdade, mesmo que ainda não liberada). Essa leitura do campo
+        // ainda não foi confirmada contra um teste real -- se o resultado
+        // não bater com o que aparece no SAP GUI (CV04N), precisa ajustar.
+        public static List<DocumentoEncontrado> BuscarPorEcm(string ecm, string usuario, bool retornarUltimaVersao)
         {
             DTP_DOCUMENT_OUTPUT request = new DTP_DOCUMENT_OUTPUT
             {
@@ -46,6 +51,7 @@ namespace AutoCheckMechanical.Services
                 {
                     Originals = new DTP_DOCUMENT_OUTPUTDMSOriginals { CheckIn = false },
                     ReturnClassInfo = false,
+                    ReturnCurrentVersion = retornarUltimaVersao,
                     SearchBy = new DTP_DOCUMENT_OUTPUTDMSSearchBy
                     {
                         Header = new DTP_DOCUMENT_OUTPUTDMSSearchByHeader(),

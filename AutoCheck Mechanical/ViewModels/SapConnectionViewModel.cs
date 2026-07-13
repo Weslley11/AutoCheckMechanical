@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using AutoCheckMechanical.Services;
@@ -88,34 +87,9 @@ namespace AutoCheckMechanical.ViewModels
             set { _conectando = value; OnPropertyChanged(); }
         }
 
-        private string _ecmBusca = "";
-        public string EcmBusca
-        {
-            get { return _ecmBusca; }
-            set { _ecmBusca = value; OnPropertyChanged(); }
-        }
-
-        private string _statusBusca = "";
-        public string StatusBusca
-        {
-            get { return _statusBusca; }
-            set { _statusBusca = value; OnPropertyChanged(); }
-        }
-
-        private bool _buscando;
-        public bool Buscando
-        {
-            get { return _buscando; }
-            set { _buscando = value; OnPropertyChanged(); }
-        }
-
-        public ObservableCollection<DocumentoEncontrado> ResultadosBusca { get; } = new ObservableCollection<DocumentoEncontrado>();
-
         public ICommand TestConnectionCommand => new DelegateCommand(_ => Conectar(false), () => !Conectando);
 
         public ICommand EsquecerLoginCommand => new DelegateCommand(_ => EsquecerLogin());
-
-        public ICommand BuscarDocumentosCommand => new DelegateCommand(_ => BuscarDocumentos(), () => !Buscando);
 
         public SapConnectionViewModel(Func<string> obterSenha)
         {
@@ -204,43 +178,6 @@ namespace AutoCheckMechanical.ViewModels
             finally
             {
                 Conectando = false;
-            }
-        }
-
-        // Busca documentos vinculados à ECM informada, via o Web Service
-        // ITF_O_S_DOCUMENT_OUTPUT (SOA, código 634-049) -- mecanismo
-        // separado da conexão RFC acima (SOAP via Weg.Iceberg em vez de
-        // SAP.Middleware.Connector), mas reaproveita o Usuário já digitado.
-        private void BuscarDocumentos()
-        {
-            if (string.IsNullOrWhiteSpace(EcmBusca) || string.IsNullOrWhiteSpace(Usuario))
-            {
-                StatusBusca = "Preencha ao menos User e a ECM.";
-                return;
-            }
-
-            Buscando = true;
-            StatusBusca = "Buscando...";
-            ResultadosBusca.Clear();
-
-            try
-            {
-                List<DocumentoEncontrado> documentos = DocumentSearchService.BuscarPorEcm(EcmBusca, Usuario);
-
-                foreach (DocumentoEncontrado documento in documentos)
-                    ResultadosBusca.Add(documento);
-
-                StatusBusca = documentos.Count == 0
-                    ? "Nenhum documento encontrado para essa ECM."
-                    : $"{documentos.Count} documento(s) encontrado(s).";
-            }
-            catch (Exception ex)
-            {
-                StatusBusca = "Falha na busca: " + DocumentSearchService.DescreverErroCompleto(ex);
-            }
-            finally
-            {
-                Buscando = false;
             }
         }
 
