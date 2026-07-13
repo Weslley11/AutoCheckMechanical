@@ -53,6 +53,7 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
@@ -121,6 +122,7 @@
     <Compile Include="Services\ExcelReportService.cs" />
     <Compile Include="Services\ExcelSapService.cs" />
     <Compile Include="Services\HistoryStore.cs" />
+    <Compile Include="Services\SapCredentialStore.cs" />
     <Compile Include="Services\SapRfcService.cs" />
     <Compile Include="Services\SapService.cs" />
     <Compile Include="Services\SolidWorksSettingsStore.cs" />

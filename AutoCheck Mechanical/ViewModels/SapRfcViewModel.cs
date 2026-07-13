@@ -23,9 +23,17 @@ namespace AutoCheckMechanical.ViewModels
     // ViewModel da tela básica de integração SAP via RFC/BAPI (NCo). A senha
     // não é bindada diretamente (PasswordBox não suporta binding seguro), por
     // isso é lida do code-behind via o delegate injetado, igual o WBC faz.
+    //
+    // Igual o WBC: depois do primeiro login bem-sucedido, as credenciais
+    // ficam salvas (criptografadas) e as próximas aberturas reconectam
+    // sozinhas, sem precisar digitar usuário/senha de novo -- só volta a
+    // pedir login se a reconexão automática falhar ou se o usuário usar
+    // "Esquecer login salvo".
     public class SapRfcViewModel : BaseViewModel
     {
         private readonly Func<string> _obterSenha;
+
+        public event EventHandler CredenciaisEsquecidas;
 
         public ObservableCollection<SistemaSapOption> SistemasDisponiveis { get; } = new ObservableCollection<SistemaSapOption>
         {
@@ -79,7 +87,9 @@ namespace AutoCheckMechanical.ViewModels
             set { _testando = value; OnPropertyChanged(); }
         }
 
-        public ICommand TestConnectionCommand => new DelegateCommand(_ => TestarConexao(), () => !Testando);
+        public ICommand TestConnectionCommand => new DelegateCommand(_ => TestarConexao(false), () => !Testando);
+
+        public ICommand EsquecerLoginCommand => new DelegateCommand(_ => EsquecerLogin());
 
         public SapRfcViewModel(Func<string> obterSenha)
         {
@@ -87,36 +97,89 @@ namespace AutoCheckMechanical.ViewModels
             SistemaSelecionado = SistemasDisponiveis[4]; // EP0 - ECC Produção
         }
 
-        private void TestarConexao()
+        // Preenche os campos (exceto a senha, que o code-behind seta direto
+        // na PasswordBox) a partir de uma credencial salva anteriormente.
+        public void CarregarCredenciaisSalvas(SapCredentials salvo)
+        {
+            foreach (SistemaSapOption opcao in SistemasDisponiveis)
+            {
+                if (opcao.Codigo == salvo.SistemaCodigo)
+                {
+                    SistemaSelecionado = opcao;
+                    break;
+                }
+            }
+
+            Client = salvo.Client;
+            Usuario = salvo.Usuario;
+            Idioma = salvo.Idioma;
+        }
+
+        public void TentarReconectarAutomaticamente()
+        {
+            TestarConexao(automatico: true);
+        }
+
+        private void TestarConexao(bool automatico)
         {
             if (SistemaSelecionado == null || string.IsNullOrWhiteSpace(Usuario))
             {
-                StatusText = "Preencha ao menos System e User.";
+                if (!automatico)
+                    StatusText = "Preencha ao menos System e User.";
+
                 return;
             }
 
             Testando = true;
-            StatusText = "Conectando...";
+            StatusText = automatico ? "Reconectando automaticamente..." : "Conectando...";
 
             try
             {
+                string senha = _obterSenha();
+
                 // O SAP Logon (SAPUILandscape.xml) indexa os destinos pelo nome
                 // completo exibido no SAP Logon Pad (ex.: "EP0 - ECC Produção"),
                 // não pelo código curto de 3 letras (systemid) -- por isso usamos
                 // Exibicao, não Codigo, na busca do destino.
-                SapRfcService.Instance.TestarConexao(SistemaSelecionado.Exibicao, Client, Usuario, _obterSenha(), Idioma);
+                SapRfcService.Instance.TestarConexao(SistemaSelecionado.Exibicao, Client, Usuario, senha, Idioma);
 
                 StatusText =
                     $"Conectado com sucesso.\nUsuário: {SapRfcService.Instance.UsuarioConectado}\nSistema: {SapRfcService.Instance.SistemaConectado}";
+
+                SapCredentialStore.Save(new SapCredentials
+                {
+                    SistemaCodigo = SistemaSelecionado.Codigo,
+                    Client = Client,
+                    Usuario = Usuario,
+                    Senha = senha,
+                    Idioma = Idioma,
+                });
             }
             catch (Exception ex)
             {
-                StatusText = "Falha na conexão: " + ex.Message;
+                StatusText = (automatico ? "Falha ao reconectar automaticamente: " : "Falha na conexão: ") + ex.Message;
+
+                // Credencial salva não serve mais (senha trocada, usuário
+                // bloqueado, etc.) -- descarta pra forçar um login manual.
+                if (automatico)
+                    SapCredentialStore.Clear();
             }
             finally
             {
                 Testando = false;
             }
+        }
+
+        private void EsquecerLogin()
+        {
+            SapRfcService.Instance.Desconectar();
+            SapCredentialStore.Clear();
+
+            Usuario = "";
+            Client = "";
+            StatusText = "Login salvo esquecido. Informe as credenciais novamente.";
+
+            CredenciaisEsquecidas?.Invoke(this, EventArgs.Empty);
         }
     }
 }
