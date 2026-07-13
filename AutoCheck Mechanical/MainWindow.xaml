@@ -416,6 +416,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
                                 <TextBlock Text="VERSÃO"
@@ -446,8 +447,18 @@
                                         Style="{StaticResource SecondaryButtonStyle}"
                                         FontSize="13"
                                         Padding="16,8"
+                                        Margin="0,0,8,0"
                                         ToolTip="Busca no DMS (SOAP) os documentos vinculados à ECM acima"
                                         Command="{Binding BuscarDocumentosPorEcmCommand}"/>
+
+                                <Button Grid.Column="5"
+                                        x:Name="btnBaixarDocumentos"
+                                        Content="BAIXAR DOCUMENTOS"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        FontSize="13"
+                                        Padding="16,8"
+                                        ToolTip="Copia pra uma pasta local o arquivo original (DMS) de cada documento na lista"
+                                        Command="{Binding BaixarDocumentosCommand}"/>
                             </Grid>
                         </StackPanel>
                     </Border>

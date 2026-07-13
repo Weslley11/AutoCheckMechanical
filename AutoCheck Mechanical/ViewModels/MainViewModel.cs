@@ -237,6 +237,10 @@ namespace AutoCheckMechanical.ViewModels
         // (SOA), mecanismo separado da macro Excel/ZTPLM025.
         public ICommand BuscarDocumentosPorEcmCommand => new DelegateCommand(_ => BuscarDocumentosPorEcm(), () => !BuscandoDocumentos);
 
+        // Copia pra uma pasta local o arquivo original (DMS) de cada
+        // documento vindo da busca por ECM que ainda esteja na lista.
+        public ICommand BaixarDocumentosCommand => new DelegateCommand(_ => BaixarDocumentos(), () => !IsBusy);
+
         public ICommand GoToHistoryCommand => new DelegateCommand(_ =>
         {
             FiltroTexto = "";
@@ -926,6 +930,88 @@ namespace AutoCheckMechanical.ViewModels
             {
                 BuscandoDocumentos = false;
                 Mouse.OverrideCursor = null;
+            }
+        }
+
+        // Copia o arquivo original (DocumentoCaminhoOriginal, retornado pelo
+        // DMS) de cada documento da lista pra uma pasta local escolhida pelo
+        // usuário. Usa OpenFileDialog em vez de FolderBrowserDialog (que
+        // exigiria referenciar System.Windows.Forms só pra isso) com o
+        // truque padrão do WPF: CheckFileExists=false + ValidateNames=false,
+        // e depois pega só o diretório do "arquivo" escolhido.
+        private void BaixarDocumentos()
+        {
+            List<BatchFileResult> documentos = BatchResults
+                .Where(x => !string.IsNullOrEmpty(x.DocumentoNumero))
+                .ToList();
+
+            if (documentos.Count == 0)
+            {
+                MessageBox.Show("Não há documentos na lista para baixar.", "Baixar documentos",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            OpenFileDialog dialogPasta = new OpenFileDialog
+            {
+                Title = "Selecionar a pasta de destino",
+                CheckFileExists = false,
+                CheckPathExists = true,
+                ValidateNames = false,
+                FileName = "Selecionar esta pasta"
+            };
+
+            if (dialogPasta.ShowDialog() != true)
+                return;
+
+            string pastaDestino = Path.GetDirectoryName(dialogPasta.FileName);
+
+            IsBusy = true;
+            Mouse.OverrideCursor = Cursors.Wait;
+            DetalheTitulo = "LOG";
+            LogText = "";
+            AddLog($"Baixando {documentos.Count} documento(s) para {pastaDestino}...");
+
+            try
+            {
+                int copiados = 0;
+                int falhas = 0;
+
+                foreach (BatchFileResult item in documentos)
+                {
+                    if (string.IsNullOrEmpty(item.DocumentoCaminhoOriginal) || !File.Exists(item.DocumentoCaminhoOriginal))
+                    {
+                        falhas++;
+                        AddLog($"{item.DocumentoNumero} — sem arquivo original disponível no DMS.");
+                        continue;
+                    }
+
+                    try
+                    {
+                        string extensao = Path.GetExtension(item.DocumentoCaminhoOriginal);
+                        string nomeArquivo = $"{item.DocumentoNumero}_{item.DocumentoVersao}{extensao}";
+                        string caminhoLocal = Path.Combine(pastaDestino, nomeArquivo);
+
+                        File.Copy(item.DocumentoCaminhoOriginal, caminhoLocal, overwrite: true);
+
+                        copiados++;
+                        AddLog($"{item.DocumentoNumero} — copiado para {caminhoLocal}.");
+                    }
+                    catch (Exception ex)
+                    {
+                        falhas++;
+                        AddLog($"{item.DocumentoNumero} — falha ao copiar: {ex.Message}");
+                    }
+                }
+
+                StatusText = falhas == 0
+                    ? $"{copiados} documento(s) baixado(s) para {pastaDestino}."
+                    : $"{copiados} documento(s) baixado(s), {falhas} com falha (veja o log).";
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+                IsBusy = false;
             }
         }
 
