@@ -64,7 +64,7 @@ namespace AutoCheckMechanical.Services
             }
             catch (Exception ex)
             {
-                throw new InvalidOperationException("Erro ao chamar o serviço de busca de documentos: " + ex.Message, ex);
+                throw new InvalidOperationException("Erro ao chamar o serviço de busca de documentos: " + DescreverErroCompleto(ex), ex);
             }
 
             if (response.ErrorList?.Error != null && response.ErrorList.Error.Length > 0)
@@ -102,6 +102,28 @@ namespace AutoCheckMechanical.Services
             }
 
             return resultado;
+        }
+
+        // "Método X não pode ser refletido" (e outras exceções do
+        // System.Web.Services) são wrappers genéricos por cima da
+        // InnerException que tem o motivo de verdade -- sem isso, a
+        // mensagem mostrada na tela esconde exatamente o detalhe que
+        // precisamos pra corrigir os atributos de serialização SOAP.
+        private static string DescreverErroCompleto(Exception ex)
+        {
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            Exception atual = ex;
+
+            while (atual != null)
+            {
+                if (sb.Length > 0)
+                    sb.Append(" -> ");
+
+                sb.Append(atual.GetType().Name).Append(": ").Append(atual.Message);
+                atual = atual.InnerException;
+            }
+
+            return sb.ToString();
         }
     }
 }
