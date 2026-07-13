@@ -29,6 +29,7 @@ namespace AutoCheckMechanical.ViewModels
         private static extern bool SetForegroundWindow(IntPtr hWnd);
 
         private readonly Func<List<string>, HashSet<string>, HashSet<string>> _abrirChecksConfig;
+        private readonly Action _abrirSapConexao;
         private readonly Action _minimizar;
         private readonly Action _maximizarRestaurar;
         private readonly Action _fechar;
@@ -133,11 +134,13 @@ namespace AutoCheckMechanical.ViewModels
 
         public MainViewModel(
             Func<List<string>, HashSet<string>, HashSet<string>> abrirChecksConfig,
+            Action abrirSapConexao,
             Action minimizar,
             Action maximizarRestaurar,
             Action fechar)
         {
             _abrirChecksConfig = abrirChecksConfig;
+            _abrirSapConexao = abrirSapConexao;
             _minimizar = minimizar;
             _maximizarRestaurar = maximizarRestaurar;
             _fechar = fechar;
@@ -185,6 +188,11 @@ namespace AutoCheckMechanical.ViewModels
                 StatusText = $"{ativos} de {todosOsChecks.Count} check(s) ativado(s).";
             }
         });
+
+        // Base da integração SAP -- ainda sem lógica de conexão real (a
+        // abordagem, RFC/NCo, SOAP ou SAP GUI Scripting, ainda não foi
+        // decidida). Por enquanto só abre a tela de login.
+        public ICommand AbrirSapConexaoCommand => new DelegateCommand(_ => _abrirSapConexao());
 
         public ICommand GoToHistoryCommand => new DelegateCommand(_ =>
         {

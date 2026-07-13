@@ -47,6 +47,15 @@ namespace AutoCheckMechanical
 
                     return dialog.ShowDialog() == true ? dialog.CheckersDesativados : null;
                 },
+                abrirSapConexao: () =>
+                {
+                    SapConnectionWindow janela = new SapConnectionWindow
+                    {
+                        Owner = this
+                    };
+
+                    janela.ShowDialog();
+                },
                 minimizar: () => WindowState = WindowState.Minimized,
                 maximizarRestaurar: AlternarMaximizarRestaurar,
                 fechar: Close);
