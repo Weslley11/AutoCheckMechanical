@@ -142,6 +142,7 @@
     <Compile Include="Services\CheckerSettingsStore.cs" />
     <Compile Include="Services\DocumentOutput\ITF_O_S_DOCUMENT_OUTPUTService.cs" />
     <Compile Include="Services\DocumentSearchService.cs" />
+    <Compile Include="Services\DownloadFolderSettingsStore.cs" />
     <Compile Include="Services\EDrawingsSettingsStore.cs" />
     <Compile Include="Services\ExcelMacroSettingsStore.cs" />
     <Compile Include="Services\ExcelReportService.cs" />

@@ -460,6 +460,47 @@
                                         ToolTip="Copia pra uma pasta local o arquivo original (DMS) de cada documento na lista"
                                         Command="{Binding BaixarDocumentosCommand}"/>
                             </Grid>
+
+                            <!-- Pasta padrão onde BAIXAR DOCUMENTOS salva os arquivos:
+                                 dentro dela, cria automaticamente uma subpasta com o nome
+                                 da ECM usada na busca de cada documento. -->
+                            <Grid Margin="0,12,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Text="PASTA DE DOWNLOAD"
+                                           FontSize="12"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource BrushTextSecondary}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,10,0"/>
+
+                                <Border Grid.Column="1"
+                                        Background="{DynamicResource BrushPanel}"
+                                        BorderBrush="{DynamicResource BrushBorder}"
+                                        BorderThickness="1"
+                                        CornerRadius="4">
+                                    <TextBox Text="{Binding PastaDownloadDocumentos, UpdateSourceTrigger=PropertyChanged}"
+                                             Background="Transparent"
+                                             Foreground="{DynamicResource BrushTextPrimary}"
+                                             CaretBrush="{DynamicResource BrushTextPrimary}"
+                                             BorderThickness="0"
+                                             Padding="8,6"
+                                             ToolTip="Pasta onde os documentos baixados são salvos (dentro de uma subpasta com o nome da ECM)"/>
+                                </Border>
+
+                                <Button Grid.Column="2"
+                                        Content="..."
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        FontSize="13"
+                                        Padding="12,8"
+                                        Margin="8,0,0,0"
+                                        ToolTip="Selecionar a pasta de download"
+                                        Command="{Binding SelecionarPastaDownloadCommand}"/>
+                            </Grid>
                         </StackPanel>
                     </Border>
 

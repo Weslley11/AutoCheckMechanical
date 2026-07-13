@@ -14,6 +14,7 @@ namespace AutoCheckMechanical.Services
         public string Version { get; set; }
         public string ChangeNumber { get; set; }
         public string Descricao { get; set; }
+        public bool TemPdf { get; set; }
         public List<string> CaminhosOriginais { get; } = new List<string>();
     }
 
@@ -95,6 +96,13 @@ namespace AutoCheckMechanical.Services
 
             foreach (DTP_DOCUMENT_OUTPUT_RDIR dir in response.DIRList)
             {
+                // Só nos interessam os documentos do tipo SWD (desenho
+                // SolidWorks) -- mesmo filtro que o fluxo antigo via macro
+                // Excel (ZTPLM025) já aplicava implicitamente ao só baixar
+                // .slddrw.
+                if (!string.Equals(dir.Type?.Trim(), "SWD", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
                 DocumentoEncontrado documento = new DocumentoEncontrado
                 {
                     DocumentNumber = dir.DocumentNumber,
@@ -108,12 +116,27 @@ namespace AutoCheckMechanical.Services
                 if (dir.Originals != null)
                 {
                     documento.CaminhosOriginais.AddRange(dir.Originals.Select(o => o.Path));
+                    documento.TemPdf = dir.Originals.Any(EhOriginalPdf);
                 }
 
                 resultado.Add(documento);
             }
 
             return resultado;
+        }
+
+        // O Web Service não expõe um campo explícito "é PDF" -- inferimos
+        // pelo ApplicationCode (quando preenchido) ou pela extensão do
+        // Path. Essa leitura ainda não foi confirmada contra dados reais do
+        // SAP -- se não bater, precisa ajustar.
+        private static bool EhOriginalPdf(DTP_DOCUMENT_OUTPUT_RDIROriginal original)
+        {
+            if (!string.IsNullOrEmpty(original.ApplicationCode) &&
+                original.ApplicationCode.IndexOf("PDF", StringComparison.OrdinalIgnoreCase) >= 0)
+                return true;
+
+            return !string.IsNullOrEmpty(original.Path) &&
+                original.Path.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase);
         }
 
         // "Método X não pode ser refletido" (e outras exceções do

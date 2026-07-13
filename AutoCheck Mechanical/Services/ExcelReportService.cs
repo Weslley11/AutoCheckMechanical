@@ -78,7 +78,7 @@ namespace AutoCheckMechanical.Services
 
         private static void EscreverCabecalho(object planilha, List<string> checkerNames, string[] camposTitulo)
         {
-            List<string> cabecalho = new List<string> { "ARQUIVO", "DOCUMENTO", "TIPO", "PARTE", "VERSÃO", "DESCRIÇÃO" };
+            List<string> cabecalho = new List<string> { "ARQUIVO", "DOCUMENTO", "TIPO", "PARTE", "VERSÃO", "DESCRIÇÃO", "PDF" };
             cabecalho.AddRange(checkerNames.Select(n => n.ToUpper()));
             cabecalho.AddRange(camposTitulo.Select(n => n.ToUpper()));
             cabecalho.Add("FOLHAS");
@@ -113,6 +113,8 @@ namespace AutoCheckMechanical.Services
                 EscreverCelula(planilha, linha, coluna++, item.DocumentoParte);
                 EscreverCelula(planilha, linha, coluna++, item.DocumentoVersao);
                 EscreverCelula(planilha, linha, coluna++, item.DocumentoDescricao);
+                EscreverCelula(planilha, linha, coluna++,
+                    string.IsNullOrEmpty(item.DocumentoNumero) ? "" : (item.DocumentoTemPdf ? "OK" : "SEM PDF"));
 
                 List<string> errosDetalhados = new List<string>();
 

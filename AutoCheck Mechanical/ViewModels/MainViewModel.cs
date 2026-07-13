@@ -171,6 +171,21 @@ namespace AutoCheckMechanical.ViewModels
             set { _buscandoDocumentos = value; OnPropertyChanged(); }
         }
 
+        // Pasta padrão onde BaixarDocumentosCommand salva os arquivos
+        // (dentro de uma subpasta com o nome da ECM) -- editável direto no
+        // campo de texto, persistida a cada alteração.
+        private string _pastaDownloadDocumentos;
+        public string PastaDownloadDocumentos
+        {
+            get { return _pastaDownloadDocumentos; }
+            set
+            {
+                _pastaDownloadDocumentos = value;
+                OnPropertyChanged();
+                DownloadFolderSettingsStore.Save(_pastaDownloadDocumentos);
+            }
+        }
+
         public MainViewModel(
             Func<List<string>, HashSet<string>, HashSet<string>> abrirChecksConfig,
             Action abrirSapConexao,
@@ -190,6 +205,7 @@ namespace AutoCheckMechanical.ViewModels
             CheckersDesativados = CheckerSettingsStore.LoadDesativados();
 
             TemaEscuro = ThemeStore.LoadTemaEscuro();
+            PastaDownloadDocumentos = DownloadFolderSettingsStore.LoadCaminho() ?? @"C:\SAP_SW";
 
             // Monitora em segundo plano se o SolidWorks continua aberto,
             // pra refletir "Desconectado" na tela caso o usuário feche ele
@@ -240,6 +256,26 @@ namespace AutoCheckMechanical.ViewModels
         // Copia pra uma pasta local o arquivo original (DMS) de cada
         // documento vindo da busca por ECM que ainda esteja na lista.
         public ICommand BaixarDocumentosCommand => new DelegateCommand(_ => BaixarDocumentos(), () => !IsBusy);
+
+        public ICommand SelecionarPastaDownloadCommand => new DelegateCommand(_ =>
+        {
+            OpenFileDialog dialogPasta = new OpenFileDialog
+            {
+                Title = "Selecionar a pasta de download",
+                CheckFileExists = false,
+                CheckPathExists = true,
+                ValidateNames = false,
+                FileName = "Selecionar esta pasta"
+            };
+
+            if (!string.IsNullOrEmpty(PastaDownloadDocumentos) && Directory.Exists(PastaDownloadDocumentos))
+                dialogPasta.InitialDirectory = PastaDownloadDocumentos;
+
+            if (dialogPasta.ShowDialog() != true)
+                return;
+
+            PastaDownloadDocumentos = Path.GetDirectoryName(dialogPasta.FileName);
+        });
 
         public ICommand GoToHistoryCommand => new DelegateCommand(_ =>
         {
@@ -774,6 +810,8 @@ namespace AutoCheckMechanical.ViewModels
                             item.DocumentoVersao = pendente.DocumentoVersao;
                             item.DocumentoDescricao = pendente.DocumentoDescricao;
                             item.DocumentoCaminhoOriginal = pendente.DocumentoCaminhoOriginal;
+                            item.DocumentoTemPdf = pendente.DocumentoTemPdf;
+                            item.DocumentoEcm = pendente.DocumentoEcm;
                         }
 
                         UpsertBatchResult(item);
@@ -908,6 +946,8 @@ namespace AutoCheckMechanical.ViewModels
                         DocumentoVersao = documento.Version,
                         DocumentoDescricao = documento.Descricao,
                         DocumentoCaminhoOriginal = caminhoOriginal,
+                        DocumentoTemPdf = documento.TemPdf,
+                        DocumentoEcm = ecm,
                     });
                 }
 
@@ -934,11 +974,9 @@ namespace AutoCheckMechanical.ViewModels
         }
 
         // Copia o arquivo original (DocumentoCaminhoOriginal, retornado pelo
-        // DMS) de cada documento da lista pra uma pasta local escolhida pelo
-        // usuário. Usa OpenFileDialog em vez de FolderBrowserDialog (que
-        // exigiria referenciar System.Windows.Forms só pra isso) com o
-        // truque padrão do WPF: CheckFileExists=false + ValidateNames=false,
-        // e depois pega só o diretório do "arquivo" escolhido.
+        // DMS) de cada documento da lista pra dentro de PastaDownloadDocumentos
+        // (o campo pré-definido pelo usuário), numa subpasta com o nome da
+        // ECM usada na busca de cada documento.
         private void BaixarDocumentos()
         {
             List<BatchFileResult> documentos = BatchResults
@@ -952,25 +990,20 @@ namespace AutoCheckMechanical.ViewModels
                 return;
             }
 
-            OpenFileDialog dialogPasta = new OpenFileDialog
+            string pastaBase = PastaDownloadDocumentos?.Trim();
+
+            if (string.IsNullOrEmpty(pastaBase))
             {
-                Title = "Selecionar a pasta de destino",
-                CheckFileExists = false,
-                CheckPathExists = true,
-                ValidateNames = false,
-                FileName = "Selecionar esta pasta"
-            };
-
-            if (dialogPasta.ShowDialog() != true)
+                MessageBox.Show("Informe a pasta de download antes de baixar os documentos.", "Baixar documentos",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
-
-            string pastaDestino = Path.GetDirectoryName(dialogPasta.FileName);
+            }
 
             IsBusy = true;
             Mouse.OverrideCursor = Cursors.Wait;
             DetalheTitulo = "LOG";
             LogText = "";
-            AddLog($"Baixando {documentos.Count} documento(s) para {pastaDestino}...");
+            AddLog($"Baixando {documentos.Count} documento(s) para {pastaBase}...");
 
             try
             {
@@ -988,9 +1021,14 @@ namespace AutoCheckMechanical.ViewModels
 
                     try
                     {
+                        string nomeEcm = !string.IsNullOrWhiteSpace(item.DocumentoEcm) ? item.DocumentoEcm : "SEM_ECM";
+                        string pastaEcm = Path.Combine(pastaBase, nomeEcm);
+
+                        Directory.CreateDirectory(pastaEcm);
+
                         string extensao = Path.GetExtension(item.DocumentoCaminhoOriginal);
                         string nomeArquivo = $"{item.DocumentoNumero}_{item.DocumentoVersao}{extensao}";
-                        string caminhoLocal = Path.Combine(pastaDestino, nomeArquivo);
+                        string caminhoLocal = Path.Combine(pastaEcm, nomeArquivo);
 
                         File.Copy(item.DocumentoCaminhoOriginal, caminhoLocal, overwrite: true);
 
@@ -1005,7 +1043,7 @@ namespace AutoCheckMechanical.ViewModels
                 }
 
                 StatusText = falhas == 0
-                    ? $"{copiados} documento(s) baixado(s) para {pastaDestino}."
+                    ? $"{copiados} documento(s) baixado(s) para {pastaBase}."
                     : $"{copiados} documento(s) baixado(s), {falhas} com falha (veja o log).";
             }
             finally
@@ -1523,6 +1561,7 @@ namespace AutoCheckMechanical.ViewModels
                 item.DocumentoParte ?? "",
                 item.DocumentoVersao ?? "",
                 item.DocumentoDescricao ?? "",
+                string.IsNullOrEmpty(item.DocumentoNumero) ? "" : (item.DocumentoTemPdf ? "OK" : "SEM PDF"),
             };
 
             foreach (string nomeChecker in checkerNames)

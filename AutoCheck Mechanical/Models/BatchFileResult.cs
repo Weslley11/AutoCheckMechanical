@@ -25,5 +25,10 @@ namespace AutoCheckMechanical.Models
         public string DocumentoVersao { get; set; }
         public string DocumentoDescricao { get; set; }
         public string DocumentoCaminhoOriginal { get; set; }
+        public bool DocumentoTemPdf { get; set; }
+
+        // ECM usada na busca que trouxe esse documento -- usada por
+        // BaixarDocumentos pra criar a subpasta de destino.
+        public string DocumentoEcm { get; set; }
     }
 }

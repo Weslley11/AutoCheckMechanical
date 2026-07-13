@@ -175,7 +175,8 @@ namespace AutoCheckMechanical
             const int colParte = 4;
             const int colVersao = 5;
             const int colDescricaoDocumento = 6;
-            int colCheckerStart = 7;
+            const int colPdf = 7;
+            int colCheckerStart = 8;
             int colTituloStart = colCheckerStart + checkerNames.Count;
             int colFolhas = colTituloStart + camposTitulo.Length;
             int colObservacao = colFolhas + 1;
@@ -187,6 +188,7 @@ namespace AutoCheckMechanical
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(70) });
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(220) });
+            gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
 
             foreach (string _ in checkerNames)
                 gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(140) });
@@ -206,6 +208,7 @@ namespace AutoCheckMechanical
             AddHeaderCell("PARTE", colParte, 0);
             AddHeaderCell("VERSÃO", colVersao, 0);
             AddHeaderCell("DESCRIÇÃO", colDescricaoDocumento, 0, centralizado: false);
+            AddHeaderCell("PDF", colPdf, 0);
 
             for (int c = 0; c < checkerNames.Count; c++)
                 AddHeaderCell(checkerNames[c].ToUpper(), colCheckerStart + c, 0);
@@ -230,6 +233,7 @@ namespace AutoCheckMechanical
                 AddDocumentoFieldCell(item, item.DocumentoParte, colParte, rowIndex);
                 AddDocumentoFieldCell(item, item.DocumentoVersao, colVersao, rowIndex);
                 AddDocumentoFieldCell(item, item.DocumentoDescricao, colDescricaoDocumento, rowIndex, centralizado: false);
+                AddDocumentoPdfCell(item, colPdf, rowIndex);
 
                 for (int c = 0; c < checkerNames.Count; c++)
                 {
@@ -406,6 +410,63 @@ namespace AutoCheckMechanical
             };
 
             border.ToolTip = preenchido ? valor : null;
+            border.MouseLeftButtonUp += (s, e) =>
+            {
+                SelecionarLinha(item);
+                ViewModel.ShowFileDetails(item);
+            };
+
+            Grid.SetColumn(border, column);
+            Grid.SetRow(border, row);
+            gridResults.Children.Add(border);
+        }
+
+        // Indica se o documento (vindo da busca por ECM) tem algum original
+        // em PDF vinculado no DMS -- ver a ressalva em DocumentSearchService
+        // sobre essa leitura (ApplicationCode/extensão do Path) ainda não
+        // estar confirmada contra dados reais do SAP.
+        private void AddDocumentoPdfCell(BatchFileResult item, int column, int row)
+        {
+            Border border = new Border
+            {
+                BorderBrush = (Brush)FindResource("BrushBorder"),
+                BorderThickness = new Thickness(0, 0, 1, 1),
+                Padding = new Thickness(8),
+                Background = CorFundoLinha(item),
+                Cursor = Cursors.Hand,
+                ClipToBounds = true,
+                ContextMenu = CriarMenuCopiarLinha(item)
+            };
+
+            string texto;
+            Brush cor;
+
+            if (string.IsNullOrEmpty(item.DocumentoNumero))
+            {
+                texto = "—";
+                cor = (Brush)FindResource("BrushTextSecondary");
+            }
+            else if (item.DocumentoTemPdf)
+            {
+                texto = "OK";
+                cor = Brushes.LimeGreen;
+            }
+            else
+            {
+                texto = "SEM PDF";
+                cor = (Brush)FindResource("BrushAccentOrange");
+            }
+
+            border.Child = new TextBlock
+            {
+                Text = texto,
+                FontWeight = FontWeights.Bold,
+                FontSize = 12,
+                Foreground = cor,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
             border.MouseLeftButtonUp += (s, e) =>
             {
                 SelecionarLinha(item);
