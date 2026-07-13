@@ -25,13 +25,13 @@ namespace AutoCheckMechanical.ViewModels
     // (PasswordBox não suporta binding seguro), por isso é lida do
     // code-behind via o delegate injetado, igual o WBC faz.
     //
-    // O plano original era logar via RFC/BAPI (SAP.Middleware.Connector/NCo,
-    // igual o WBC), mas isso está bloqueado por enquanto: precisa da DLL
-    // sapnco/sapnco_utils em build x86, que não temos disponível nesta
-    // máquina (só achamos builds AMD64). O código RFC (SapRfcService.cs)
-    // fica pronto no projeto como base pra retomar depois. Até lá, o LOGIN
-    // valida usuário/senha usando o mesmo Web Service SOAP (SOA da WEG) já
-    // usado na busca por ECM -- não depende de nenhuma DLL proprietária.
+    // A ideia original era logar via RFC/BAPI (SAP.Middleware.Connector/NCo,
+    // igual o WBC), mas essa frente foi revertida por enquanto: além de
+    // precisar da DLL sapnco/sapnco_utils em build x86 (só achamos builds
+    // AMD64), o endereço do host de RFC também não estava acessível na rede
+    // testada. O LOGIN valida usuário/senha usando o Web Service SOAP (SOA
+    // da WEG) já usado na busca por ECM -- não depende de nenhuma DLL
+    // proprietária.
     //
     // Igual o WBC: depois do primeiro login bem-sucedido, as credenciais
     // ficam salvas (criptografadas) e as próximas aberturas reconectam
