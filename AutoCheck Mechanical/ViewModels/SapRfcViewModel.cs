@@ -100,7 +100,11 @@ namespace AutoCheckMechanical.ViewModels
 
             try
             {
-                SapRfcService.Instance.TestarConexao(SistemaSelecionado.Codigo, Client, Usuario, _obterSenha(), Idioma);
+                // O SAP Logon (SAPUILandscape.xml) indexa os destinos pelo nome
+                // completo exibido no SAP Logon Pad (ex.: "EP0 - ECC Produção"),
+                // não pelo código curto de 3 letras (systemid) -- por isso usamos
+                // Exibicao, não Codigo, na busca do destino.
+                SapRfcService.Instance.TestarConexao(SistemaSelecionado.Exibicao, Client, Usuario, _obterSenha(), Idioma);
 
                 StatusText =
                     $"Conectado com sucesso.\nUsuário: {SapRfcService.Instance.UsuarioConectado}\nSistema: {SapRfcService.Instance.SistemaConectado}";
