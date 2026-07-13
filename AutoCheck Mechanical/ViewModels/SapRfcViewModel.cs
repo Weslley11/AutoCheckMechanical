@@ -1,9 +1,25 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Windows.Input;
 using AutoCheckMechanical.Services;
 
 namespace AutoCheckMechanical.ViewModels
 {
+    // Um sistema/destino SAP disponível no combo "System", igual à tela de
+    // logon do SAP GUI (código do destino + descrição).
+    public class SistemaSapOption
+    {
+        public string Codigo { get; }
+        public string Descricao { get; }
+        public string Exibicao => $"{Codigo} - {Descricao}";
+
+        public SistemaSapOption(string codigo, string descricao)
+        {
+            Codigo = codigo;
+            Descricao = descricao;
+        }
+    }
+
     // ViewModel da tela básica de integração SAP via RFC/BAPI (NCo). A senha
     // não é bindada diretamente (PasswordBox não suporta binding seguro), por
     // isso é lida do code-behind via o delegate injetado, igual o WBC faz.
@@ -11,11 +27,21 @@ namespace AutoCheckMechanical.ViewModels
     {
         private readonly Func<string> _obterSenha;
 
-        private string _sistema = "";
-        public string Sistema
+        public ObservableCollection<SistemaSapOption> SistemasDisponiveis { get; } = new ObservableCollection<SistemaSapOption>
         {
-            get { return _sistema; }
-            set { _sistema = value; OnPropertyChanged(); }
+            new SistemaSapOption("ED0", "ECC Desenvolvimento"),
+            new SistemaSapOption("EM4", "ECC MOCK 4"),
+            new SistemaSapOption("EM5", "ECC MOCK 5 - EHP6 Server BRJGS923"),
+            new SistemaSapOption("EM6", "ECC MOCK 6"),
+            new SistemaSapOption("EP0", "ECC Produção"),
+            new SistemaSapOption("EQ0", "ECC - Quality Assurance"),
+        };
+
+        private SistemaSapOption _sistemaSelecionado;
+        public SistemaSapOption SistemaSelecionado
+        {
+            get { return _sistemaSelecionado; }
+            set { _sistemaSelecionado = value; OnPropertyChanged(); }
         }
 
         private string _client = "";
@@ -58,13 +84,14 @@ namespace AutoCheckMechanical.ViewModels
         public SapRfcViewModel(Func<string> obterSenha)
         {
             _obterSenha = obterSenha;
+            SistemaSelecionado = SistemasDisponiveis[4]; // EP0 - ECC Produção
         }
 
         private void TestarConexao()
         {
-            if (string.IsNullOrWhiteSpace(Sistema) || string.IsNullOrWhiteSpace(Usuario))
+            if (SistemaSelecionado == null || string.IsNullOrWhiteSpace(Usuario))
             {
-                StatusText = "Preencha ao menos Sistema e Usuário.";
+                StatusText = "Preencha ao menos System e User.";
                 return;
             }
 
@@ -73,7 +100,7 @@ namespace AutoCheckMechanical.ViewModels
 
             try
             {
-                SapRfcService.Instance.TestarConexao(Sistema, Client, Usuario, _obterSenha(), Idioma);
+                SapRfcService.Instance.TestarConexao(SistemaSelecionado.Codigo, Client, Usuario, _obterSenha(), Idioma);
 
                 StatusText =
                     $"Conectado com sucesso.\nUsuário: {SapRfcService.Instance.UsuarioConectado}\nSistema: {SapRfcService.Instance.SistemaConectado}";

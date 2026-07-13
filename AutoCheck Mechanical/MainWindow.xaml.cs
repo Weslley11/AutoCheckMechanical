@@ -49,7 +49,7 @@ namespace AutoCheckMechanical
                 },
                 abrirSapRfc: () =>
                 {
-                    SapRfcWindow janela = new SapRfcWindow(ViewModel.TemaEscuro)
+                    SapRfcWindow janela = new SapRfcWindow
                     {
                         Owner = this
                     };
