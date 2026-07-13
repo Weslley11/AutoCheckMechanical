@@ -13,8 +13,22 @@
     <Window.Resources>
         <!-- Campos de texto/senha no estilo da tela de logon do SAP GUI: sem
              preenchimento, apenas um contorno fino cinza-claro sobre o fundo
-             escuro. TextBox e PasswordBox compartilham TextBoxBase. -->
-        <Style x:Key="SapFieldStyle" TargetType="TextBoxBase">
+             escuro. TextBoxBase é abstrata, não pode ser TargetType de
+             Style diretamente, por isso TextBox e PasswordBox têm estilos
+             próprios (duplicados) em vez de compartilhar um só. -->
+        <Style x:Key="SapFieldStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="CaretBrush" Value="White"/>
+            <Setter Property="BorderBrush" Value="#8C8C8C"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="SapPasswordFieldStyle" TargetType="PasswordBox">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="CaretBrush" Value="White"/>
@@ -197,7 +211,7 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="Password" Style="{StaticResource CampoRotuloStyle}"/>
                 <Grid Grid.Column="1">
-                    <PasswordBox Name="txtSenha" Style="{StaticResource SapFieldStyle}"/>
+                    <PasswordBox Name="txtSenha" Style="{StaticResource SapPasswordFieldStyle}"/>
                     <TextBlock Text="&#x26A0;" Foreground="#D9A227" FontSize="13"
                                HorizontalAlignment="Right" VerticalAlignment="Center"
                                Margin="0,0,8,0" IsHitTestVisible="False"/>
