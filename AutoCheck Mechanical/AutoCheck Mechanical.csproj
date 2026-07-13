@@ -17,6 +17,12 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <!-- Sem isso, o WinExe roda como 32-bit mesmo com PlatformTarget=AnyCPU
+         (é o "Prefer 32-bit" do Visual Studio, ligado por padrão em
+         projetos WinExe/WPF): é exatamente o que fazia o sapnco.dll
+         (AMD64) continuar dando BadImageFormatException mesmo depois da
+         troca de x86 para AnyCPU. -->
+    <Prefer32Bit>false</Prefer32Bit>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -27,6 +33,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
