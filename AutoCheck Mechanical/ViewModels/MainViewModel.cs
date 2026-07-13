@@ -312,7 +312,7 @@ namespace AutoCheckMechanical.ViewModels
 
             SaveFileDialog dialog = new SaveFileDialog
             {
-                Filter = "CSV para Excel (*.csv)|*.csv",
+                Filter = "Planilha do Excel (*.xlsx)|*.xlsx",
                 FileName = "AutoCheckMechanical_Relatorio_" + DateTime.Now.ToString("yyyyMMdd_HHmmss")
             };
 
@@ -321,13 +321,13 @@ namespace AutoCheckMechanical.ViewModels
 
             try
             {
-                File.WriteAllText(dialog.FileName, GerarCsvRelatorio(resultados), Encoding.UTF8);
+                ExcelReportService.GerarRelatorio(resultados, GetCheckerNames(), CamposTituloAtuais(), dialog.FileName);
 
                 StatusText = "Relatório exportado: " + dialog.FileName;
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Não foi possível salvar o arquivo:\n" + ex.Message,
+                MessageBox.Show("Não foi possível gerar o relatório:\n" + ex.Message,
                     "Exportar Relatório", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         });
@@ -1164,12 +1164,19 @@ namespace AutoCheckMechanical.ViewModels
             if (resultadosDoLote.Count == 0)
                 return null;
 
-            string nomeArquivo = $"Relatorio_{ecm}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+            string nomeArquivo = $"Relatorio_{ecm}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
             string caminhoRelatorio = Path.Combine(pastaDestino, nomeArquivo);
 
-            File.WriteAllText(caminhoRelatorio, GerarCsvRelatorio(resultadosDoLote), Encoding.UTF8);
+            ExcelReportService.GerarRelatorio(resultadosDoLote, GetCheckerNames(), CamposTituloAtuais(), caminhoRelatorio);
 
             return caminhoRelatorio;
+        }
+
+        private string[] CamposTituloAtuais()
+        {
+            return GetCheckerNames().Contains("Bloco Legenda WAU")
+                ? TitleBlockChecker.OrdemCampos
+                : new string[0];
         }
 
         // Gera uma única linha (mesmas colunas da tabela/relatório), separada
@@ -1178,10 +1185,7 @@ namespace AutoCheckMechanical.ViewModels
         public string GerarLinhaParaCopia(BatchFileResult item)
         {
             List<string> checkerNames = GetCheckerNames();
-
-            string[] camposTitulo = checkerNames.Contains("Bloco Legenda WAU")
-                ? TitleBlockChecker.OrdemCampos
-                : new string[0];
+            string[] camposTitulo = CamposTituloAtuais();
 
             List<string> colunas = new List<string> { item.FileName };
 
@@ -1228,67 +1232,5 @@ namespace AutoCheckMechanical.ViewModels
             return (valor ?? "").Replace('\t', ' ').Replace('\r', ' ').Replace('\n', ' ');
         }
 
-        private string GerarCsvRelatorio(List<BatchFileResult> resultados)
-        {
-            List<string> checkerNames = GetCheckerNames();
-
-            string[] camposTitulo = checkerNames.Contains("Bloco Legenda WAU")
-                ? TitleBlockChecker.OrdemCampos
-                : new string[0];
-
-            StringBuilder sb = new StringBuilder();
-
-            List<string> cabecalho = new List<string> { "Arquivo" };
-            cabecalho.AddRange(checkerNames);
-            cabecalho.AddRange(camposTitulo);
-            cabecalho.Add("Folhas");
-            cabecalho.Add("Observação");
-
-            sb.AppendLine(string.Join(";", cabecalho.Select(CampoCsv)));
-
-            foreach (BatchFileResult item in resultados)
-            {
-                List<string> colunas = new List<string> { item.FileName };
-
-                foreach (string nomeChecker in checkerNames)
-                {
-                    CheckResult resultado = item.Results.Find(x => x.Checker == nomeChecker);
-
-                    string status;
-
-                    if (item.OpenFailed || resultado == null)
-                        status = "";
-                    else if (resultado.Skipped)
-                        status = "N/A";
-                    else if (resultado.Success)
-                        status = "OK";
-                    else
-                        status = "ERRO: " + string.Join(" | ", resultado.Errors);
-
-                    colunas.Add(status);
-                }
-
-                CheckResult resultadoBlocoTitulo = item.Results.Find(x => x.Checker == "Bloco Legenda WAU");
-
-                foreach (string nomeCampo in camposTitulo)
-                {
-                    string valor = null;
-
-                    if (resultadoBlocoTitulo != null)
-                        resultadoBlocoTitulo.Fields.TryGetValue(nomeCampo, out valor);
-
-                    colunas.Add(valor ?? "");
-                }
-
-                colunas.Add(item.OpenFailed ? "" : item.SheetCount.ToString());
-
-                List<string> avisos = item.Results.SelectMany(r => r.Warnings).Distinct().ToList();
-                colunas.Add(string.Join(" | ", avisos));
-
-                sb.AppendLine(string.Join(";", colunas.Select(CampoCsv)));
-            }
-
-            return sb.ToString();
-        }
     }
 }
