@@ -30,7 +30,6 @@ namespace AutoCheckMechanical.ViewModels
 
         private readonly Func<List<string>, HashSet<string>, HashSet<string>> _abrirChecksConfig;
         private readonly Action _abrirSapConexao;
-        private readonly Action<string, List<DocumentoEncontrado>> _abrirResultadosBuscaDocumentos;
         private readonly Action _minimizar;
         private readonly Action _maximizarRestaurar;
         private readonly Action _fechar;
@@ -175,14 +174,12 @@ namespace AutoCheckMechanical.ViewModels
         public MainViewModel(
             Func<List<string>, HashSet<string>, HashSet<string>> abrirChecksConfig,
             Action abrirSapConexao,
-            Action<string, List<DocumentoEncontrado>> abrirResultadosBuscaDocumentos,
             Action minimizar,
             Action maximizarRestaurar,
             Action fechar)
         {
             _abrirChecksConfig = abrirChecksConfig;
             _abrirSapConexao = abrirSapConexao;
-            _abrirResultadosBuscaDocumentos = abrirResultadosBuscaDocumentos;
             _minimizar = minimizar;
             _maximizarRestaurar = maximizarRestaurar;
             _fechar = fechar;
@@ -764,11 +761,30 @@ namespace AutoCheckMechanical.ViewModels
             {
                 List<DocumentoEncontrado> resultados = DocumentSearchService.BuscarPorEcm(ecm, Environment.UserName, BuscarUltimaVersao);
 
+                foreach (DocumentoEncontrado documento in resultados)
+                {
+                    UpsertBatchResult(new BatchFileResult
+                    {
+                        // Não existe arquivo local baixado aqui -- FilePath
+                        // vira um identificador sintético só pra distinguir
+                        // as linhas no UpsertBatchResult/seleção de linha,
+                        // não um caminho de arquivo de verdade.
+                        FilePath = $"SAP:{documento.DocumentNumber}:{documento.Version}",
+                        FileName = documento.DocumentNumber,
+                        DocumentoNumero = documento.DocumentNumber,
+                        DocumentoTipo = documento.Type,
+                        DocumentoParte = documento.Part,
+                        DocumentoVersao = documento.Version,
+                        DocumentoDescricao = documento.Descricao,
+                    });
+                }
+
+                InvalidarResultados();
+                HistoryStore.Save(BatchResults);
+
                 StatusText = resultados.Count == 0
                     ? $"Nenhum documento encontrado para a ECM {ecm}."
-                    : $"{resultados.Count} documento(s) encontrado(s) para a ECM {ecm}.";
-
-                _abrirResultadosBuscaDocumentos(ecm, resultados);
+                    : $"{resultados.Count} documento(s) encontrado(s) para a ECM {ecm}, adicionados à tabela.";
             }
             catch (Exception ex)
             {

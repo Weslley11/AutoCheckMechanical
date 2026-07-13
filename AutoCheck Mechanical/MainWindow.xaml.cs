@@ -56,15 +56,6 @@ namespace AutoCheckMechanical
 
                     janela.ShowDialog();
                 },
-                abrirResultadosBuscaDocumentos: (ecm, resultados) =>
-                {
-                    DocumentSearchResultsWindow janela = new DocumentSearchResultsWindow(ecm, resultados)
-                    {
-                        Owner = this
-                    };
-
-                    janela.ShowDialog();
-                },
                 minimizar: () => WindowState = WindowState.Minimized,
                 maximizarRestaurar: AlternarMaximizarRestaurar,
                 fechar: Close);
@@ -176,12 +167,25 @@ namespace AutoCheckMechanical
 
             const int colPreview = 0;
             const int colArquivo = 1;
-            int colCheckerStart = 2;
+            // Colunas de documento SAP (busca por ECM) -- vazias nas linhas
+            // vindas do check normal de arquivo, preenchidas nas linhas
+            // vindas de BuscarDocumentosPorEcmCommand.
+            const int colDocumento = 2;
+            const int colTipo = 3;
+            const int colParte = 4;
+            const int colVersao = 5;
+            const int colDescricaoDocumento = 6;
+            int colCheckerStart = 7;
             int colTituloStart = colCheckerStart + checkerNames.Count;
             int colFolhas = colTituloStart + camposTitulo.Length;
             int colObservacao = colFolhas + 1;
 
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(96) });
+            gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(220) });
+            gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(110) });
+            gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(70) });
+            gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(70) });
+            gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(220) });
 
             foreach (string _ in checkerNames)
@@ -197,6 +201,11 @@ namespace AutoCheckMechanical
 
             AddHeaderCell("PRÉVIA", colPreview, 0);
             AddHeaderCell("ARQUIVO", colArquivo, 0, centralizado: false);
+            AddHeaderCell("DOCUMENTO", colDocumento, 0);
+            AddHeaderCell("TIPO", colTipo, 0);
+            AddHeaderCell("PARTE", colParte, 0);
+            AddHeaderCell("VERSÃO", colVersao, 0);
+            AddHeaderCell("DESCRIÇÃO", colDescricaoDocumento, 0, centralizado: false);
 
             for (int c = 0; c < checkerNames.Count; c++)
                 AddHeaderCell(checkerNames[c].ToUpper(), colCheckerStart + c, 0);
@@ -216,6 +225,11 @@ namespace AutoCheckMechanical
 
                 AddPreviewCell(item, colPreview, rowIndex);
                 AddFileNameCell(item, colArquivo, rowIndex);
+                AddDocumentoFieldCell(item, item.DocumentoNumero, colDocumento, rowIndex);
+                AddDocumentoFieldCell(item, item.DocumentoTipo, colTipo, rowIndex);
+                AddDocumentoFieldCell(item, item.DocumentoParte, colParte, rowIndex);
+                AddDocumentoFieldCell(item, item.DocumentoVersao, colVersao, rowIndex);
+                AddDocumentoFieldCell(item, item.DocumentoDescricao, colDescricaoDocumento, rowIndex, centralizado: false);
 
                 for (int c = 0; c < checkerNames.Count; c++)
                 {
@@ -334,6 +348,46 @@ namespace AutoCheckMechanical
             border.ToolTip = divergente
                 ? "Divergência entre os campos Material e Matéria-Prima."
                 : (preenchido ? valor : $"Campo \"{nomeCampo}\" vazio.");
+            border.MouseLeftButtonUp += (s, e) =>
+            {
+                SelecionarLinha(item);
+                ViewModel.ShowFileDetails(item);
+            };
+
+            Grid.SetColumn(border, column);
+            Grid.SetRow(border, row);
+            gridResults.Children.Add(border);
+        }
+
+        private void AddDocumentoFieldCell(BatchFileResult item, string valor, int column, int row, bool centralizado = true)
+        {
+            Border border = new Border
+            {
+                BorderBrush = (Brush)FindResource("BrushBorder"),
+                BorderThickness = new Thickness(0, 0, 1, 1),
+                Padding = new Thickness(8),
+                Background = CorFundoLinha(item),
+                Cursor = Cursors.Hand,
+                ClipToBounds = true,
+                ContextMenu = CriarMenuCopiarLinha(item)
+            };
+
+            bool preenchido = !string.IsNullOrWhiteSpace(valor);
+
+            border.Child = new TextBlock
+            {
+                Text = preenchido ? valor : "—",
+                FontSize = 12,
+                TextTrimming = TextTrimming.CharacterEllipsis,
+                TextAlignment = centralizado ? TextAlignment.Center : TextAlignment.Left,
+                HorizontalAlignment = centralizado ? HorizontalAlignment.Center : HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Center,
+                Foreground = preenchido
+                    ? (Brush)FindResource("BrushTextPrimary")
+                    : (Brush)FindResource("BrushTextSecondary")
+            };
+
+            border.ToolTip = preenchido ? valor : null;
             border.MouseLeftButtonUp += (s, e) =>
             {
                 SelecionarLinha(item);
