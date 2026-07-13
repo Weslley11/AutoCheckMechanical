@@ -1429,7 +1429,15 @@ namespace AutoCheckMechanical.ViewModels
             List<string> checkerNames = GetCheckerNames();
             string[] camposTitulo = CamposTituloAtuais();
 
-            List<string> colunas = new List<string> { item.FileName };
+            List<string> colunas = new List<string>
+            {
+                item.FileName,
+                item.DocumentoNumero ?? "",
+                item.DocumentoTipo ?? "",
+                item.DocumentoParte ?? "",
+                item.DocumentoVersao ?? "",
+                item.DocumentoDescricao ?? "",
+            };
 
             foreach (string nomeChecker in checkerNames)
             {
