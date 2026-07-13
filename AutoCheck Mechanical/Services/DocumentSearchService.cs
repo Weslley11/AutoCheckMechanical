@@ -56,13 +56,20 @@ namespace AutoCheckMechanical.Services
                 DMS = new DTP_DOCUMENT_OUTPUTDMS
                 {
                     // CheckIn precisa ser true pra o SAP devolver os
-                    // "Originals" (caminho do arquivo de verdade) em cada
-                    // documento -- com false, o response.DIRList[].Originals
-                    // vem vazio, e por isso BAIXAR DOCUMENTOS e CHECK DRAWING
-                    // não achavam nenhum arquivo pra abrir/copiar. Confirmado
-                    // contra o código real do WAU Factory Viewer (mesmo
-                    // Web Service, mesmo caso de uso de baixar o original).
-                    Originals = new DTP_DOCUMENT_OUTPUTDMSOriginals { CheckIn = true, URL = false, URLSpecified = false },
+                    // "Originals" -- confirmado (a busca real já mostrou os
+                    // dois originais, SWD e PDF, com Path preenchido).
+                    //
+                    // Só que o Path do original SWD ("C:\SAP_SW\...") é
+                    // exatamente a mesma convenção da pasta local que o
+                    // fluxo antigo via macro Excel usa como destino de
+                    // download (ExcelSapService/BuscarSap) -- ou seja, é o
+                    // caminho ONDE o arquivo ficaria se o SAP GUI/macro
+                    // rodasse no cliente, não um caminho de rede que a gente
+                    // consiga copiar direto por SOAP. Testando URL=true pra
+                    // ver se o SAP devolve uma URL HTTP de download de
+                    // verdade pro original (é assim que o WAU Factory Viewer
+                    // baixa de fato, via DownloadFileFromURL).
+                    Originals = new DTP_DOCUMENT_OUTPUTDMSOriginals { CheckIn = true, URL = true, URLSpecified = true },
                     ReturnClassInfo = false,
                     ReturnCurrentVersion = retornarUltimaVersao,
                     SearchBy = new DTP_DOCUMENT_OUTPUTDMSSearchBy
