@@ -16,6 +16,11 @@ namespace AutoCheckMechanical.Services
         public string Descricao { get; set; }
         public bool TemPdf { get; set; }
         public List<string> CaminhosOriginais { get; } = new List<string>();
+
+        // Diagnóstico temporário -- linha por Original, com os campos
+        // brutos que o SAP devolveu, pra ajudar a descobrir por que
+        // CaminhosOriginais está vindo vazio em algum caso real.
+        public List<string> OriginaisDebug { get; } = new List<string>();
     }
 
     // Busca documentos do DMS vinculados a uma ECM, via o Web Service SOA da
@@ -124,6 +129,13 @@ namespace AutoCheckMechanical.Services
                 {
                     documento.CaminhosOriginais.AddRange(dir.Originals.Select(o => o.Path));
                     documento.TemPdf = dir.Originals.Any(EhOriginalPdf);
+
+                    documento.OriginaisDebug.AddRange(dir.Originals.Select(o =>
+                        $"Path=\"{o.Path}\" ApplicationCode=\"{o.ApplicationCode}\" URL=\"{o.URL}\" Code=\"{o.Code}\" StorageCategory=\"{o.StorageCategory}\" CheckedOutUser=\"{o.CheckedOutUser}\""));
+                }
+                else
+                {
+                    documento.OriginaisDebug.Add("(Originals veio nulo no response -- o SAP não devolveu nenhum original pra esse documento)");
                 }
 
                 resultado.Add(documento);

@@ -920,6 +920,9 @@ namespace AutoCheckMechanical.ViewModels
             BuscandoDocumentos = true;
             Mouse.OverrideCursor = Cursors.Wait;
             StatusText = $"Buscando documentos da ECM {ecm} no SAP...";
+            DetalheTitulo = "LOG";
+            LogText = "";
+            AddLog($"Buscando documentos da ECM {ecm} no SAP...");
 
             try
             {
@@ -928,6 +931,14 @@ namespace AutoCheckMechanical.ViewModels
                 foreach (DocumentoEncontrado documento in resultados)
                 {
                     string caminhoOriginal = documento.CaminhosOriginais.FirstOrDefault();
+
+                    // Diagnóstico temporário: mostra o que o SAP devolveu de
+                    // "Original" pra cada documento, pra descobrir por que
+                    // o caminho não está vindo em alguns casos.
+                    AddLog($"{documento.DocumentNumber} ({documento.Type}, versão {documento.Version}): {documento.CaminhosOriginais.Count} original(is).");
+
+                    foreach (string debug in documento.OriginaisDebug)
+                        AddLog("  " + debug);
 
                     UpsertBatchResult(new BatchFileResult
                     {
