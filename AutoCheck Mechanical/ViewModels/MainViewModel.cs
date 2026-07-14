@@ -36,6 +36,20 @@ namespace AutoCheckMechanical.ViewModels
 
         public List<BatchFileResult> BatchResults { get; } = new List<BatchFileResult>();
 
+        // Chaves (ver ChaveDoItem) dos itens verificados/baixados NESTA
+        // sessão do app -- ao abrir o programa a tela começa limpa (sem o
+        // histórico salvo de sessões anteriores), mesmo com BatchResults já
+        // carregado; só aparece tudo de novo se o usuário clicar em
+        // "Histórico" (GoToHistoryCommand).
+        private readonly HashSet<string> _chavesDestaSessao = new HashSet<string>();
+
+        private bool _mostrarHistoricoCompleto;
+        public bool MostrarHistoricoCompleto
+        {
+            get { return _mostrarHistoricoCompleto; }
+            set { _mostrarHistoricoCompleto = value; OnPropertyChanged(); }
+        }
+
         public event EventHandler ResultsInvalidated;
 
         private void InvalidarResultados()
@@ -280,6 +294,9 @@ namespace AutoCheckMechanical.ViewModels
         public ICommand GoToHistoryCommand => new DelegateCommand(_ =>
         {
             FiltroTexto = "";
+            MostrarHistoricoCompleto = true;
+            InvalidarResultados();
+
             StatusText = $"Histórico: {BatchResults.Count} arquivo(s) verificado(s) ao todo.";
         });
 
@@ -298,6 +315,8 @@ namespace AutoCheckMechanical.ViewModels
                 return;
 
             BatchResults.Clear();
+            _chavesDestaSessao.Clear();
+            MostrarHistoricoCompleto = false;
             HistoryStore.Clear();
             ThumbnailStore.ClearAll();
             InvalidarResultados();
@@ -732,6 +751,8 @@ namespace AutoCheckMechanical.ViewModels
                 }
 
                 StatusText = "Check finalizado.";
+
+                SalvarLogAutomaticamente("CheckDrawing");
             }
             finally
             {
@@ -741,28 +762,21 @@ namespace AutoCheckMechanical.ViewModels
         }
 
         // Roda o check em lote nos documentos vindos da busca por ECM
-        // (BuscarDocumentosPorEcmCommand) que ainda não foram checados,
-        // reaproveitando o caminho do "Original" do DMS (DocumentoCaminhoOriginal)
-        // como arquivo pra abrir no SolidWorks. Documentos sem original
-        // vinculado no DMS são marcados como falha, sem tentar abrir nada.
+        // (BuscarDocumentosPorEcmCommand) que ainda não foram checados.
+        // Baixa primeiro (se ainda não estiver baixado) o original SWD de
+        // cada um pra dentro de PastaDownloadDocumentos\{ECM}\ -- mesma
+        // lógica/pasta usada por BaixarDocumentosCommand -- e só então abre
+        // o arquivo local no SolidWorks. Documentos que não puderem ser
+        // baixados são marcados como falha, sem tentar abrir nada.
         private void RunCheckDocumentosPendentes(List<BatchFileResult> documentosPendentes)
         {
-            List<BatchFileResult> semArquivo = documentosPendentes
-                .Where(x => string.IsNullOrEmpty(x.DocumentoCaminhoOriginal))
-                .ToList();
+            string pastaBase = PastaDownloadDocumentos?.Trim();
 
-            List<BatchFileResult> comArquivo = documentosPendentes
-                .Except(semArquivo)
-                .ToList();
-
-            SolidWorksSession session = null;
-
-            if (comArquivo.Count > 0)
+            if (string.IsNullOrEmpty(pastaBase))
             {
-                session = GarantirConexao();
-
-                if (!session.IsConnected)
-                    return;
+                MessageBox.Show("Informe a pasta de download antes de verificar os documentos.", "Check Drawing",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
             }
 
             DetalheTitulo = "LOG";
@@ -772,72 +786,139 @@ namespace AutoCheckMechanical.ViewModels
 
             try
             {
-                foreach (BatchFileResult pendente in semArquivo)
-                {
-                    pendente.OpenFailed = true;
-                    pendente.OpenError = "Nenhum arquivo original vinculado a este documento no DMS.";
+                List<BatchFileResult> aBaixar = documentosPendentes
+                    .Where(x => !File.Exists(CaminhoLocalEsperado(x, pastaBase)))
+                    .ToList();
 
-                    UpsertBatchResult(pendente);
-                    AddLog($"{pendente.DocumentoNumero} — sem arquivo original vinculado no DMS.");
+                if (aBaixar.Count > 0)
+                {
+                    AddLog($"Baixando {aBaixar.Count} documento(s) pendente(s) antes de checar...");
+                    BaixarOriginaisSwd(aBaixar, pastaBase);
                 }
 
-                if (comArquivo.Count > 0)
+                List<BatchFileResult> comArquivo = new List<BatchFileResult>();
+
+                foreach (BatchFileResult pendente in documentosPendentes)
                 {
-                    CheckEngine engine = new CheckEngine();
-                    CheckerManager.Register(engine, CheckersDesativados);
+                    string caminhoLocal = CaminhoLocalEsperado(pendente, pastaBase);
 
-                    // Loop em vez de ToDictionary: dois documentos diferentes
-                    // podem, em tese, apontar pro mesmo arquivo original --
-                    // ToDictionary lançaria exceção nesse caso.
-                    Dictionary<string, BatchFileResult> pendentesPorCaminho = new Dictionary<string, BatchFileResult>();
-
-                    foreach (BatchFileResult pendente in comArquivo)
-                        pendentesPorCaminho[pendente.DocumentoCaminhoOriginal] = pendente;
-
-                    AddLog($"Verificando {comArquivo.Count} documento(s) da lista... A janela do SolidWorks vai abrir e fechar cada arquivo automaticamente, isso é esperado.");
-
-                    int concluidos = 0;
-
-                    BatchCheckRunner.Run(session.Application, engine, comArquivo.Select(x => x.DocumentoCaminhoOriginal), item =>
+                    if (File.Exists(caminhoLocal))
                     {
-                        concluidos++;
+                        pendente.FilePath = caminhoLocal;
+                        pendente.DocumentoCaminhoOriginal = caminhoLocal;
+                        comArquivo.Add(pendente);
+                    }
+                    else
+                    {
+                        pendente.OpenFailed = true;
+                        pendente.OpenError = "Não foi possível baixar o arquivo original desse documento.";
 
-                        if (pendentesPorCaminho.TryGetValue(item.FilePath, out BatchFileResult pendente))
-                        {
-                            item.DocumentoNumero = pendente.DocumentoNumero;
-                            item.DocumentoTipo = pendente.DocumentoTipo;
-                            item.DocumentoParte = pendente.DocumentoParte;
-                            item.DocumentoVersao = pendente.DocumentoVersao;
-                            item.DocumentoDescricao = pendente.DocumentoDescricao;
-                            item.DocumentoCaminhoOriginal = pendente.DocumentoCaminhoOriginal;
-                            item.DocumentoTemPdf = pendente.DocumentoTemPdf;
-                            item.DocumentoEcm = pendente.DocumentoEcm;
-                        }
-
-                        UpsertBatchResult(item);
-                        InvalidarResultados();
-                        HistoryStore.Save(BatchResults);
-
-                        string statusItem = item.OpenFailed ? "FALHA AO ABRIR" : "OK";
-                        AddLog($"[{concluidos}/{comArquivo.Count}] {item.FileName} — {statusItem}");
-                        StatusText = $"Verificando... {concluidos}/{comArquivo.Count} concluído(s) ({item.FileName}).";
-
-                        // Força o WPF a processar a fila de render agora, já que tudo
-                        // roda de forma síncrona nesta thread — sem isso a tabela só
-                        // apareceria atualizada quando o lote inteiro terminasse.
-                        Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(() => { }));
-                    });
+                        UpsertBatchResult(pendente);
+                        AddLog($"{pendente.DocumentoNumero} — não foi possível baixar o original, check pulado.");
+                    }
                 }
 
                 InvalidarResultados();
                 HistoryStore.Save(BatchResults);
 
+                if (comArquivo.Count == 0)
+                {
+                    StatusText = "Nenhum documento pôde ser baixado para check.";
+                    return;
+                }
+
+                SolidWorksSession session = GarantirConexao();
+
+                if (!session.IsConnected)
+                    return;
+
+                CheckEngine engine = new CheckEngine();
+                CheckerManager.Register(engine, CheckersDesativados);
+
+                // Loop em vez de ToDictionary: dois documentos diferentes
+                // podem, em tese, apontar pro mesmo arquivo original --
+                // ToDictionary lançaria exceção nesse caso.
+                Dictionary<string, BatchFileResult> pendentesPorCaminho = new Dictionary<string, BatchFileResult>();
+
+                foreach (BatchFileResult pendente in comArquivo)
+                    pendentesPorCaminho[pendente.DocumentoCaminhoOriginal] = pendente;
+
+                AddLog($"Verificando {comArquivo.Count} documento(s) da lista... A janela do SolidWorks vai abrir e fechar cada arquivo automaticamente, isso é esperado.");
+
+                int concluidos = 0;
+
+                BatchCheckRunner.Run(session.Application, engine, comArquivo.Select(x => x.DocumentoCaminhoOriginal), item =>
+                {
+                    concluidos++;
+
+                    if (pendentesPorCaminho.TryGetValue(item.FilePath, out BatchFileResult pendente))
+                    {
+                        item.DocumentoNumero = pendente.DocumentoNumero;
+                        item.DocumentoTipo = pendente.DocumentoTipo;
+                        item.DocumentoParte = pendente.DocumentoParte;
+                        item.DocumentoVersao = pendente.DocumentoVersao;
+                        item.DocumentoDescricao = pendente.DocumentoDescricao;
+                        item.DocumentoCaminhoOriginal = pendente.DocumentoCaminhoOriginal;
+                        item.DocumentoTemPdf = pendente.DocumentoTemPdf;
+                        item.DocumentoEcm = pendente.DocumentoEcm;
+                        item.DocumentoUrlOriginal = pendente.DocumentoUrlOriginal;
+                    }
+
+                    UpsertBatchResult(item);
+                    InvalidarResultados();
+                    HistoryStore.Save(BatchResults);
+
+                    string statusItem = item.OpenFailed ? "FALHA AO ABRIR" : "OK";
+                    AddLog($"[{concluidos}/{comArquivo.Count}] {item.FileName} — {statusItem}");
+                    StatusText = $"Verificando... {concluidos}/{comArquivo.Count} concluído(s) ({item.FileName}).";
+
+                    // Força o WPF a processar a fila de render agora, já que tudo
+                    // roda de forma síncrona nesta thread — sem isso a tabela só
+                    // apareceria atualizada quando o lote inteiro terminasse.
+                    Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(() => { }));
+                });
+
+                InvalidarResultados();
+                HistoryStore.Save(BatchResults);
+
                 StatusText = $"{documentosPendentes.Count} documento(s) verificado(s).";
+
+                SalvarLogAutomaticamente("CheckDrawing");
             }
             finally
             {
                 Mouse.OverrideCursor = null;
                 IsBusy = false;
+            }
+        }
+
+        private static string CaminhoLocalEsperado(BatchFileResult item, string pastaBase)
+        {
+            string pastaEcm = Path.Combine(pastaBase, string.IsNullOrWhiteSpace(item.DocumentoEcm) ? "SEM_ECM" : item.DocumentoEcm);
+            return Path.Combine(pastaEcm, $"{item.DocumentoNumero}_{item.DocumentoVersao}.SLDDRW");
+        }
+
+        // Grava automaticamente o conteúdo do log (LogText) num arquivo em
+        // %APPDATA%\AutoCheckMechanical\Logs\, depois de cada verificação.
+        // Falha ao salvar (disco cheio, sem permissão etc.) não deve
+        // interromper o fluxo de verificação em si, por isso engole a
+        // exceção.
+        private void SalvarLogAutomaticamente(string prefixo)
+        {
+            try
+            {
+                string pastaLogs = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "AutoCheckMechanical", "Logs");
+
+                Directory.CreateDirectory(pastaLogs);
+
+                string nomeArquivo = $"{prefixo}_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
+
+                File.WriteAllText(Path.Combine(pastaLogs, nomeArquivo), LogText, Encoding.UTF8);
+            }
+            catch (Exception)
+            {
             }
         }
 
@@ -894,6 +975,8 @@ namespace AutoCheckMechanical.ViewModels
                 StatusText = falhas == 0
                     ? $"{resultados.Count} arquivo(s) verificado(s)."
                     : $"{resultados.Count} arquivo(s) verificado(s), {falhas} com falha ao abrir.";
+
+                SalvarLogAutomaticamente("VerificarArquivos");
             }
             finally
             {
@@ -1016,27 +1099,6 @@ namespace AutoCheckMechanical.ViewModels
                 return;
             }
 
-            List<BatchFileResult> comUrl = documentos.Where(x => !string.IsNullOrEmpty(x.DocumentoUrlOriginal)).ToList();
-            List<BatchFileResult> semUrl = documentos.Except(comUrl).ToList();
-
-            object sessaoSap = null;
-
-            if (semUrl.Count > 0)
-            {
-                try
-                {
-                    sessaoSap = SapService.Conectar();
-                }
-                catch (Exception ex)
-                {
-                    // Não aborta tudo -- ainda dá pra baixar os que têm URL
-                    // (sem precisar do SAP GUI); só os "semUrl" ficam sem
-                    // fallback e são registrados como falha mais abaixo.
-                    sessaoSap = null;
-                    AddLog("Não foi possível conectar ao SAP GUI (usado como alternativa pros documentos sem URL): " + ex.Message);
-                }
-            }
-
             IsBusy = true;
             Mouse.OverrideCursor = Cursors.Wait;
             DetalheTitulo = "LOG";
@@ -1045,78 +1107,10 @@ namespace AutoCheckMechanical.ViewModels
 
             try
             {
-                int copiados = 0;
-                int falhas = 0;
+                Dictionary<string, string> resultado = BaixarOriginaisSwd(documentos, pastaBase);
 
-                foreach (BatchFileResult item in comUrl)
-                {
-                    string pastaEcm = Path.Combine(pastaBase, string.IsNullOrWhiteSpace(item.DocumentoEcm) ? "SEM_ECM" : item.DocumentoEcm);
-                    Directory.CreateDirectory(pastaEcm);
-
-                    string caminhoLocal = Path.Combine(pastaEcm, $"{item.DocumentoNumero}_{item.DocumentoVersao}.SLDDRW");
-
-                    try
-                    {
-                        DocumentSearchService.BaixarOriginalPorUrl(item.DocumentoUrlOriginal, caminhoLocal);
-
-                        copiados++;
-                        AddLog($"{item.DocumentoNumero} — baixado via URL para {caminhoLocal}.");
-                    }
-                    catch (Exception ex)
-                    {
-                        falhas++;
-                        AddLog($"{item.DocumentoNumero} — falha ao baixar via URL: {DocumentSearchService.DescreverErroCompleto(ex)}");
-                    }
-                }
-
-                if (semUrl.Count > 0 && sessaoSap != null)
-                {
-                    // Agrupa por ECM porque a busca na CV04N já traz de uma
-                    // vez todos os documentos de uma ECM -- evita reabrir a
-                    // busca pra cada documento individualmente.
-                    var gruposPorEcm = semUrl.GroupBy(x =>
-                        string.IsNullOrWhiteSpace(x.DocumentoEcm) ? "SEM_ECM" : x.DocumentoEcm);
-
-                    foreach (var grupo in gruposPorEcm)
-                    {
-                        string ecm = grupo.Key;
-                        string pastaEcm = Path.Combine(pastaBase, ecm);
-
-                        Directory.CreateDirectory(pastaEcm);
-
-                        List<string> numerosDocumento = grupo.Select(x => x.DocumentoNumero).ToList();
-
-                        Dictionary<string, string> resultadoEcm =
-                            SapService.BaixarOriginaisSwd(sessaoSap, ecm, numerosDocumento, pastaEcm);
-
-                        foreach (string documentNumber in numerosDocumento)
-                        {
-                            string status = resultadoEcm.TryGetValue(documentNumber, out string valor) ? valor : null;
-
-                            if (!string.IsNullOrEmpty(status) && File.Exists(status))
-                            {
-                                copiados++;
-                                AddLog($"{documentNumber} — baixado via SAP GUI para {status}.");
-                            }
-                            else
-                            {
-                                falhas++;
-                                AddLog($"{documentNumber} — {status ?? "falha desconhecida"}.");
-                            }
-                        }
-
-                        // Deixa a UI responder entre uma ECM e outra (tudo
-                        // aqui roda síncrono, igual o resto do app).
-                        Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(() => { }));
-                    }
-                }
-                else if (semUrl.Count > 0)
-                {
-                    falhas += semUrl.Count;
-
-                    foreach (BatchFileResult item in semUrl)
-                        AddLog($"{item.DocumentoNumero} — sem URL de download e sem conexão com o SAP GUI.");
-                }
+                int copiados = resultado.Values.Count(v => !string.IsNullOrEmpty(v));
+                int falhas = resultado.Count - copiados;
 
                 StatusText = falhas == 0
                     ? $"{copiados} documento(s) baixado(s) para {pastaBase}."
@@ -1132,6 +1126,109 @@ namespace AutoCheckMechanical.ViewModels
                 Mouse.OverrideCursor = null;
                 IsBusy = false;
             }
+        }
+
+        // Baixa o original SWD de cada documento em "alvo" pra dentro de
+        // pastaBase\{ECM}\ -- reaproveitado tanto por BaixarDocumentosCommand
+        // quanto por RunCheckDocumentosPendentes (que precisa do arquivo
+        // local antes de poder abrir no SolidWorks). Preferência: se o SAP
+        // devolveu uma URL de download HTTP pro original (DocumentoUrlOriginal,
+        // via Originals.URL=true na busca -- mesmo mecanismo real do WAU
+        // Factory Viewer), baixa direto por HTTP, sem precisar do SAP GUI
+        // aberto. Documentos sem URL (o Web Service só devolve, pro original
+        // SWD, um caminho de convenção local -- "C:\SAP_SW\...", igual o
+        // fluxo antigo via macro -- não um caminho de rede copiável) caem no
+        // fallback via SAP GUI Scripting (CV04N). Devolve, por número de
+        // documento, o caminho local se deu certo ou null se falhou (motivo
+        // já registrado no log).
+        private Dictionary<string, string> BaixarOriginaisSwd(List<BatchFileResult> alvo, string pastaBase)
+        {
+            Dictionary<string, string> resultado = new Dictionary<string, string>();
+
+            List<BatchFileResult> comUrl = alvo.Where(x => !string.IsNullOrEmpty(x.DocumentoUrlOriginal)).ToList();
+            List<BatchFileResult> semUrl = alvo.Except(comUrl).ToList();
+
+            foreach (BatchFileResult item in comUrl)
+            {
+                string pastaEcm = Path.Combine(pastaBase, string.IsNullOrWhiteSpace(item.DocumentoEcm) ? "SEM_ECM" : item.DocumentoEcm);
+                Directory.CreateDirectory(pastaEcm);
+
+                string caminhoLocal = Path.Combine(pastaEcm, $"{item.DocumentoNumero}_{item.DocumentoVersao}.SLDDRW");
+
+                try
+                {
+                    DocumentSearchService.BaixarOriginalPorUrl(item.DocumentoUrlOriginal, caminhoLocal);
+
+                    resultado[item.DocumentoNumero] = caminhoLocal;
+                    AddLog($"{item.DocumentoNumero} — baixado via URL para {caminhoLocal}.");
+                }
+                catch (Exception ex)
+                {
+                    resultado[item.DocumentoNumero] = null;
+                    AddLog($"{item.DocumentoNumero} — falha ao baixar via URL: {DocumentSearchService.DescreverErroCompleto(ex)}");
+                }
+            }
+
+            if (semUrl.Count == 0)
+                return resultado;
+
+            object sessaoSap = null;
+
+            try
+            {
+                sessaoSap = SapService.Conectar();
+            }
+            catch (Exception ex)
+            {
+                AddLog("Não foi possível conectar ao SAP GUI (usado como alternativa pros documentos sem URL): " + ex.Message);
+            }
+
+            if (sessaoSap == null)
+            {
+                foreach (BatchFileResult item in semUrl)
+                {
+                    resultado[item.DocumentoNumero] = null;
+                    AddLog($"{item.DocumentoNumero} — sem URL de download e sem conexão com o SAP GUI.");
+                }
+
+                return resultado;
+            }
+
+            // Agrupa por ECM porque a busca na CV04N já traz de uma vez
+            // todos os documentos de uma ECM -- evita reabrir a busca pra
+            // cada documento individualmente.
+            var gruposPorEcm = semUrl.GroupBy(x =>
+                string.IsNullOrWhiteSpace(x.DocumentoEcm) ? "SEM_ECM" : x.DocumentoEcm);
+
+            foreach (var grupo in gruposPorEcm)
+            {
+                string ecm = grupo.Key;
+                string pastaEcm = Path.Combine(pastaBase, ecm);
+
+                Directory.CreateDirectory(pastaEcm);
+
+                List<string> numerosDocumento = grupo.Select(x => x.DocumentoNumero).ToList();
+
+                Dictionary<string, string> resultadoEcm =
+                    SapService.BaixarOriginaisSwd(sessaoSap, ecm, numerosDocumento, pastaEcm);
+
+                foreach (string documentNumber in numerosDocumento)
+                {
+                    string status = resultadoEcm.TryGetValue(documentNumber, out string valor) ? valor : null;
+                    bool ok = !string.IsNullOrEmpty(status) && File.Exists(status);
+
+                    resultado[documentNumber] = ok ? status : null;
+                    AddLog(ok
+                        ? $"{documentNumber} — baixado via SAP GUI para {status}."
+                        : $"{documentNumber} — {status ?? "falha desconhecida"}.");
+                }
+
+                // Deixa a UI responder entre uma ECM e outra (tudo aqui
+                // roda síncrono, igual o resto do app).
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(() => { }));
+            }
+
+            return resultado;
         }
 
         private void BuscarSap()
@@ -1256,14 +1353,29 @@ namespace AutoCheckMechanical.ViewModels
             }
         }
 
+        // Linhas vindas da busca por ECM são identificadas por DocumentoNumero
+        // (estável durante todo o ciclo de vida: pendente -> baixado ->
+        // checado), não por FilePath -- que muda de um identificador
+        // sintético pro caminho local de verdade assim que o documento é
+        // baixado/checado. Usar FilePath como chave nesse caso duplicaria a
+        // linha em vez de substituí-la.
         private void UpsertBatchResult(BatchFileResult item)
         {
-            int existingIndex = BatchResults.FindIndex(x => x.FilePath == item.FilePath);
+            int existingIndex = !string.IsNullOrEmpty(item.DocumentoNumero)
+                ? BatchResults.FindIndex(x => x.DocumentoNumero == item.DocumentoNumero)
+                : BatchResults.FindIndex(x => x.FilePath == item.FilePath);
 
             if (existingIndex >= 0)
                 BatchResults[existingIndex] = item;
             else
                 BatchResults.Add(item);
+
+            _chavesDestaSessao.Add(ChaveDoItem(item));
+        }
+
+        private static string ChaveDoItem(BatchFileResult item)
+        {
+            return !string.IsNullOrEmpty(item.DocumentoNumero) ? "DOC:" + item.DocumentoNumero : "FILE:" + item.FilePath;
         }
 
         public List<string> GetCheckerNames()
@@ -1275,10 +1387,14 @@ namespace AutoCheckMechanical.ViewModels
 
         public List<BatchFileResult> GetResultadosFiltrados()
         {
-            if (string.IsNullOrWhiteSpace(FiltroTexto))
-                return BatchResults;
+            IEnumerable<BatchFileResult> baseList = MostrarHistoricoCompleto
+                ? BatchResults
+                : BatchResults.Where(x => _chavesDestaSessao.Contains(ChaveDoItem(x)));
 
-            return BatchResults
+            if (string.IsNullOrWhiteSpace(FiltroTexto))
+                return baseList.ToList();
+
+            return baseList
                 .Where(x => x.FileName != null &&
                             x.FileName.IndexOf(FiltroTexto, StringComparison.OrdinalIgnoreCase) >= 0)
                 .ToList();
