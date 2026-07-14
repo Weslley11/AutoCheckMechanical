@@ -1151,55 +1151,29 @@ namespace AutoCheckMechanical.ViewModels
             ? SapRfcService.Instance.ConnectedUser
             : Environment.UserName)?.ToUpperInvariant();
 
-        // VOLTOU pro mecanismo via URL a pedido, enquanto o problema do
-        // usuário SAP no ITF_O_S_DOCUMENT não é resolvido (ver git log --
-        // essa era a fase em que baixava algo de verdade). Originals.URL=true
-        // na busca (mesmo mecanismo real do WAU Factory Viewer) -- já
-        // confirmado que o conteúdo devolvido vem encriptado (ver
-        // DocumentSearchService.BaixarOriginalPorUrl) e por isso não abre no
-        // SolidWorks, mas é o estado que estava funcionando (baixando um
-        // arquivo, mesmo que não utilizável) antes da tentativa via
-        // ITF_O_S_DOCUMENT.
-        //
-        // ITF_O_S_DOCUMENT (PI, publicação na pasta de rede) continua
-        // implementado e pronto em DocumentSearchService.
-        // BaixarOriginalViaItfDocument, só não é chamado daqui por enquanto
-        // -- assim que o "Usuário X não existe" for resolvido, é só trocar
-        // a chamada de volta. SAP GUI Scripting (CV04N, em SapService.cs) e
-        // RFC/BAPI foram implementados e funcionavam, mas foram descartados
-        // a pedido (não pode depender de SAP GUI aberto; precisa ser PI).
-        //
-        // Documentos sem URL (o Web Service só devolve, pro original SWD,
-        // um caminho de convenção local -- "C:\SAP_SW\...", não um caminho
-        // de rede copiável) ficam marcados como falha.
+        // VOLTOU pro ITF_O_S_DOCUMENT (PI + leitura da pasta de rede) --
+        // mesmo com o erro de negócio "Usuário X não existe" no SOAP, o
+        // método continua e procura o arquivo na pasta de interface
+        // (\\BRJGS100\APPS$\SAP\EP0\out\WAU_ENG\AutoCheck\) de qualquer
+        // jeito, e foi esse arquivo (não o mecanismo via URL, que continua
+        // devolvendo conteúdo encriptado -- mesmos bytes de sempre,
+        // reconfirmado) que abriu de verdade no SolidWorks antes. Ver
+        // DocumentSearchService.BaixarOriginalViaItfDocument.
         private Dictionary<string, string> BaixarOriginaisSwd(List<BatchFileResult> alvo, string pastaBase)
         {
             Dictionary<string, string> resultado = new Dictionary<string, string>();
 
             foreach (BatchFileResult item in alvo)
             {
-                if (string.IsNullOrEmpty(item.DocumentoUrlOriginal))
-                {
-                    resultado[item.DocumentoNumero] = null;
-                    AddLog($"{item.DocumentoNumero} — sem URL de download (o SAP não devolveu uma URL pra esse original).");
-                    continue;
-                }
+                string caminhoDestino = CaminhoLocalEsperado(item, pastaBase);
 
-                string caminhoLocal = CaminhoLocalEsperado(item, pastaBase);
-                Directory.CreateDirectory(Path.GetDirectoryName(caminhoLocal));
+                string caminhoBaixado = DocumentSearchService.BaixarOriginalViaItfDocument(
+                    item.DocumentoNumero, item.DocumentoTipo, item.DocumentoParte, item.DocumentoVersao,
+                    UsuarioSap, caminhoDestino, out string diagnostico);
 
-                try
-                {
-                    DocumentSearchService.BaixarOriginalPorUrl(item.DocumentoUrlOriginal, caminhoLocal);
+                resultado[item.DocumentoNumero] = caminhoBaixado;
 
-                    resultado[item.DocumentoNumero] = caminhoLocal;
-                    AddLog($"{item.DocumentoNumero} — baixado via URL para {caminhoLocal}.");
-                }
-                catch (Exception ex)
-                {
-                    resultado[item.DocumentoNumero] = null;
-                    AddLog($"{item.DocumentoNumero} — falha ao baixar via URL: {DocumentSearchService.DescreverErroCompleto(ex)}");
-                }
+                AddLog($"{item.DocumentoNumero} — download via ITF_O_S_DOCUMENT (PI): {diagnostico}");
             }
 
             return resultado;
