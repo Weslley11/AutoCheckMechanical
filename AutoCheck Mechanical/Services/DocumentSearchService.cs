@@ -94,16 +94,18 @@ namespace AutoCheckMechanical.Services
                     // SAP publica uma cópia numa pasta de interface (ALE)
                     // e devolve uma URL HTTP de download pra ela -- mas essa
                     // URL já foi confirmada (ver BaixarOriginalPorUrl) como
-                    // devolvendo conteúdo encriptado. PastaInterfaceAle é a
-                    // pasta de interface real desse app (confirmada, não um
-                    // chute); mandamos o Path mesmo assim porque é o mesmo
-                    // sinal que, em tese, faz o SAP publicar a cópia física
-                    // lá -- ver BaixarOriginalViaItfDocument, que lê essa
-                    // cópia direto da rede em vez de confiar na URL.
+                    // devolvendo conteúdo encriptado. Esse valor específico
+                    // de Path (mesmo sendo um chute na época) é o que estava
+                    // em uso quando a URL foi confirmada saindo de verdade
+                    // pro SAP (9 documentos reais, ver histórico) -- trocar
+                    // pra PastaInterfaceAle ("/interfaces/EP0/out/WAU_ENG/
+                    // AutoCheck/", a pasta real confirmada depois) fez a URL
+                    // parar de vir, então voltou pro valor confirmado
+                    // empiricamente em vez do "correto" na teoria.
                     Originals = new DTP_DOCUMENT_OUTPUTDMSOriginals
                     {
                         CheckIn = true,
-                        Path = PastaInterfaceAle,
+                        Path = "/interfaces/EP0/out/WAU_ENG/AutoCheckMechanical/",
                         URL = true,
                         URLSpecified = true,
                     },
