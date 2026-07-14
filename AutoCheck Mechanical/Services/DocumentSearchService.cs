@@ -261,30 +261,20 @@ namespace AutoCheckMechanical.Services
 
             try
             {
-                // A URL crua do WSDL (brjgs916:50000, direto) já foi
-                // confirmada bloqueada pela rede (SocketException: conexão
-                // recusada) -- exatamente a ressalva já registrada em
-                // BuscarPorEcm sobre esse host. Não temos código de registro
-                // no catálogo SOA da WEG pra ITF_O_S_DOCUMENT (só temos o
-                // 634-049 da OUTPUT), então em vez de usar a URL crua,
-                // resolve o host real através do SoapClientFactory com o
-                // código da OUTPUT (que já funciona de verdade pra busca) e
-                // só troca o parâmetro Interface= da URL resolvida, pra
-                // apontar pro ITF_O_S_DOCUMENT em vez do
-                // ITF_O_S_DOCUMENT_OUTPUT -- mantém host/porta/credencial
-                // exatamente como o que já é confirmado alcançável.
-                ITF_O_S_DOCUMENT_OUTPUTService referencia =
-                    (ITF_O_S_DOCUMENT_OUTPUTService)new SoapClientFactory().Create(typeof(ITF_O_S_DOCUMENT_OUTPUTService), "634-049");
+                // Código de registro real no catálogo SOA da WEG pro
+                // ITF_O_S_DOCUMENT (confirmado -- irmão do 634-049 da
+                // OUTPUT). A tentativa anterior de reaproveitar o host
+                // resolvido do 634-049 trocando só o parâmetro Interface= da
+                // URL não funcionava -- o PI insistia em mapear pra
+                // MTP_DOCUMENT_OUTPUT (canal preso na OUTPUT, independente
+                // da URL) -- então precisa mesmo do código de registro
+                // próprio dessa interface pro SoapClientFactory resolver o
+                // canal certo.
+                ITF_O_S_DOCUMENTService service =
+                    (ITF_O_S_DOCUMENTService)new SoapClientFactory().Create(typeof(ITF_O_S_DOCUMENTService), "634-048");
 
-                urlUsada = referencia.Url.Replace(
-                    "DocumentOutput%2Fsender%5EITF_O_S_DOCUMENT_OUTPUT",
-                    "Document%2Fsender%5EITF_O_S_DOCUMENT");
-
-                ITF_O_S_DOCUMENTService service = new ITF_O_S_DOCUMENTService
-                {
-                    Url = urlUsada,
-                    Credentials = Wau.Util.Services.SapServices.GetServiceCredential(),
-                };
+                service.Credentials = Wau.Util.Services.SapServices.GetServiceCredential();
+                urlUsada = service.Url;
 
                 response = service.ITF_O_S_DOCUMENT(request);
             }
