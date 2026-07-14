@@ -1021,7 +1021,7 @@ namespace AutoCheckMechanical.ViewModels
 
             try
             {
-                List<DocumentoEncontrado> resultados = DocumentSearchService.BuscarPorEcm(ecm, Environment.UserName, BuscarUltimaVersao);
+                List<DocumentoEncontrado> resultados = DocumentSearchService.BuscarPorEcm(ecm, UsuarioSap, BuscarUltimaVersao);
 
                 foreach (DocumentoEncontrado documento in resultados)
                 {
@@ -1139,6 +1139,16 @@ namespace AutoCheckMechanical.ViewModels
         // quanto por RunCheckDocumentosPendentes (que precisa do arquivo
         // local antes de poder abrir no SolidWorks).
         //
+        // O Windows UserName ("weslley") não é um usuário SAP válido --
+        // confirmado (erro real do SAP: "Usuário weslley não existe" ao
+        // mandar como UserCode no ITF_O_S_DOCUMENT, que valida isso porque
+        // CheckIn representa uma ação de checkout de verdade, atribuída a um
+        // usuário). Usa o usuário SAP de verdade, já autenticado na tela de
+        // login RFC (CONEXÃO SAP), quando disponível.
+        private static string UsuarioSap => SapRfcService.Instance.IsSapConnected
+            ? SapRfcService.Instance.ConnectedUser
+            : Environment.UserName;
+
         // Chama o serviço PI ITF_O_S_DOCUMENT (singular) pedindo pro SAP
         // publicar o original na pasta de interface real (ALE), e então lê o
         // arquivo publicado direto da pasta de rede equivalente
@@ -1166,7 +1176,7 @@ namespace AutoCheckMechanical.ViewModels
 
                 string caminhoBaixado = DocumentSearchService.BaixarOriginalViaItfDocument(
                     item.DocumentoNumero, item.DocumentoTipo, item.DocumentoParte, item.DocumentoVersao,
-                    Environment.UserName, caminhoDestino, out string diagnostico);
+                    UsuarioSap, caminhoDestino, out string diagnostico);
 
                 resultado[item.DocumentoNumero] = caminhoBaixado;
 
