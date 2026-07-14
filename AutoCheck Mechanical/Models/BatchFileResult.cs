@@ -27,6 +27,11 @@ namespace AutoCheckMechanical.Models
         public string DocumentoCaminhoOriginal { get; set; }
         public bool DocumentoTemPdf { get; set; }
 
+        // URL de download HTTP do original SWD (só existe quando o SAP
+        // devolve uma) -- quando preenchida, BaixarDocumentos baixa por
+        // aqui em vez de precisar do SAP GUI Scripting.
+        public string DocumentoUrlOriginal { get; set; }
+
         // ECM usada na busca que trouxe esse documento -- usada por
         // BaixarDocumentos pra criar a subpasta de destino.
         public string DocumentoEcm { get; set; }

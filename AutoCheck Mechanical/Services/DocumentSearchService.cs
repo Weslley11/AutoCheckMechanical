@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using AutoCheckMechanical.Services.DocumentOutput;
 using Weg.Iceberg.Infrastructure.Uddi;
 
@@ -16,6 +18,11 @@ namespace AutoCheckMechanical.Services
         public string Descricao { get; set; }
         public bool TemPdf { get; set; }
         public List<string> CaminhosOriginais { get; } = new List<string>();
+
+        // URL de download HTTP do original SWD, quando o SAP devolve uma
+        // (só existe se Originals.URL=true no request e o SAP realmente
+        // gerar uma URL pra essa combinação de documento/storage category).
+        public string UrlOriginalSwd { get; set; }
 
         // Diagnóstico temporário -- linha por Original, com os campos
         // brutos que o SAP devolveu, pra ajudar a descobrir por que
@@ -62,14 +69,24 @@ namespace AutoCheckMechanical.Services
                     // Só que o Path do original SWD ("C:\SAP_SW\...") é
                     // exatamente a mesma convenção da pasta local que o
                     // fluxo antigo via macro Excel usa como destino de
-                    // download (ExcelSapService/BuscarSap) -- ou seja, é o
-                    // caminho ONDE o arquivo ficaria se o SAP GUI/macro
-                    // rodasse no cliente, não um caminho de rede que a gente
-                    // consiga copiar direto por SOAP. Testando URL=true pra
-                    // ver se o SAP devolve uma URL HTTP de download de
-                    // verdade pro original (é assim que o WAU Factory Viewer
-                    // baixa de fato, via DownloadFileFromURL).
-                    Originals = new DTP_DOCUMENT_OUTPUTDMSOriginals { CheckIn = true, URL = true, URLSpecified = true },
+                    // download -- não um caminho de rede copiável por SOAP.
+                    // URL=true + Path=<pasta de interface> é o mecanismo
+                    // real que o WAU Factory Viewer usa pra baixar de
+                    // verdade (DocumentOutput.cs/GetDocumentInfoAsync): o
+                    // SAP publica uma cópia numa pasta de interface (ALE)
+                    // e devolve uma URL HTTP de download pra ela. O valor
+                    // do Path usado pelo WFV ("/interfaces/EP0/out/
+                    // WAU_ENG/WFV/") é específico do WFV -- aqui usamos o
+                    // mesmo padrão com o nome deste app no lugar, mas ainda
+                    // não está confirmado que essa pasta existe/está
+                    // configurada pro AutoCheck Mechanical.
+                    Originals = new DTP_DOCUMENT_OUTPUTDMSOriginals
+                    {
+                        CheckIn = true,
+                        Path = "/interfaces/EP0/out/WAU_ENG/AutoCheckMechanical/",
+                        URL = true,
+                        URLSpecified = true,
+                    },
                     ReturnClassInfo = false,
                     ReturnCurrentVersion = retornarUltimaVersao,
                     SearchBy = new DTP_DOCUMENT_OUTPUTDMSSearchBy
@@ -137,6 +154,11 @@ namespace AutoCheckMechanical.Services
                     documento.CaminhosOriginais.AddRange(dir.Originals.Select(o => o.Path));
                     documento.TemPdf = dir.Originals.Any(EhOriginalPdf);
 
+                    DTP_DOCUMENT_OUTPUT_RDIROriginal originalSwd = dir.Originals.FirstOrDefault(o =>
+                        string.Equals(o.ApplicationCode?.Trim(), "SWD", StringComparison.OrdinalIgnoreCase));
+
+                    documento.UrlOriginalSwd = originalSwd?.URL;
+
                     documento.OriginaisDebug.AddRange(dir.Originals.Select(o =>
                         $"Path=\"{o.Path}\" ApplicationCode=\"{o.ApplicationCode}\" URL=\"{o.URL}\" Code=\"{o.Code}\" StorageCategory=\"{o.StorageCategory}\" CheckedOutUser=\"{o.CheckedOutUser}\""));
                 }
@@ -149,6 +171,32 @@ namespace AutoCheckMechanical.Services
             }
 
             return resultado;
+        }
+
+        // Baixa o conteúdo de uma URL de original (gerada pelo SAP quando
+        // Originals.URL=true) direto pro caminho local -- mesmo mecanismo
+        // usado de fato pelo WAU Factory Viewer (DownloadFileFromURL), só
+        // que síncrono em vez de async, pra seguir o mesmo padrão do resto
+        // deste app (que não usa Task/async em nenhum outro lugar).
+        public static void BaixarOriginalPorUrl(string url, string caminhoDestino)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                // ConfigureAwait(false) evita deadlock: sem isso, o
+                // continuation tentaria voltar pro SynchronizationContext
+                // da UI (Dispatcher), que está bloqueada esperando o
+                // GetResult() -- clássico deadlock de async-sobre-síncrono
+                // em WPF.
+                HttpResponseMessage resposta = client.GetAsync(url).ConfigureAwait(false).GetAwaiter().GetResult();
+
+                resposta.EnsureSuccessStatusCode();
+
+                using (Stream origem = resposta.Content.ReadAsStreamAsync().ConfigureAwait(false).GetAwaiter().GetResult())
+                using (FileStream destino = File.Create(caminhoDestino))
+                {
+                    origem.CopyTo(destino);
+                }
+            }
         }
 
         // O Web Service não expõe um campo explícito "é PDF" -- inferimos
