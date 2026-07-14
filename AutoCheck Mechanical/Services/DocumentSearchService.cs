@@ -485,10 +485,40 @@ namespace AutoCheckMechanical.Services
 
             byte[] assinaturaOle = { 0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1 };
             byte[] primeirosBytes = new byte[16];
-            int lidos;
+            int lidos = 0;
 
-            using (FileStream stream = File.OpenRead(caminho))
-                lidos = stream.Read(primeirosBytes, 0, primeirosBytes.Length);
+            // O arquivo pode estar momentaneamente em uso por outro processo
+            // (ex: o próprio SolidWorks ainda soltando o handle logo depois
+            // de fechar o documento num check anterior) -- em vez de deixar
+            // a IOException de compartilhamento estourar sem tratamento,
+            // tenta de novo algumas vezes com um intervalo curto.
+            const int tentativasLeitura = 5;
+            IOException ultimoErroDeAcesso = null;
+
+            for (int tentativa = 0; tentativa < tentativasLeitura; tentativa++)
+            {
+                try
+                {
+                    using (FileStream stream = File.OpenRead(caminho))
+                        lidos = stream.Read(primeirosBytes, 0, primeirosBytes.Length);
+
+                    ultimoErroDeAcesso = null;
+                    break;
+                }
+                catch (IOException ex)
+                {
+                    ultimoErroDeAcesso = ex;
+
+                    if (tentativa < tentativasLeitura - 1)
+                        System.Threading.Thread.Sleep(300);
+                }
+            }
+
+            if (ultimoErroDeAcesso != null)
+            {
+                motivo = $"está sendo usado por outro processo e não pôde ser lido pra validação ({ultimoErroDeAcesso.Message})";
+                return false;
+            }
 
             bool assinaturaOk = lidos >= assinaturaOle.Length;
 
