@@ -76,16 +76,13 @@ namespace AutoCheckMechanical.Services
                     // real que o WAU Factory Viewer usa pra baixar de
                     // verdade (DocumentOutput.cs/GetDocumentInfoAsync): o
                     // SAP publica uma cópia numa pasta de interface (ALE)
-                    // e devolve uma URL HTTP de download pra ela. O valor
-                    // do Path usado pelo WFV ("/interfaces/EP0/out/
-                    // WAU_ENG/WFV/") é específico do WFV -- aqui usamos o
-                    // mesmo padrão com o nome deste app no lugar, mas ainda
-                    // não está confirmado que essa pasta existe/está
-                    // configurada pro AutoCheck Mechanical.
+                    // e devolve uma URL HTTP de download pra ela. "/interfaces/
+                    // ep0/out/testes" é uma pasta de interface real (não um
+                    // chute, confirmada por quem conhece o ambiente).
                     Originals = new DTP_DOCUMENT_OUTPUTDMSOriginals
                     {
                         CheckIn = true,
-                        Path = "/interfaces/EP0/out/WAU_ENG/AutoCheckMechanical/",
+                        Path = "/interfaces/ep0/out/testes",
                         URL = true,
                         URLSpecified = true,
                     },
@@ -212,6 +209,12 @@ namespace AutoCheckMechanical.Services
                             {
                                 new DTP_DOCUMENTDIROriginalsOriginal
                                 {
+                                    // Pasta de interface real (a mesma usada em
+                                    // BuscarPorEcm) -- não temos campo de URL
+                                    // nesse serviço, mas mandar o Path é o mesmo
+                                    // sinal que faz o SAP publicar uma cópia lá
+                                    // no mecanismo do ITF_O_S_DOCUMENT_OUTPUT.
+                                    Path = "/interfaces/ep0/out/testes",
                                     ApplicationCode = "SWD",
                                     CheckIn = false,
                                     Return = true,
