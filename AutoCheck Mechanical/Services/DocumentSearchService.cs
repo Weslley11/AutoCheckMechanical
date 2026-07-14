@@ -257,15 +257,32 @@ namespace AutoCheckMechanical.Services
             };
 
             DTP_DOCUMENT_R response;
+            string urlUsada;
 
             try
             {
-                // Sem código de registro no catálogo SOA da WEG pra esse
-                // serviço (ao contrário do 634-049 do ITF_O_S_DOCUMENT_OUTPUT),
-                // então chama direto na URL do WSDL em vez de passar pelo
-                // SoapClientFactory -- mesma credencial de serviço reusada.
+                // A URL crua do WSDL (brjgs916:50000, direto) já foi
+                // confirmada bloqueada pela rede (SocketException: conexão
+                // recusada) -- exatamente a ressalva já registrada em
+                // BuscarPorEcm sobre esse host. Não temos código de registro
+                // no catálogo SOA da WEG pra ITF_O_S_DOCUMENT (só temos o
+                // 634-049 da OUTPUT), então em vez de usar a URL crua,
+                // resolve o host real através do SoapClientFactory com o
+                // código da OUTPUT (que já funciona de verdade pra busca) e
+                // só troca o parâmetro Interface= da URL resolvida, pra
+                // apontar pro ITF_O_S_DOCUMENT em vez do
+                // ITF_O_S_DOCUMENT_OUTPUT -- mantém host/porta/credencial
+                // exatamente como o que já é confirmado alcançável.
+                ITF_O_S_DOCUMENT_OUTPUTService referencia =
+                    (ITF_O_S_DOCUMENT_OUTPUTService)new SoapClientFactory().Create(typeof(ITF_O_S_DOCUMENT_OUTPUTService), "634-049");
+
+                urlUsada = referencia.Url.Replace(
+                    "DocumentOutput%2Fsender%5EITF_O_S_DOCUMENT_OUTPUT",
+                    "Document%2Fsender%5EITF_O_S_DOCUMENT");
+
                 ITF_O_S_DOCUMENTService service = new ITF_O_S_DOCUMENTService
                 {
+                    Url = urlUsada,
                     Credentials = Wau.Util.Services.SapServices.GetServiceCredential(),
                 };
 
@@ -278,6 +295,7 @@ namespace AutoCheckMechanical.Services
             }
 
             StringBuilder sb = new StringBuilder();
+            sb.Append($"URL usada: \"{urlUsada}\" | ");
 
             if (response.ErrorList?.Error != null && response.ErrorList.Error.Length > 0)
             {
