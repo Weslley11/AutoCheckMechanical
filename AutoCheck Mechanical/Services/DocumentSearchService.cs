@@ -444,14 +444,19 @@ namespace AutoCheckMechanical.Services
                 }
             }
 
-            // SEM validação de assinatura OLE aqui de propósito, a pedido --
-            // volta pra fase em que o download em si "dava certo" (o arquivo
-            // é salvo, mesmo que o conteúdo esteja encriptado) e só a
-            // abertura no SolidWorks falhava depois. EhArquivoSolidWorksValido
-            // ainda existe e é usada em MainViewModel.ArquivoBaixadoPareceValido
-            // (decide se reusa um arquivo já baixado ou baixa de novo), só não
-            // é mais chamada logo após o download pra rejeitar/apagar o
-            // arquivo aqui.
+            // O Content-Type pode vir "application/octet-stream" mesmo
+            // quando o corpo não é o arquivo de verdade (servidor não marca
+            // corretamente) -- confere a assinatura binária real do que foi
+            // salvo antes de considerar sucesso, em vez de confiar só no
+            // cabeçalho HTTP. Reativada agora que o mecanismo via URL foi
+            // confirmado funcionando de verdade (a causa do conteúdo
+            // "encriptado" observado antes era o UserCode inválido na busca,
+            // não o mecanismo em si -- ver commit b44ba6c).
+            if (!EhArquivoSolidWorksValido(caminhoDestino, out string motivo))
+            {
+                File.Delete(caminhoDestino);
+                throw new InvalidOperationException("O arquivo baixado " + motivo);
+            }
         }
 
         // Confere se um arquivo é mesmo um documento SolidWorks

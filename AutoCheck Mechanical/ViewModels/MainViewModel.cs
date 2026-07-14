@@ -802,14 +802,7 @@ namespace AutoCheckMechanical.ViewModels
                 {
                     string caminhoLocal = CaminhoLocalEsperado(pendente, pastaBase);
 
-                    // De propósito File.Exists aqui, não ArquivoBaixadoPareceValido
-                    // -- se o download rodou e salvou alguma coisa (mesmo que o
-                    // conteúdo esteja encriptado), deixa o SolidWorks tentar abrir
-                    // de verdade e falhar com o erro real dele, em vez de pular a
-                    // abertura silenciosamente com uma mensagem genérica.
-                    // ArquivoBaixadoPareceValido continua sendo usado só pra
-                    // decidir se vale a pena baixar de novo (acima, em aBaixar).
-                    if (File.Exists(caminhoLocal))
+                    if (ArquivoBaixadoPareceValido(caminhoLocal))
                     {
                         pendente.FilePath = caminhoLocal;
                         pendente.DocumentoCaminhoOriginal = caminhoLocal;
