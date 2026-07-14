@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace AutoCheckMechanical.ViewModels
+namespace WDC.VIEWMODEL
 {
     public abstract class BaseViewModel : INotifyPropertyChanged
     {

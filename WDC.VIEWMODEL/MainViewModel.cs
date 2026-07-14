@@ -10,18 +10,18 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
-using AutoCheckMechanical.Checkers;
-using AutoCheckMechanical.Core;
-using AutoCheckMechanical.Models;
-using AutoCheckMechanical.Services;
+using WDC.SERVICES.Checkers;
+using WDC.SERVICES.Core;
+using WDC.MODEL;
+using WDC.SERVICES;
 using Microsoft.Win32;
 using SolidWorks.Interop.swconst;
-using CheckContextModel = AutoCheckMechanical.Core.CheckContext;
+using CheckContextModel = WDC.SERVICES.Core.CheckContext;
 using SwApp = SolidWorks.Interop.sldworks.SldWorks;
 using SwModelDoc2 = SolidWorks.Interop.sldworks.ModelDoc2;
 using SwFrame = SolidWorks.Interop.sldworks.IFrame;
 
-namespace AutoCheckMechanical.ViewModels
+namespace WDC.VIEWMODEL
 {
     public class MainViewModel : BaseViewModel
     {
@@ -384,7 +384,7 @@ namespace AutoCheckMechanical.ViewModels
             SaveFileDialog dialog = new SaveFileDialog
             {
                 Filter = "Arquivo de texto (*.txt)|*.txt|CSV para Excel (*.csv)|*.csv",
-                FileName = "AutoCheckMechanical_Log_" + DateTime.Now.ToString("yyyyMMdd_HHmmss")
+                FileName = "WDC_Log_" + DateTime.Now.ToString("yyyyMMdd_HHmmss")
             };
 
             if (dialog.ShowDialog() != true)
@@ -423,7 +423,7 @@ namespace AutoCheckMechanical.ViewModels
             SaveFileDialog dialog = new SaveFileDialog
             {
                 Filter = "Planilha do Excel (*.xlsx)|*.xlsx",
-                FileName = "AutoCheckMechanical_Relatorio_" + DateTime.Now.ToString("yyyyMMdd_HHmmss")
+                FileName = "WDC_Relatorio_" + DateTime.Now.ToString("yyyyMMdd_HHmmss")
             };
 
             if (dialog.ShowDialog() != true)
@@ -917,7 +917,7 @@ namespace AutoCheckMechanical.ViewModels
         }
 
         // Grava automaticamente o conteúdo do log (LogText) num arquivo em
-        // %APPDATA%\AutoCheckMechanical\Logs\, depois de cada verificação.
+        // %APPDATA%\WDC\Logs\, depois de cada verificação.
         // Falha ao salvar (disco cheio, sem permissão etc.) não deve
         // interromper o fluxo de verificação em si, por isso engole a
         // exceção.
@@ -927,7 +927,7 @@ namespace AutoCheckMechanical.ViewModels
             {
                 string pastaLogs = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    "AutoCheckMechanical", "Logs");
+                    "WDC", "Logs");
 
                 Directory.CreateDirectory(pastaLogs);
 

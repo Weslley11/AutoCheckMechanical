@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace AutoCheck_Mechanical.Properties
+namespace WDC.Properties
 {
 
 

@@ -1,9 +1,8 @@
-﻿<Application x:Class="AutoCheck_Mechanical.App"
+﻿<Application x:Class="WDC.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:AutoCheck_Mechanical"
-             StartupUri="MainWindow.xaml">
+             xmlns:local="clr-namespace:WDC">
     <Application.Resources>
-         
+
     </Application.Resources>
 </Application>

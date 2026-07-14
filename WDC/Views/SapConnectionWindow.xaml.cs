@@ -1,8 +1,8 @@
 using System.Windows;
-using AutoCheckMechanical.Services;
-using AutoCheckMechanical.ViewModels;
+using WDC.SERVICES;
+using WDC.VIEWMODEL;
 
-namespace AutoCheckMechanical
+namespace WDC.Views
 {
     public partial class SapConnectionWindow : Window
     {

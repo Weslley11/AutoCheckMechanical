@@ -1,9 +1,9 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using AutoCheckMechanical.Services;
+using WDC.SERVICES;
 
-namespace AutoCheckMechanical.ViewModels
+namespace WDC.VIEWMODEL
 {
     // Um sistema/destino SAP disponível no combo "System", igual à tela de
     // logon do SAP GUI (código do destino + descrição).

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
-using AutoCheckMechanical.ViewModels;
+using WDC.VIEWMODEL;
 
-namespace AutoCheckMechanical
+namespace WDC.Views
 {
     public partial class ChecksConfigWindow : Window
     {

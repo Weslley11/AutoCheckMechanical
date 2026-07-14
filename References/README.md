@@ -7,7 +7,7 @@ com o repositório (por licença), referenciadas via `HintPath` relativo no
 ## SAP .NET Connector (NCo)
 
 Software proprietário licenciado pela SAP. Copie os seguintes arquivos para
-esta pasta antes de compilar o projeto `AutoCheck Mechanical`:
+esta pasta antes de compilar o projeto `WDC.SERVICES`:
 
 - `sapnco.dll`
 - `sapnco_utils.dll`

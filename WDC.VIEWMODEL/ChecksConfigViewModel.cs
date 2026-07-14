@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 
-namespace AutoCheckMechanical.ViewModels
+namespace WDC.VIEWMODEL
 {
     public class ChecksConfigViewModel : BaseViewModel
     {

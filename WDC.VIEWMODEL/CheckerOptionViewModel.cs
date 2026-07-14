@@ -1,4 +1,4 @@
-namespace AutoCheckMechanical.ViewModels
+namespace WDC.VIEWMODEL
 {
     public class CheckerOptionViewModel : BaseViewModel
     {

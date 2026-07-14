@@ -1,4 +1,4 @@
-<Window x:Class="AutoCheckMechanical.ChecksConfigWindow"
+<Window x:Class="WDC.Views.ChecksConfigWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Selecionar Checks"

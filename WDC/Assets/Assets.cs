@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AutoCheck_Mechanical
+namespace WDC.Assets
 {
     class Assets
     {

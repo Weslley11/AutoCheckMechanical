@@ -1,5 +1,4 @@
 using System.Windows;
-using AutoCheckMechanical.Core;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,18 +11,12 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using AutoCheckMechanical.Checkers;
-using AutoCheckMechanical.Models;
-using CheckContextModel = AutoCheckMechanical.Core.CheckContext;
-using AutoCheckMechanical.Services;
-using AutoCheckMechanical.ViewModels;
+using WDC.SERVICES.Checkers;
+using WDC.MODEL;
+using WDC.VIEWMODEL;
 using Microsoft.Win32;
-using SolidWorks.Interop.swconst;
-using SwApp = SolidWorks.Interop.sldworks.SldWorks;
-using SwModelDoc2 = SolidWorks.Interop.sldworks.ModelDoc2;
-using SwFrame = SolidWorks.Interop.sldworks.IFrame;
 
-namespace AutoCheckMechanical
+namespace WDC.Views
 {
     public partial class MainWindow : Window
     {

@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Input;
 
-namespace AutoCheckMechanical.ViewModels
+namespace WDC.VIEWMODEL
 {
     public class DelegateCommand : ICommand
     {
