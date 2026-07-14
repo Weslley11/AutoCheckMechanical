@@ -1144,10 +1144,12 @@ namespace AutoCheckMechanical.ViewModels
         // mandar como UserCode no ITF_O_S_DOCUMENT, que valida isso porque
         // CheckIn representa uma ação de checkout de verdade, atribuída a um
         // usuário). Usa o usuário SAP de verdade, já autenticado na tela de
-        // login RFC (CONEXÃO SAP), quando disponível.
-        private static string UsuarioSap => SapRfcService.Instance.IsSapConnected
+        // login RFC (CONEXÃO SAP), quando disponível -- em maiúsculas, já
+        // que usuário SAP é normalizado em maiúsculas internamente (SU01) e
+        // a validação do UserCode aqui parece ser sensível a caixa.
+        private static string UsuarioSap => (SapRfcService.Instance.IsSapConnected
             ? SapRfcService.Instance.ConnectedUser
-            : Environment.UserName;
+            : Environment.UserName)?.ToUpperInvariant();
 
         // Chama o serviço PI ITF_O_S_DOCUMENT (singular) pedindo pro SAP
         // publicar o original na pasta de interface real (ALE), e então lê o
