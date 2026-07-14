@@ -1080,15 +1080,9 @@ namespace AutoCheckMechanical.ViewModels
             }
         }
 
-        // Baixa o original SWD de cada documento da lista. Preferência: se o
-        // SAP devolveu uma URL de download HTTP pro original (Documento
-        // UrlOriginal, via Originals.URL=true na busca -- mesmo mecanismo
-        // real do WAU Factory Viewer), baixa direto por HTTP, sem precisar
-        // do SAP GUI aberto. Documentos sem URL (o Web Service só devolve,
-        // pro original SWD, um caminho de convenção local -- "C:\SAP_SW\
-        // ...", igual o fluxo antigo via macro -- não um caminho de rede
-        // copiável) caem no fallback via SAP GUI Scripting (CV04N),
-        // automatizando a mesma tela que foi gravada manualmente.
+        // Baixa o original SWD de cada documento da lista -- ver
+        // BaixarOriginaisSwd (chama o serviço PI ITF_O_S_DOCUMENT e lê o
+        // arquivo publicado direto da pasta de interface na rede).
         private void BaixarDocumentos()
         {
             List<BatchFileResult> documentos = BatchResults
@@ -1145,15 +1139,15 @@ namespace AutoCheckMechanical.ViewModels
         // quanto por RunCheckDocumentosPendentes (que precisa do arquivo
         // local antes de poder abrir no SolidWorks).
         //
-        // Chama de verdade o serviço PI ITF_O_S_DOCUMENT (singular) pra cada
-        // documento (DocumentSearchService.ConsultarOriginalViaItfDocument),
-        // a pedido explícito de testar essa interface na prática em vez de
-        // só pela leitura do WSDL. O schema real desse serviço não tem campo
-        // de conteúdo binário nem URL em Originals.Original (só Path/
-        // Description/Code/StorageCategory/ApplicationCode/CheckIn/Return),
-        // então mesmo numa chamada bem-sucedida ela não devolve o arquivo --
-        // o resultado de cada chamada (erro do SAP ou metadata) é só
-        // registrado no log como evidência real, não como download.
+        // Chama o serviço PI ITF_O_S_DOCUMENT (singular) pedindo pro SAP
+        // publicar o original na pasta de interface real (ALE), e então lê o
+        // arquivo publicado direto da pasta de rede equivalente
+        // (\\BRJGS100\APPS$\SAP\EP0\out\WAU_ENG\AutoCheck\, mesma fórmula
+        // real usada pelo WAU Factory Viewer) -- ver
+        // DocumentSearchService.BaixarOriginalViaItfDocument. Isso contorna
+        // o fato do schema SOAP em si não ter campo de conteúdo binário/URL:
+        // o conteúdo não vem na resposta SOAP, vem da pasta de rede que o
+        // SAP escreve como efeito colateral da chamada.
         //
         // As outras duas tentativas já feitas nesta mesma investigação:
         // ITF_O_S_DOCUMENT_OUTPUT com Originals.URL=true devolve conteúdo
@@ -1162,24 +1156,21 @@ namespace AutoCheckMechanical.ViewModels
         // SCMS_DOC_READ) e SAP GUI Scripting (CV04N, em SapService.cs) foram
         // implementados e funcionavam, mas foram descartados a pedido:
         // precisa ser PI.
-        //
-        // Devolve, por número de documento, null pra todos -- não há
-        // download de verdade até aparecer uma interface PI cujo schema
-        // realmente exponha o conteúdo binário do original.
         private Dictionary<string, string> BaixarOriginaisSwd(List<BatchFileResult> alvo, string pastaBase)
         {
             Dictionary<string, string> resultado = new Dictionary<string, string>();
 
             foreach (BatchFileResult item in alvo)
             {
-                resultado[item.DocumentoNumero] = null;
+                string caminhoDestino = CaminhoLocalEsperado(item, pastaBase);
 
-                DocumentSearchService.ConsultarOriginalViaItfDocument(
+                string caminhoBaixado = DocumentSearchService.BaixarOriginalViaItfDocument(
                     item.DocumentoNumero, item.DocumentoTipo, item.DocumentoParte, item.DocumentoVersao,
-                    Environment.UserName, out string diagnostico);
+                    Environment.UserName, caminhoDestino, out string diagnostico);
+
+                resultado[item.DocumentoNumero] = caminhoBaixado;
 
                 AddLog($"{item.DocumentoNumero} — download via ITF_O_S_DOCUMENT (PI): {diagnostico}");
-                AddLog($"{item.DocumentoNumero} — esse serviço não tem campo de conteúdo binário/URL no schema, então não produz arquivo local mesmo com a chamada respondendo.");
             }
 
             return resultado;

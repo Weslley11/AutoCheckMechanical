@@ -51,6 +51,22 @@ namespace AutoCheckMechanical.Services
     //    AutoCheck Mechanical é reconhecido como app autorizado por ela.
     public static class DocumentSearchService
     {
+        // Pasta de interface (ALE) real, confirmada pelo usuário -- mesmo
+        // padrão do WAU Factory Viewer (WFV.MODEL.Constants.
+        // DocumentOutputRequestPath = "/interfaces/EP0/out/WAU_ENG/WFV/"),
+        // só trocando "WFV" por "AutoCheck".
+        private const string PastaInterfaceAle = "/interfaces/EP0/out/WAU_ENG/AutoCheck/";
+
+        // Caminho de rede (UNC) equivalente, pela MESMA fórmula real do WFV
+        // (WFV.MODEL.Constants.DocumentOutputFolderPath): tudo que vem
+        // depois de "/interfaces/" em PastaInterfaceAle, com "/" trocado por
+        // "\", dentro do compartilhamento \\BRJGS100\APPS$\SAP\. O usuário
+        // confirmou o mapeamento local equivalente (unidade Q:) como
+        // Q:\APPS\SAP\EP0\OUT\WAU_ENG\AutoCheck -- usamos o UNC direto (em
+        // vez de depender da letra Q: estar mapeada) pra funcionar em
+        // qualquer máquina.
+        private const string PastaInterfaceLocalUnc = @"\\BRJGS100\APPS$\SAP\EP0\out\WAU_ENG\AutoCheck\";
+
         // retornarUltimaVersao: false = comportamento padrão do DMS (última
         // versão LIBERADA); true = ReturnCurrentVersion=true (última versão
         // de verdade, mesmo que ainda não liberada). Essa leitura do campo
@@ -76,13 +92,18 @@ namespace AutoCheckMechanical.Services
                     // real que o WAU Factory Viewer usa pra baixar de
                     // verdade (DocumentOutput.cs/GetDocumentInfoAsync): o
                     // SAP publica uma cópia numa pasta de interface (ALE)
-                    // e devolve uma URL HTTP de download pra ela. "/interfaces/
-                    // ep0/out/testes" é uma pasta de interface real (não um
-                    // chute, confirmada por quem conhece o ambiente).
+                    // e devolve uma URL HTTP de download pra ela -- mas essa
+                    // URL já foi confirmada (ver BaixarOriginalPorUrl) como
+                    // devolvendo conteúdo encriptado. PastaInterfaceAle é a
+                    // pasta de interface real desse app (confirmada, não um
+                    // chute); mandamos o Path mesmo assim porque é o mesmo
+                    // sinal que, em tese, faz o SAP publicar a cópia física
+                    // lá -- ver BaixarOriginalViaItfDocument, que lê essa
+                    // cópia direto da rede em vez de confiar na URL.
                     Originals = new DTP_DOCUMENT_OUTPUTDMSOriginals
                     {
                         CheckIn = true,
-                        Path = "/interfaces/ep0/out/testes",
+                        Path = PastaInterfaceAle,
                         URL = true,
                         URLSpecified = true,
                     },
@@ -174,22 +195,23 @@ namespace AutoCheckMechanical.Services
 
         // Chama o serviço ITF_O_S_DOCUMENT (singular, distinto do
         // ITF_O_S_DOCUMENT_OUTPUT usado em BuscarPorEcm) pra um documento
-        // específico, pedindo Return=true no Original do SWD -- implementado
-        // e chamado de verdade a pedido, mas o schema real desse serviço
-        // (ver ITF_O_S_DOCUMENTService.cs) não tem campo de conteúdo binário
-        // nem URL em Originals.Original, só metadata (Path/Description/Code/
-        // StorageCategory/ApplicationCode/CheckIn/Return). Ou seja, mesmo
-        // numa chamada bem-sucedida, essa resposta não tem como virar um
-        // arquivo local -- por isso sempre devolve null.
+        // específico, pedindo CheckIn=true/Return=true no Original do SWD
+        // com Path=PastaInterfaceAle -- isso é o sinal pro SAP publicar uma
+        // cópia física do original na pasta de interface. O schema desse
+        // serviço não tem campo de conteúdo binário nem URL em Originals.
+        // Original (só metadata: Path/Description/Code/StorageCategory/
+        // ApplicationCode/CheckIn/Return), então a resposta SOAP em si nunca
+        // vira arquivo -- por isso, depois de chamar, procura o arquivo de
+        // verdade direto em PastaInterfaceLocalUnc (a mesma pasta de
+        // interface, só que pelo caminho de rede) e copia pra
+        // caminhoDestino se achar um válido.
         //
-        // O valor real disso é diagnóstico: "diagnostico" traz o dump
-        // completo do que o SAP respondeu de verdade (erro ou metadata),
-        // pra confirmar isso empiricamente (não só pela leitura do WSDL) e
-        // servir de evidência concreta pro time de PI da WEG sobre por que
-        // esse serviço não resolve o download.
-        public static string ConsultarOriginalViaItfDocument(
+        // "diagnostico" sempre traz o que aconteceu (erro do SAP, metadata
+        // devolvida, e se achou/não achou o arquivo na pasta de rede) --
+        // continua valendo como evidência real mesmo quando falha.
+        public static string BaixarOriginalViaItfDocument(
             string documentNumber, string documentType, string documentPart, string documentVersion,
-            string usuario, out string diagnostico)
+            string usuario, string caminhoDestino, out string diagnostico)
         {
             DTP_DOCUMENT request = new DTP_DOCUMENT
             {
@@ -209,14 +231,15 @@ namespace AutoCheckMechanical.Services
                             {
                                 new DTP_DOCUMENTDIROriginalsOriginal
                                 {
-                                    // Pasta de interface real (a mesma usada em
-                                    // BuscarPorEcm) -- não temos campo de URL
-                                    // nesse serviço, mas mandar o Path é o mesmo
-                                    // sinal que faz o SAP publicar uma cópia lá
-                                    // no mecanismo do ITF_O_S_DOCUMENT_OUTPUT.
-                                    Path = "/interfaces/ep0/out/testes",
+                                    // CheckIn=true é o que, em BuscarPorEcm, faz
+                                    // o SAP devolver/publicar os Originals de
+                                    // verdade -- mandado aqui também, junto do
+                                    // Path da pasta de interface, na expectativa
+                                    // de que produza o mesmo efeito colateral
+                                    // (publicar a cópia física na pasta).
+                                    Path = PastaInterfaceAle,
                                     ApplicationCode = "SWD",
-                                    CheckIn = false,
+                                    CheckIn = true,
                                     Return = true,
                                 },
                             },
@@ -288,7 +311,76 @@ namespace AutoCheckMechanical.Services
                 }
             }
 
+            string arquivoEncontrado = EncontrarArquivoNaPastaInterface(documentNumber);
+
+            if (arquivoEncontrado == null)
+            {
+                sb.Append($"Nenhum arquivo com \"{documentNumber}\" no nome apareceu em \"{PastaInterfaceLocalUnc}\" depois da chamada.");
+                diagnostico = sb.ToString();
+                return null;
+            }
+
+            if (!EhArquivoSolidWorksValido(arquivoEncontrado, out string motivoInvalido))
+            {
+                sb.Append($"Achou \"{arquivoEncontrado}\" na pasta de interface, mas {motivoInvalido}");
+                diagnostico = sb.ToString();
+                return null;
+            }
+
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(caminhoDestino));
+                File.Copy(arquivoEncontrado, caminhoDestino, true);
+            }
+            catch (Exception ex)
+            {
+                sb.Append($"Achou \"{arquivoEncontrado}\" válido na pasta de interface, mas falhou ao copiar pra \"{caminhoDestino}\": {ex.Message}");
+                diagnostico = sb.ToString();
+                return null;
+            }
+
+            sb.Append($"OK -- copiado de \"{arquivoEncontrado}\" pra \"{caminhoDestino}\".");
             diagnostico = sb.ToString();
+
+            return caminhoDestino;
+        }
+
+        // A publicação do arquivo na pasta de interface pode não ser
+        // instantânea (efeito colateral do lado do SAP, possivelmente
+        // assíncrono) -- por isso tenta algumas vezes com um intervalo
+        // curto em vez de checar só uma vez logo após a chamada SOAP
+        // responder. Casa pelo número do documento aparecer no nome do
+        // arquivo (mesma convenção usada em CaminhoLocalEsperado, no
+        // MainViewModel) já que não temos confirmação de qual é o nome
+        // exato que o SAP usa ao publicar ali.
+        private static string EncontrarArquivoNaPastaInterface(string documentNumber)
+        {
+            const int tentativas = 5;
+
+            for (int tentativa = 0; tentativa < tentativas; tentativa++)
+            {
+                try
+                {
+                    if (Directory.Exists(PastaInterfaceLocalUnc))
+                    {
+                        string encontrado = Directory.EnumerateFiles(PastaInterfaceLocalUnc, "*.SLDDRW", SearchOption.TopDirectoryOnly)
+                            .Where(f => Path.GetFileName(f).IndexOf(documentNumber, StringComparison.OrdinalIgnoreCase) >= 0)
+                            .OrderByDescending(File.GetLastWriteTimeUtc)
+                            .FirstOrDefault();
+
+                        if (encontrado != null)
+                            return encontrado;
+                    }
+                }
+                catch
+                {
+                    // Pasta de rede pode oscilar (indisponível num instante) --
+                    // só tenta de novo na próxima volta do loop.
+                }
+
+                if (tentativa < tentativas - 1)
+                    System.Threading.Thread.Sleep(1000);
+            }
 
             return null;
         }
