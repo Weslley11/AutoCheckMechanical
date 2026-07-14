@@ -191,6 +191,30 @@ namespace AutoCheckMechanical.Services
 
                 resposta.EnsureSuccessStatusCode();
 
+                string contentType = resposta.Content.Headers.ContentType?.MediaType ?? "";
+
+                // O HttpClient aqui não manda nenhum cookie/sessão/login do
+                // SAP -- se a URL exigir autenticação que não temos, o
+                // servidor pode devolver uma página de login/erro com
+                // status 200 (sucesso HTTP) só que o corpo é HTML/texto, não
+                // o arquivo de verdade. EnsureSuccessStatusCode() sozinho
+                // não pega esse caso -- por isso confere o Content-Type
+                // antes de salvar, em vez de gravar a página de erro como
+                // se fosse o desenho.
+                if (contentType.IndexOf("html", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    contentType.IndexOf("text", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    contentType.IndexOf("json", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    contentType.IndexOf("xml", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    string corpo = resposta.Content.ReadAsStringAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                    string amostra = corpo.Length > 300 ? corpo.Substring(0, 300) : corpo;
+
+                    throw new InvalidOperationException(
+                        $"A URL devolveu conteúdo do tipo \"{contentType}\" em vez do arquivo binário " +
+                        $"(provavelmente precisa de login/sessão SAP que este download direto não tem). " +
+                        $"Início do conteúdo: {amostra}");
+                }
+
                 using (Stream origem = resposta.Content.ReadAsStreamAsync().ConfigureAwait(false).GetAwaiter().GetResult())
                 using (FileStream destino = File.Create(caminhoDestino))
                 {
