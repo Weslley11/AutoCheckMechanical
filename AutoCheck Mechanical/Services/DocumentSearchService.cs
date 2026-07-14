@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
+using AutoCheckMechanical.Services.Document;
 using AutoCheckMechanical.Services.DocumentOutput;
 using Weg.Iceberg.Infrastructure.Uddi;
 
@@ -171,6 +173,121 @@ namespace AutoCheckMechanical.Services
             }
 
             return resultado;
+        }
+
+        // Chama o serviço ITF_O_S_DOCUMENT (singular, distinto do
+        // ITF_O_S_DOCUMENT_OUTPUT usado em BuscarPorEcm) pra um documento
+        // específico, pedindo Return=true no Original do SWD -- implementado
+        // e chamado de verdade a pedido, mas o schema real desse serviço
+        // (ver ITF_O_S_DOCUMENTService.cs) não tem campo de conteúdo binário
+        // nem URL em Originals.Original, só metadata (Path/Description/Code/
+        // StorageCategory/ApplicationCode/CheckIn/Return). Ou seja, mesmo
+        // numa chamada bem-sucedida, essa resposta não tem como virar um
+        // arquivo local -- por isso sempre devolve null.
+        //
+        // O valor real disso é diagnóstico: "diagnostico" traz o dump
+        // completo do que o SAP respondeu de verdade (erro ou metadata),
+        // pra confirmar isso empiricamente (não só pela leitura do WSDL) e
+        // servir de evidência concreta pro time de PI da WEG sobre por que
+        // esse serviço não resolve o download.
+        public static string ConsultarOriginalViaItfDocument(
+            string documentNumber, string documentType, string documentPart, string documentVersion,
+            string usuario, out string diagnostico)
+        {
+            DTP_DOCUMENT request = new DTP_DOCUMENT
+            {
+                language = "PT",
+                UserCode = usuario,
+                DIRList = new[]
+                {
+                    new DTP_DOCUMENTDIR
+                    {
+                        DocumentNumber = documentNumber,
+                        DocumentType = documentType,
+                        DocumentPart = documentPart,
+                        DocumentVersion = documentVersion,
+                        Originals = new DTP_DOCUMENTDIROriginals
+                        {
+                            Original = new[]
+                            {
+                                new DTP_DOCUMENTDIROriginalsOriginal
+                                {
+                                    ApplicationCode = "SWD",
+                                    CheckIn = false,
+                                    Return = true,
+                                },
+                            },
+                        },
+                        DescriptionList = new DTP_DOCUMENTDIRDescriptionList
+                        {
+                            Description = new[]
+                            {
+                                new DTP_DOCUMENTDIRDescriptionListDescription { language = "PT", Value = string.Empty },
+                            },
+                        },
+                        ReturnClassification = false,
+                    },
+                },
+            };
+
+            DTP_DOCUMENT_R response;
+
+            try
+            {
+                // Sem código de registro no catálogo SOA da WEG pra esse
+                // serviço (ao contrário do 634-049 do ITF_O_S_DOCUMENT_OUTPUT),
+                // então chama direto na URL do WSDL em vez de passar pelo
+                // SoapClientFactory -- mesma credencial de serviço reusada.
+                ITF_O_S_DOCUMENTService service = new ITF_O_S_DOCUMENTService
+                {
+                    Credentials = Wau.Util.Services.SapServices.GetServiceCredential(),
+                };
+
+                response = service.ITF_O_S_DOCUMENT(request);
+            }
+            catch (Exception ex)
+            {
+                diagnostico = "Erro ao chamar o serviço ITF_O_S_DOCUMENT: " + DescreverErroCompleto(ex);
+                return null;
+            }
+
+            StringBuilder sb = new StringBuilder();
+
+            if (response.ErrorList?.Error != null && response.ErrorList.Error.Length > 0)
+            {
+                foreach (DTP_DOCUMENT_RErrorListError erro in response.ErrorList.Error)
+                {
+                    string mensagem = erro.Description != null && erro.Description.Length > 0
+                        ? erro.Description[0].Value
+                        : erro.Code;
+
+                    sb.Append("Erro SAP: ").Append(erro.Code).Append(" - ").Append(mensagem).Append(" | ");
+                }
+            }
+
+            DTP_DOCUMENT_RDIR dir = response.DIRList != null && response.DIRList.Length > 0 ? response.DIRList[0] : null;
+
+            if (dir == null)
+            {
+                sb.Append("O SAP não devolveu nenhum DIR pra esse documento.");
+            }
+            else if (dir.Originals == null || dir.Originals.Length == 0)
+            {
+                sb.Append("O SAP não devolveu nenhum Original pra esse documento.");
+            }
+            else
+            {
+                foreach (DTP_DOCUMENT_RDIROriginal original in dir.Originals)
+                {
+                    sb.Append($"Path=\"{original.Path}\" Code=\"{original.Code}\" " +
+                        $"StorageCategory=\"{original.StorageCategory}\" ApplicationCode=\"{original.ApplicationCode}\" " +
+                        $"CheckIn={original.CheckIn} Return={original.Return} | ");
+                }
+            }
+
+            diagnostico = sb.ToString();
+
+            return null;
         }
 
         // Baixa o conteúdo de uma URL de original (gerada pelo SAP quando

@@ -140,6 +140,7 @@
     <Compile Include="Services\BatchCheckRunner.cs" />
     <Compile Include="Services\CheckEngine.cs" />
     <Compile Include="Services\CheckerSettingsStore.cs" />
+    <Compile Include="Services\Document\ITF_O_S_DOCUMENTService.cs" />
     <Compile Include="Services\DocumentOutput\ITF_O_S_DOCUMENT_OUTPUTService.cs" />
     <Compile Include="Services\DocumentSearchService.cs" />
     <Compile Include="Services\DownloadFolderSettingsStore.cs" />

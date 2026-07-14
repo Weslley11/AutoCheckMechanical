@@ -1145,18 +1145,27 @@ namespace AutoCheckMechanical.ViewModels
         // quanto por RunCheckDocumentosPendentes (que precisa do arquivo
         // local antes de poder abrir no SolidWorks).
         //
-        // PENDENTE: precisa ser via PI (não RFC, por restrição/política
-        // interna da WEG), mas ainda não temos referência de qual interface
-        // PI expõe o conteúdo binário do original -- a única testada até
-        // agora (ITF_O_S_DOCUMENT_OUTPUT com Originals.URL=true) devolve
-        // conteúdo encriptado (ver DocumentSearchService.BaixarOriginalPorUrl).
-        // O caminho via RFC/BAPI (BAPI_DOCUMENT_GETDETAIL2 +
-        // BAPI_DOCUMENT_CHECKOUTVIEW2 + SCMS_DOC_READ) e o via SAP GUI
-        // Scripting (CV04N, em SapService.cs) foram implementados e
-        // funcionavam, mas foram descartados a pedido: precisa ser PI.
+        // Chama de verdade o serviço PI ITF_O_S_DOCUMENT (singular) pra cada
+        // documento (DocumentSearchService.ConsultarOriginalViaItfDocument),
+        // a pedido explícito de testar essa interface na prática em vez de
+        // só pela leitura do WSDL. O schema real desse serviço não tem campo
+        // de conteúdo binário nem URL em Originals.Original (só Path/
+        // Description/Code/StorageCategory/ApplicationCode/CheckIn/Return),
+        // então mesmo numa chamada bem-sucedida ela não devolve o arquivo --
+        // o resultado de cada chamada (erro do SAP ou metadata) é só
+        // registrado no log como evidência real, não como download.
         //
-        // Devolve, por número de documento, null pra todos (motivo já
-        // registrado no log) até termos a referência da interface PI certa.
+        // As outras duas tentativas já feitas nesta mesma investigação:
+        // ITF_O_S_DOCUMENT_OUTPUT com Originals.URL=true devolve conteúdo
+        // encriptado (ver DocumentSearchService.BaixarOriginalPorUrl); RFC/
+        // BAPI (BAPI_DOCUMENT_GETDETAIL2 + BAPI_DOCUMENT_CHECKOUTVIEW2 +
+        // SCMS_DOC_READ) e SAP GUI Scripting (CV04N, em SapService.cs) foram
+        // implementados e funcionavam, mas foram descartados a pedido:
+        // precisa ser PI.
+        //
+        // Devolve, por número de documento, null pra todos -- não há
+        // download de verdade até aparecer uma interface PI cujo schema
+        // realmente exponha o conteúdo binário do original.
         private Dictionary<string, string> BaixarOriginaisSwd(List<BatchFileResult> alvo, string pastaBase)
         {
             Dictionary<string, string> resultado = new Dictionary<string, string>();
@@ -1164,7 +1173,13 @@ namespace AutoCheckMechanical.ViewModels
             foreach (BatchFileResult item in alvo)
             {
                 resultado[item.DocumentoNumero] = null;
-                AddLog($"{item.DocumentoNumero} — download do original ainda não implementado (aguardando referência da interface PI).");
+
+                DocumentSearchService.ConsultarOriginalViaItfDocument(
+                    item.DocumentoNumero, item.DocumentoTipo, item.DocumentoParte, item.DocumentoVersao,
+                    Environment.UserName, out string diagnostico);
+
+                AddLog($"{item.DocumentoNumero} — download via ITF_O_S_DOCUMENT (PI): {diagnostico}");
+                AddLog($"{item.DocumentoNumero} — esse serviço não tem campo de conteúdo binário/URL no schema, então não produz arquivo local mesmo com a chamada respondendo.");
             }
 
             return resultado;
