@@ -1143,46 +1143,24 @@ namespace AutoCheckMechanical.ViewModels
         // Baixa o original SWD de cada documento em "alvo" pra dentro de
         // pastaBase\{ECM}\ -- reaproveitado tanto por BaixarDocumentosCommand
         // quanto por RunCheckDocumentosPendentes (que precisa do arquivo
-        // local antes de poder abrir no SolidWorks). Preferência: se o SAP
-        // devolveu uma URL de download HTTP pro original (DocumentoUrlOriginal,
-        // via Originals.URL=true na busca -- mesmo mecanismo real do WAU
-        // Factory Viewer), baixa direto por HTTP, sem precisar do SAP GUI
-        // aberto. Documentos sem URL (o Web Service só devolve, pro original
-        // SWD, um caminho de convenção local -- "C:\SAP_SW\...", igual o
-        // fluxo antigo via macro -- não um caminho de rede copiável) caem no
-        // fallback via SAP GUI Scripting (CV04N). Devolve, por número de
-        // documento, o caminho local se deu certo ou null se falhou (motivo
-        // já registrado no log).
+        // local antes de poder abrir no SolidWorks).
+        //
+        // O caminho via URL HTTP (Originals.URL=true, DocumentoUrlOriginal)
+        // foi testado e desativado: o conteúdo que a URL devolve não é o
+        // arquivo em texto claro -- todo download real mostrou os bytes 4-7
+        // sempre "00 00 00 04" (uma marca de formato/versão fixa) cercada de
+        // bytes de alta entropia, característico de conteúdo
+        // encriptado/envelopado que só o cliente SAP GUI de verdade sabe
+        // decifrar. Provavelmente por isso o WAU Factory Viewer (a
+        // referência original) também nunca chega a chamar esse mecanismo
+        // de verdade no código-fonte dele. Todo download passa direto pelo
+        // SAP GUI Scripting (CV04N), que já está confirmado funcionando.
+        //
+        // Devolve, por número de documento, o caminho local se deu certo ou
+        // null se falhou (motivo já registrado no log).
         private Dictionary<string, string> BaixarOriginaisSwd(List<BatchFileResult> alvo, string pastaBase)
         {
             Dictionary<string, string> resultado = new Dictionary<string, string>();
-
-            List<BatchFileResult> comUrl = alvo.Where(x => !string.IsNullOrEmpty(x.DocumentoUrlOriginal)).ToList();
-            List<BatchFileResult> semUrl = alvo.Except(comUrl).ToList();
-
-            foreach (BatchFileResult item in comUrl)
-            {
-                string pastaEcm = Path.Combine(pastaBase, string.IsNullOrWhiteSpace(item.DocumentoEcm) ? "SEM_ECM" : item.DocumentoEcm);
-                Directory.CreateDirectory(pastaEcm);
-
-                string caminhoLocal = Path.Combine(pastaEcm, $"{item.DocumentoNumero}_{item.DocumentoVersao}.SLDDRW");
-
-                try
-                {
-                    DocumentSearchService.BaixarOriginalPorUrl(item.DocumentoUrlOriginal, caminhoLocal);
-
-                    resultado[item.DocumentoNumero] = caminhoLocal;
-                    AddLog($"{item.DocumentoNumero} — baixado via URL para {caminhoLocal}.");
-                }
-                catch (Exception ex)
-                {
-                    resultado[item.DocumentoNumero] = null;
-                    AddLog($"{item.DocumentoNumero} — falha ao baixar via URL: {DocumentSearchService.DescreverErroCompleto(ex)}");
-                }
-            }
-
-            if (semUrl.Count == 0)
-                return resultado;
 
             object sessaoSap = null;
 
@@ -1192,15 +1170,15 @@ namespace AutoCheckMechanical.ViewModels
             }
             catch (Exception ex)
             {
-                AddLog("Não foi possível conectar ao SAP GUI (usado como alternativa pros documentos sem URL): " + ex.Message);
+                AddLog("Não foi possível conectar ao SAP GUI: " + ex.Message);
             }
 
             if (sessaoSap == null)
             {
-                foreach (BatchFileResult item in semUrl)
+                foreach (BatchFileResult item in alvo)
                 {
                     resultado[item.DocumentoNumero] = null;
-                    AddLog($"{item.DocumentoNumero} — sem URL de download e sem conexão com o SAP GUI.");
+                    AddLog($"{item.DocumentoNumero} — sem conexão com o SAP GUI.");
                 }
 
                 return resultado;
@@ -1209,7 +1187,7 @@ namespace AutoCheckMechanical.ViewModels
             // Agrupa por ECM porque a busca na CV04N já traz de uma vez
             // todos os documentos de uma ECM -- evita reabrir a busca pra
             // cada documento individualmente.
-            var gruposPorEcm = semUrl.GroupBy(x =>
+            var gruposPorEcm = alvo.GroupBy(x =>
                 string.IsNullOrWhiteSpace(x.DocumentoEcm) ? "SEM_ECM" : x.DocumentoEcm);
 
             foreach (var grupo in gruposPorEcm)
