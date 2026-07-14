@@ -1151,38 +1151,55 @@ namespace AutoCheckMechanical.ViewModels
             ? SapRfcService.Instance.ConnectedUser
             : Environment.UserName)?.ToUpperInvariant();
 
-        // Chama o serviço PI ITF_O_S_DOCUMENT (singular) pedindo pro SAP
-        // publicar o original na pasta de interface real (ALE), e então lê o
-        // arquivo publicado direto da pasta de rede equivalente
-        // (\\BRJGS100\APPS$\SAP\EP0\out\WAU_ENG\AutoCheck\, mesma fórmula
-        // real usada pelo WAU Factory Viewer) -- ver
-        // DocumentSearchService.BaixarOriginalViaItfDocument. Isso contorna
-        // o fato do schema SOAP em si não ter campo de conteúdo binário/URL:
-        // o conteúdo não vem na resposta SOAP, vem da pasta de rede que o
-        // SAP escreve como efeito colateral da chamada.
+        // VOLTOU pro mecanismo via URL a pedido, enquanto o problema do
+        // usuário SAP no ITF_O_S_DOCUMENT não é resolvido (ver git log --
+        // essa era a fase em que baixava algo de verdade). Originals.URL=true
+        // na busca (mesmo mecanismo real do WAU Factory Viewer) -- já
+        // confirmado que o conteúdo devolvido vem encriptado (ver
+        // DocumentSearchService.BaixarOriginalPorUrl) e por isso não abre no
+        // SolidWorks, mas é o estado que estava funcionando (baixando um
+        // arquivo, mesmo que não utilizável) antes da tentativa via
+        // ITF_O_S_DOCUMENT.
         //
-        // As outras duas tentativas já feitas nesta mesma investigação:
-        // ITF_O_S_DOCUMENT_OUTPUT com Originals.URL=true devolve conteúdo
-        // encriptado (ver DocumentSearchService.BaixarOriginalPorUrl); RFC/
-        // BAPI (BAPI_DOCUMENT_GETDETAIL2 + BAPI_DOCUMENT_CHECKOUTVIEW2 +
-        // SCMS_DOC_READ) e SAP GUI Scripting (CV04N, em SapService.cs) foram
-        // implementados e funcionavam, mas foram descartados a pedido:
-        // precisa ser PI.
+        // ITF_O_S_DOCUMENT (PI, publicação na pasta de rede) continua
+        // implementado e pronto em DocumentSearchService.
+        // BaixarOriginalViaItfDocument, só não é chamado daqui por enquanto
+        // -- assim que o "Usuário X não existe" for resolvido, é só trocar
+        // a chamada de volta. SAP GUI Scripting (CV04N, em SapService.cs) e
+        // RFC/BAPI foram implementados e funcionavam, mas foram descartados
+        // a pedido (não pode depender de SAP GUI aberto; precisa ser PI).
+        //
+        // Documentos sem URL (o Web Service só devolve, pro original SWD,
+        // um caminho de convenção local -- "C:\SAP_SW\...", não um caminho
+        // de rede copiável) ficam marcados como falha.
         private Dictionary<string, string> BaixarOriginaisSwd(List<BatchFileResult> alvo, string pastaBase)
         {
             Dictionary<string, string> resultado = new Dictionary<string, string>();
 
             foreach (BatchFileResult item in alvo)
             {
-                string caminhoDestino = CaminhoLocalEsperado(item, pastaBase);
+                if (string.IsNullOrEmpty(item.DocumentoUrlOriginal))
+                {
+                    resultado[item.DocumentoNumero] = null;
+                    AddLog($"{item.DocumentoNumero} — sem URL de download (o SAP não devolveu uma URL pra esse original).");
+                    continue;
+                }
 
-                string caminhoBaixado = DocumentSearchService.BaixarOriginalViaItfDocument(
-                    item.DocumentoNumero, item.DocumentoTipo, item.DocumentoParte, item.DocumentoVersao,
-                    UsuarioSap, caminhoDestino, out string diagnostico);
+                string caminhoLocal = CaminhoLocalEsperado(item, pastaBase);
+                Directory.CreateDirectory(Path.GetDirectoryName(caminhoLocal));
 
-                resultado[item.DocumentoNumero] = caminhoBaixado;
+                try
+                {
+                    DocumentSearchService.BaixarOriginalPorUrl(item.DocumentoUrlOriginal, caminhoLocal);
 
-                AddLog($"{item.DocumentoNumero} — download via ITF_O_S_DOCUMENT (PI): {diagnostico}");
+                    resultado[item.DocumentoNumero] = caminhoLocal;
+                    AddLog($"{item.DocumentoNumero} — baixado via URL para {caminhoLocal}.");
+                }
+                catch (Exception ex)
+                {
+                    resultado[item.DocumentoNumero] = null;
+                    AddLog($"{item.DocumentoNumero} — falha ao baixar via URL: {DocumentSearchService.DescreverErroCompleto(ex)}");
+                }
             }
 
             return resultado;
