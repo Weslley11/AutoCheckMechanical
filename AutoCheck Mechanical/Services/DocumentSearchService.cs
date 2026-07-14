@@ -221,6 +221,66 @@ namespace AutoCheckMechanical.Services
                     origem.CopyTo(destino);
                 }
             }
+
+            // O Content-Type pode vir "application/octet-stream" mesmo
+            // quando o corpo não é o arquivo de verdade (servidor não
+            // marca corretamente) -- confere a assinatura binária real do
+            // que foi salvo antes de considerar sucesso, em vez de confiar
+            // só no cabeçalho HTTP.
+            if (!EhArquivoSolidWorksValido(caminhoDestino, out string motivo))
+            {
+                File.Delete(caminhoDestino);
+                throw new InvalidOperationException("O arquivo baixado " + motivo);
+            }
+        }
+
+        // Confere se um arquivo é mesmo um documento SolidWorks
+        // (SLDDRW/SLDPRT/SLDASM usam OLE Structured Storage, que sempre
+        // começa com essa assinatura de 8 bytes), não uma página de
+        // erro/login ou um download incompleto/corrompido. Quando
+        // inválido, "motivo" traz um dump dos primeiros bytes (hex + ASCII)
+        // pra diagnosticar o que veio de verdade.
+        public static bool EhArquivoSolidWorksValido(string caminho, out string motivo)
+        {
+            motivo = null;
+
+            if (!File.Exists(caminho))
+            {
+                motivo = "não existe.";
+                return false;
+            }
+
+            long tamanho = new FileInfo(caminho).Length;
+
+            if (tamanho < 4096)
+            {
+                motivo = $"é pequeno demais ({tamanho} byte(s)) pra ser um desenho de verdade.";
+                return false;
+            }
+
+            byte[] assinaturaOle = { 0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1 };
+            byte[] primeirosBytes = new byte[16];
+            int lidos;
+
+            using (FileStream stream = File.OpenRead(caminho))
+                lidos = stream.Read(primeirosBytes, 0, primeirosBytes.Length);
+
+            bool assinaturaOk = lidos >= assinaturaOle.Length;
+
+            for (int i = 0; assinaturaOk && i < assinaturaOle.Length; i++)
+                assinaturaOk = primeirosBytes[i] == assinaturaOle[i];
+
+            if (assinaturaOk)
+                return true;
+
+            string hex = BitConverter.ToString(primeirosBytes, 0, lidos).Replace("-", " ");
+            string ascii = new string(primeirosBytes.Take(lidos)
+                .Select(b => b >= 32 && b < 127 ? (char)b : '.').ToArray());
+
+            motivo = $"não é um arquivo SolidWorks válido (tamanho {tamanho} byte(s)). " +
+                $"Primeiros bytes: {hex} | ASCII: \"{ascii}\"";
+
+            return false;
         }
 
         // O Web Service não expõe um campo explícito "é PDF" -- inferimos

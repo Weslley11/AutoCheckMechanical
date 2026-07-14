@@ -898,42 +898,16 @@ namespace AutoCheckMechanical.ViewModels
             return Path.Combine(pastaEcm, $"{item.DocumentoNumero}_{item.DocumentoVersao}.SLDDRW");
         }
 
-        // Confere se um arquivo já baixado parece mesmo um documento do
-        // SolidWorks (SLDDRW/SLDPRT/SLDASM), não uma página de erro salva
-        // por engano ou um download incompleto -- todos esses formatos usam
-        // OLE Structured Storage (compound binary), que sempre começa com
-        // essa assinatura de 8 bytes. Sem essa checagem, um arquivo ruim
-        // deixado por uma tentativa de download anterior faria o CHECK
-        // DRAWING achar que "já está baixado" e reusar o arquivo inválido
-        // em vez de baixar de novo.
+        // Sem essa checagem, um arquivo ruim deixado por uma tentativa de
+        // download anterior faria o CHECK DRAWING achar que "já está
+        // baixado" e reusar o arquivo inválido em vez de baixar de novo.
+        // A checagem em si (assinatura OLE) fica em
+        // DocumentSearchService.EhArquivoSolidWorksValido, reaproveitada
+        // também logo após o download por URL, pra falhar rápido com
+        // diagnóstico em vez de só descobrir depois.
         private static bool ArquivoBaixadoPareceValido(string caminho)
         {
-            try
-            {
-                if (!File.Exists(caminho) || new FileInfo(caminho).Length < 4096)
-                    return false;
-
-                byte[] assinaturaOle = { 0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1 };
-                byte[] primeirosBytes = new byte[8];
-
-                using (FileStream stream = File.OpenRead(caminho))
-                {
-                    if (stream.Read(primeirosBytes, 0, 8) < 8)
-                        return false;
-                }
-
-                for (int i = 0; i < assinaturaOle.Length; i++)
-                {
-                    if (primeirosBytes[i] != assinaturaOle[i])
-                        return false;
-                }
-
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            return DocumentSearchService.EhArquivoSolidWorksValido(caminho, out _);
         }
 
         // Grava automaticamente o conteúdo do log (LogText) num arquivo em
