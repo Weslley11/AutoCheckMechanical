@@ -802,7 +802,13 @@ namespace AutoCheckMechanical.ViewModels
                 {
                     string caminhoLocal = CaminhoLocalEsperado(pendente, pastaBase);
 
-                    if (ArquivoBaixadoPareceValido(caminhoLocal))
+                    // De propósito File.Exists aqui, não ArquivoBaixadoPareceValido
+                    // -- se o download rodou e salvou alguma coisa, deixa o
+                    // SolidWorks tentar abrir de verdade em vez de pular a
+                    // abertura com base na assinatura OLE. ArquivoBaixadoPareceValido
+                    // continua sendo usado só pra decidir se vale a pena baixar
+                    // de novo (acima, em aBaixar).
+                    if (File.Exists(caminhoLocal))
                     {
                         pendente.FilePath = caminhoLocal;
                         pendente.DocumentoCaminhoOriginal = caminhoLocal;
@@ -1151,29 +1157,43 @@ namespace AutoCheckMechanical.ViewModels
             ? SapRfcService.Instance.ConnectedUser
             : Environment.UserName)?.ToUpperInvariant();
 
-        // VOLTOU pro ITF_O_S_DOCUMENT (PI + leitura da pasta de rede) --
-        // mesmo com o erro de negócio "Usuário X não existe" no SOAP, o
-        // método continua e procura o arquivo na pasta de interface
-        // (\\BRJGS100\APPS$\SAP\EP0\out\WAU_ENG\AutoCheck\) de qualquer
-        // jeito, e foi esse arquivo (não o mecanismo via URL, que continua
-        // devolvendo conteúdo encriptado -- mesmos bytes de sempre,
-        // reconfirmado) que abriu de verdade no SolidWorks antes. Ver
-        // DocumentSearchService.BaixarOriginalViaItfDocument.
+        // VOLTOU pro mecanismo via URL -- esse é o estado exato de quando
+        // os arquivos abriram normalmente no SolidWorks (confirmado pelo
+        // usuário). ITF_O_S_DOCUMENT (PI + leitura da pasta de rede)
+        // continua implementado em DocumentSearchService.
+        // BaixarOriginalViaItfDocument, só não é chamado daqui.
+        //
+        // Documentos sem URL (o Web Service só devolve, pro original SWD,
+        // um caminho de convenção local -- "C:\SAP_SW\...", não um caminho
+        // de rede copiável) ficam marcados como falha.
         private Dictionary<string, string> BaixarOriginaisSwd(List<BatchFileResult> alvo, string pastaBase)
         {
             Dictionary<string, string> resultado = new Dictionary<string, string>();
 
             foreach (BatchFileResult item in alvo)
             {
-                string caminhoDestino = CaminhoLocalEsperado(item, pastaBase);
+                if (string.IsNullOrEmpty(item.DocumentoUrlOriginal))
+                {
+                    resultado[item.DocumentoNumero] = null;
+                    AddLog($"{item.DocumentoNumero} — sem URL de download (o SAP não devolveu uma URL pra esse original).");
+                    continue;
+                }
 
-                string caminhoBaixado = DocumentSearchService.BaixarOriginalViaItfDocument(
-                    item.DocumentoNumero, item.DocumentoTipo, item.DocumentoParte, item.DocumentoVersao,
-                    UsuarioSap, caminhoDestino, out string diagnostico);
+                string caminhoLocal = CaminhoLocalEsperado(item, pastaBase);
+                Directory.CreateDirectory(Path.GetDirectoryName(caminhoLocal));
 
-                resultado[item.DocumentoNumero] = caminhoBaixado;
+                try
+                {
+                    DocumentSearchService.BaixarOriginalPorUrl(item.DocumentoUrlOriginal, caminhoLocal);
 
-                AddLog($"{item.DocumentoNumero} — download via ITF_O_S_DOCUMENT (PI): {diagnostico}");
+                    resultado[item.DocumentoNumero] = caminhoLocal;
+                    AddLog($"{item.DocumentoNumero} — baixado via URL para {caminhoLocal}.");
+                }
+                catch (Exception ex)
+                {
+                    resultado[item.DocumentoNumero] = null;
+                    AddLog($"{item.DocumentoNumero} — falha ao baixar via URL: {DocumentSearchService.DescreverErroCompleto(ex)}");
+                }
             }
 
             return resultado;
