@@ -1145,16 +1145,11 @@ namespace AutoCheckMechanical.ViewModels
         // quanto por RunCheckDocumentosPendentes (que precisa do arquivo
         // local antes de poder abrir no SolidWorks).
         //
-        // O caminho via URL HTTP (Originals.URL=true, DocumentoUrlOriginal)
-        // foi testado e desativado: o conteúdo que a URL devolve não é o
-        // arquivo em texto claro -- todo download real mostrou os bytes 4-7
-        // sempre "00 00 00 04" (uma marca de formato/versão fixa) cercada de
-        // bytes de alta entropia, característico de conteúdo
-        // encriptado/envelopado que só o cliente SAP GUI de verdade sabe
-        // decifrar. Provavelmente por isso o WAU Factory Viewer (a
-        // referência original) também nunca chega a chamar esse mecanismo
-        // de verdade no código-fonte dele. Todo download passa direto pelo
-        // SAP GUI Scripting (CV04N), que já está confirmado funcionando.
+        // Via RFC puro (RfcDocumentDownloadService: BAPI_DOCUMENT_GETDETAIL2
+        // + BAPI_DOCUMENT_CHECKOUTVIEW2 + SCMS_DOC_READ), reaproveitando a
+        // mesma conexão RFC da tela de login SAP -- sem precisar de SAP GUI
+        // aberto (SAP GUI Scripting) nem de URL/HTTP (que devolve conteúdo
+        // encriptado, ver DocumentSearchService.BaixarOriginalPorUrl).
         //
         // Devolve, por número de documento, o caminho local se deu certo ou
         // null se falhou (motivo já registrado no log).
@@ -1162,58 +1157,40 @@ namespace AutoCheckMechanical.ViewModels
         {
             Dictionary<string, string> resultado = new Dictionary<string, string>();
 
-            object sessaoSap = null;
-
-            try
-            {
-                sessaoSap = SapService.Conectar();
-            }
-            catch (Exception ex)
-            {
-                AddLog("Não foi possível conectar ao SAP GUI: " + ex.Message);
-            }
-
-            if (sessaoSap == null)
+            if (!SapRfcService.Instance.IsSapConnected)
             {
                 foreach (BatchFileResult item in alvo)
                 {
                     resultado[item.DocumentoNumero] = null;
-                    AddLog($"{item.DocumentoNumero} — sem conexão com o SAP GUI.");
+                    AddLog($"{item.DocumentoNumero} — sem conexão RFC com o SAP (conecte pela tela \"CONEXÃO SAP\").");
                 }
 
                 return resultado;
             }
 
-            // Agrupa por ECM porque a busca na CV04N já traz de uma vez
-            // todos os documentos de uma ECM -- evita reabrir a busca pra
-            // cada documento individualmente.
-            var gruposPorEcm = alvo.GroupBy(x =>
-                string.IsNullOrWhiteSpace(x.DocumentoEcm) ? "SEM_ECM" : x.DocumentoEcm);
-
-            foreach (var grupo in gruposPorEcm)
+            foreach (BatchFileResult item in alvo)
             {
-                string ecm = grupo.Key;
-                string pastaEcm = Path.Combine(pastaBase, ecm);
-
+                string pastaEcm = Path.Combine(pastaBase, string.IsNullOrWhiteSpace(item.DocumentoEcm) ? "SEM_ECM" : item.DocumentoEcm);
                 Directory.CreateDirectory(pastaEcm);
 
-                List<string> numerosDocumento = grupo.Select(x => x.DocumentoNumero).ToList();
+                string caminhoLocal = Path.Combine(pastaEcm, $"{item.DocumentoNumero}_{item.DocumentoVersao}.SLDDRW");
 
-                Dictionary<string, string> resultadoEcm =
-                    SapService.BaixarOriginaisSwd(sessaoSap, ecm, numerosDocumento, pastaEcm);
-
-                foreach (string documentNumber in numerosDocumento)
+                try
                 {
-                    string status = resultadoEcm.TryGetValue(documentNumber, out string valor) ? valor : null;
-                    bool ok = !string.IsNullOrEmpty(status) && File.Exists(status);
+                    RfcDocumentDownloadService.BaixarOriginal(
+                        item.DocumentoNumero, item.DocumentoTipo, item.DocumentoParte, item.DocumentoVersao,
+                        item.DocumentoTipo, caminhoLocal);
 
-                    resultado[documentNumber] = ok ? status : null;
-                    AddLog(ok
-                        ? $"{documentNumber} — baixado via SAP GUI para {status}."
-                        : $"{documentNumber} — {status ?? "falha desconhecida"}.");
+                    resultado[item.DocumentoNumero] = caminhoLocal;
+                    AddLog($"{item.DocumentoNumero} — baixado via RFC para {caminhoLocal}.");
+                }
+                catch (Exception ex)
+                {
+                    resultado[item.DocumentoNumero] = null;
+                    AddLog($"{item.DocumentoNumero} — falha ao baixar via RFC: {DocumentSearchService.DescreverErroCompleto(ex)}");
                 }
 
-                // Deixa a UI responder entre uma ECM e outra (tudo aqui
+                // Deixa a UI responder entre um documento e outro (tudo aqui
                 // roda síncrono, igual o resto do app).
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(() => { }));
             }

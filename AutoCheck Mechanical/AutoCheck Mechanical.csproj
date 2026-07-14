@@ -149,6 +149,7 @@
     <Compile Include="Services\ExcelSapService.cs" />
     <Compile Include="Services\HistoryStore.cs" />
     <Compile Include="Services\SapCredentialStore.cs" />
+    <Compile Include="Services\RfcDocumentDownloadService.cs" />
     <Compile Include="Services\SapRfcService.cs" />
     <Compile Include="Services\SapService.cs" />
     <Compile Include="Services\SolidWorksSettingsStore.cs" />
