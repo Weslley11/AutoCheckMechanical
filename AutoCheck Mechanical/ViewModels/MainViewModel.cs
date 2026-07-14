@@ -1145,54 +1145,26 @@ namespace AutoCheckMechanical.ViewModels
         // quanto por RunCheckDocumentosPendentes (que precisa do arquivo
         // local antes de poder abrir no SolidWorks).
         //
-        // Via RFC puro (RfcDocumentDownloadService: BAPI_DOCUMENT_GETDETAIL2
-        // + BAPI_DOCUMENT_CHECKOUTVIEW2 + SCMS_DOC_READ), reaproveitando a
-        // mesma conexão RFC da tela de login SAP -- sem precisar de SAP GUI
-        // aberto (SAP GUI Scripting) nem de URL/HTTP (que devolve conteúdo
-        // encriptado, ver DocumentSearchService.BaixarOriginalPorUrl).
+        // PENDENTE: precisa ser via PI (não RFC, por restrição/política
+        // interna da WEG), mas ainda não temos referência de qual interface
+        // PI expõe o conteúdo binário do original -- a única testada até
+        // agora (ITF_O_S_DOCUMENT_OUTPUT com Originals.URL=true) devolve
+        // conteúdo encriptado (ver DocumentSearchService.BaixarOriginalPorUrl).
+        // O caminho via RFC/BAPI (BAPI_DOCUMENT_GETDETAIL2 +
+        // BAPI_DOCUMENT_CHECKOUTVIEW2 + SCMS_DOC_READ) e o via SAP GUI
+        // Scripting (CV04N, em SapService.cs) foram implementados e
+        // funcionavam, mas foram descartados a pedido: precisa ser PI.
         //
-        // Devolve, por número de documento, o caminho local se deu certo ou
-        // null se falhou (motivo já registrado no log).
+        // Devolve, por número de documento, null pra todos (motivo já
+        // registrado no log) até termos a referência da interface PI certa.
         private Dictionary<string, string> BaixarOriginaisSwd(List<BatchFileResult> alvo, string pastaBase)
         {
             Dictionary<string, string> resultado = new Dictionary<string, string>();
 
-            if (!SapRfcService.Instance.IsSapConnected)
-            {
-                foreach (BatchFileResult item in alvo)
-                {
-                    resultado[item.DocumentoNumero] = null;
-                    AddLog($"{item.DocumentoNumero} — sem conexão RFC com o SAP (conecte pela tela \"CONEXÃO SAP\").");
-                }
-
-                return resultado;
-            }
-
             foreach (BatchFileResult item in alvo)
             {
-                string pastaEcm = Path.Combine(pastaBase, string.IsNullOrWhiteSpace(item.DocumentoEcm) ? "SEM_ECM" : item.DocumentoEcm);
-                Directory.CreateDirectory(pastaEcm);
-
-                string caminhoLocal = Path.Combine(pastaEcm, $"{item.DocumentoNumero}_{item.DocumentoVersao}.SLDDRW");
-
-                try
-                {
-                    RfcDocumentDownloadService.BaixarOriginal(
-                        item.DocumentoNumero, item.DocumentoTipo, item.DocumentoParte, item.DocumentoVersao,
-                        item.DocumentoTipo, caminhoLocal);
-
-                    resultado[item.DocumentoNumero] = caminhoLocal;
-                    AddLog($"{item.DocumentoNumero} — baixado via RFC para {caminhoLocal}.");
-                }
-                catch (Exception ex)
-                {
-                    resultado[item.DocumentoNumero] = null;
-                    AddLog($"{item.DocumentoNumero} — falha ao baixar via RFC: {DocumentSearchService.DescreverErroCompleto(ex)}");
-                }
-
-                // Deixa a UI responder entre um documento e outro (tudo aqui
-                // roda síncrono, igual o resto do app).
-                Application.Current.Dispatcher.Invoke(DispatcherPriority.Background, new Action(() => { }));
+                resultado[item.DocumentoNumero] = null;
+                AddLog($"{item.DocumentoNumero} — download do original ainda não implementado (aguardando referência da interface PI).");
             }
 
             return resultado;
