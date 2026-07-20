@@ -874,7 +874,7 @@ namespace WDC.VIEWMODEL
                     InvalidarResultados();
                     HistoryStore.Save(BatchResults);
 
-                    string statusItem = item.OpenFailed ? "FALHA AO ABRIR" : "OK";
+                    string statusItem = item.OpenFailed ? $"FALHA AO ABRIR ({item.OpenError})" : "OK";
                     AddLog($"[{concluidos}/{comArquivo.Count}] {item.FileName} — {statusItem}");
                     StatusText = $"Verificando... {concluidos}/{comArquivo.Count} concluído(s) ({item.FileName}).";
 
@@ -978,7 +978,7 @@ namespace WDC.VIEWMODEL
                     InvalidarResultados();
                     HistoryStore.Save(BatchResults);
 
-                    string statusItem = item.OpenFailed ? "FALHA AO ABRIR" : "OK";
+                    string statusItem = item.OpenFailed ? $"FALHA AO ABRIR ({item.OpenError})" : "OK";
                     AddLog($"[{concluidos}/{arquivos.Count}] {item.FileName} — {statusItem}");
                     StatusText = $"Verificando... {concluidos}/{arquivos.Count} concluído(s) ({item.FileName}).";
 
@@ -1634,7 +1634,7 @@ namespace WDC.VIEWMODEL
                     InvalidarResultados();
                     HistoryStore.Save(BatchResults);
 
-                    string statusItem = novoResultado.OpenFailed ? "FALHA AO ABRIR" : "OK";
+                    string statusItem = novoResultado.OpenFailed ? $"FALHA AO ABRIR ({novoResultado.OpenError})" : "OK";
                     AddLog($"{novoResultado.FileName} — {statusItem}");
                     StatusText = $"Checks executados em {novoResultado.FileName}.";
                 }
