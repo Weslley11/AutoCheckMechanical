@@ -88,13 +88,55 @@ namespace WDC.SERVICES
                     int errors = 0;
                     int warnings = 0;
 
-                    doc = app.OpenDoc6(
-                        filePath,
-                        (int)swDocumentTypes_e.swDocDRAWING,
-                        (int)swOpenDocOptions_e.swOpenDocOptions_Silent,
-                        "",
-                        ref errors,
-                        ref warnings) as ModelDoc2;
+                    // RPC_E_SERVERFAULT em OpenDoc6 (mas nunca em
+                    // GetOpenDocumentByName, chamado antes no mesmo app) se
+                    // mostrou consistente mesmo depois de eliminar qualquer
+                    // objeto COM cruzando entre projetos -- pode ser uma
+                    // falha transitória do lado do SolidWorks (ele "emitiu
+                    // uma exceção" ao processar a chamada, não é erro de
+                    // marshaling do lado do cliente). Tenta de novo algumas
+                    // vezes com um intervalo antes de desistir, em vez de
+                    // falhar na primeira.
+                    const int tentativasAbrir = 3;
+                    COMException ultimoErroAbrir = null;
+
+                    for (int tentativa = 0; tentativa < tentativasAbrir; tentativa++)
+                    {
+                        try
+                        {
+                            errors = 0;
+                            warnings = 0;
+
+                            doc = app.OpenDoc6(
+                                filePath,
+                                (int)swDocumentTypes_e.swDocDRAWING,
+                                (int)swOpenDocOptions_e.swOpenDocOptions_Silent,
+                                "",
+                                ref errors,
+                                ref warnings) as ModelDoc2;
+
+                            ultimoErroAbrir = null;
+                            break;
+                        }
+                        catch (COMException ex)
+                        {
+                            ultimoErroAbrir = ex;
+
+                            if (tentativa < tentativasAbrir - 1)
+                                System.Threading.Thread.Sleep(1000);
+                        }
+                    }
+
+                    if (ultimoErroAbrir != null)
+                    {
+                        int hr = ultimoErroAbrir.HResult;
+                        var apartmentState = System.Threading.Thread.CurrentThread.GetApartmentState();
+
+                        item.OpenFailed = true;
+                        item.OpenError = $"[OpenDoc6] depois de {tentativasAbrir} tentativa(s), HResult=0x{hr:X8}, " +
+                            $"ThreadApartment={apartmentState}, ThreadId={System.Threading.Thread.CurrentThread.ManagedThreadId}: {ultimoErroAbrir.Message}";
+                        return item;
+                    }
 
                     if (doc == null)
                     {
