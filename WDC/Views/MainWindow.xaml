@@ -110,6 +110,29 @@
             </Setter>
         </Style>
 
+        <!-- Linha de status clicável (SAP / SolidWorks), pra conectar ao clicar -->
+        <Style x:Key="StatusRowButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrushHoverSurface}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- Botão de ação principal -->
         <Style x:Key="PrimaryButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="{DynamicResource BrushAccentTeal}"/>
@@ -531,19 +554,60 @@
                             </StackPanel>
 
                             <StackPanel Grid.Column="1"
-                                        Orientation="Horizontal"
                                         VerticalAlignment="Center">
-                                <Ellipse Width="10"
-                                         Height="10"
-                                         Fill="{Binding SolidWorksLedBrush}"
-                                         Margin="0,0,8,0"
-                                         Name="ledSolidWorks"
-                                         VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding SolidWorksStatusText}"
-                                           Foreground="{DynamicResource BrushTextPrimary}"
-                                           FontSize="13"
-                                           Name="txtSolidWorks"
-                                           VerticalAlignment="Center"/>
+                                <Button Style="{StaticResource StatusRowButtonStyle}"
+                                        Command="{Binding AbrirSapConexaoCommand}"
+                                        ToolTip="Conexão SAP via RFC/BAPI (SAP .NET Connector) -- clique pra conectar">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Ellipse Width="10"
+                                                 Height="10"
+                                                 Fill="{Binding SapLedBrush}"
+                                                 Margin="0,0,8,0"
+                                                 Name="ledSap"
+                                                 VerticalAlignment="Center"/>
+                                        <TextBlock Text="SAP"
+                                                   Foreground="{DynamicResource BrushTextPrimary}"
+                                                   FontSize="13"
+                                                   FontWeight="SemiBold"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Text=" - "
+                                                   Foreground="{DynamicResource BrushTextSecondary}"
+                                                   FontSize="13"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding SapStatusText}"
+                                                   Foreground="{DynamicResource BrushTextPrimary}"
+                                                   FontSize="13"
+                                                   Name="txtSap"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Style="{StaticResource StatusRowButtonStyle}"
+                                        Command="{Binding ReconnectCommand}"
+                                        Margin="0,4,0,0"
+                                        ToolTip="Verificar conexão com o SolidWorks -- clique pra conectar">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Ellipse Width="10"
+                                                 Height="10"
+                                                 Fill="{Binding SolidWorksLedBrush}"
+                                                 Margin="0,0,8,0"
+                                                 Name="ledSolidWorks"
+                                                 VerticalAlignment="Center"/>
+                                        <TextBlock Text="SOLIDWORKS"
+                                                   Foreground="{DynamicResource BrushTextPrimary}"
+                                                   FontSize="13"
+                                                   FontWeight="SemiBold"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Text=" - "
+                                                   Foreground="{DynamicResource BrushTextSecondary}"
+                                                   FontSize="13"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding SolidWorksStatusText}"
+                                                   Foreground="{DynamicResource BrushTextPrimary}"
+                                                   FontSize="13"
+                                                   Name="txtSolidWorks"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
                             </StackPanel>
                         </Grid>
                     </Border>

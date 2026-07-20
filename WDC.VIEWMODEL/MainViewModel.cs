@@ -125,6 +125,20 @@ namespace WDC.VIEWMODEL
             set { _solidWorksLedBrush = value; OnPropertyChanged(); }
         }
 
+        private string _sapStatusText = "Desconectado";
+        public string SapStatusText
+        {
+            get { return _sapStatusText; }
+            set { _sapStatusText = value; OnPropertyChanged(); }
+        }
+
+        private Brush _sapLedBrush = Brushes.Red;
+        public Brush SapLedBrush
+        {
+            get { return _sapLedBrush; }
+            set { _sapLedBrush = value; OnPropertyChanged(); }
+        }
+
         private bool _temaEscuro = true;
         public bool TemaEscuro
         {
@@ -221,6 +235,8 @@ namespace WDC.VIEWMODEL
             TemaEscuro = ThemeStore.LoadTemaEscuro();
             PastaDownloadDocumentos = DownloadFolderSettingsStore.LoadCaminho() ?? @"C:\SAP_SW";
 
+            RefreshSapStatus();
+
             // Monitora em segundo plano se o SolidWorks continua aberto,
             // pra refletir "Desconectado" na tela caso o usuário feche ele
             // com o app ainda aberto.
@@ -259,8 +275,16 @@ namespace WDC.VIEWMODEL
         });
 
         // Integração SAP via RFC/BAPI (SAP .NET Connector / NCo), no mesmo
-        // padrão do WBC (SapConnectionInterface.cs).
-        public ICommand AbrirSapConexaoCommand => new DelegateCommand(_ => _abrirSapConexao());
+        // padrão do WBC (SapConnectionInterface.cs). A janela (SapConnectionWindow)
+        // já tenta reconectar automaticamente com a credencial salva ao abrir
+        // (TentarReconectarAutomaticamente), então clicar aqui já cobre tanto
+        // "abrir a tela" quanto "conectar quando estiver desconectado" -- só
+        // precisa atualizar o LED/texto depois que a janela (modal) fechar.
+        public ICommand AbrirSapConexaoCommand => new DelegateCommand(_ =>
+        {
+            _abrirSapConexao();
+            RefreshSapStatus();
+        });
 
         // Busca de documentos do DMS pela ECM (mesmo campo EcmText usado
         // pelo BuscarSapCommand acima), via Web Service ITF_O_S_DOCUMENT_OUTPUT
@@ -451,6 +475,20 @@ namespace WDC.VIEWMODEL
         public void AddLog(string texto)
         {
             LogText += DateTime.Now.ToString("HH:mm:ss") + "  " + texto + Environment.NewLine;
+        }
+
+        public void RefreshSapStatus()
+        {
+            if (SapRfcService.Instance.IsSapConnected)
+            {
+                SapLedBrush = Brushes.LimeGreen;
+                SapStatusText = "Conectado (" + SapRfcService.Instance.ConnectedUser + ")";
+            }
+            else
+            {
+                SapLedBrush = Brushes.Red;
+                SapStatusText = "Desconectado";
+            }
         }
 
         public SolidWorksSession RefreshConnectionStatus()
