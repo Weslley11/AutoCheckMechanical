@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using SolidWorks.Interop.sldworks;
 
@@ -18,6 +20,14 @@ namespace WDC.SERVICES.Core
             }
         }
 
+        // Preenchido quando há mais de um processo SLDWORKS.exe rodando --
+        // confirmado como causa real de RPC_E_SERVERFAULT ao abrir
+        // documentos (a automação via Marshal.GetActiveObject conecta num
+        // processo, mas o comportamento fica inconsistente/instável com
+        // mais de uma instância aberta). Null quando só tem um processo (ou
+        // nenhum).
+        public string AvisoProcessosDuplicados { get; private set; }
+
         private SolidWorksSession()
         {
         }
@@ -26,6 +36,8 @@ namespace WDC.SERVICES.Core
         {
             SolidWorksSession session =
                 new SolidWorksSession();
+
+            session.AvisoProcessosDuplicados = DetectarProcessosDuplicados();
 
             try
             {
@@ -45,6 +57,29 @@ namespace WDC.SERVICES.Core
             }
 
             return session;
+        }
+
+        private static string DetectarProcessosDuplicados()
+        {
+            try
+            {
+                Process[] processos = Process.GetProcessesByName("SLDWORKS");
+
+                if (processos.Length <= 1)
+                    return null;
+
+                string ids = string.Join(", ", processos.Select(p => p.Id));
+
+                return $"{processos.Length} processos SLDWORKS.exe rodando ao mesmo tempo (PIDs: {ids}) -- " +
+                    "isso já causou RPC_E_SERVERFAULT ao abrir documentos. Feche todos e abra o SolidWorks " +
+                    "de novo, só uma vez.";
+            }
+            catch
+            {
+                // Diagnóstico best-effort -- nunca deve impedir a conexão
+                // em si.
+                return null;
+            }
         }
     }
 }

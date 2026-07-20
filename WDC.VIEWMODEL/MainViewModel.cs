@@ -473,6 +473,9 @@ namespace WDC.VIEWMODEL
 
             AddLog("SolidWorks conectado.");
 
+            if (session.AvisoProcessosDuplicados != null)
+                AddLog("ATENÇÃO: " + session.AvisoProcessosDuplicados);
+
             if (session.ActiveDocument == null)
             {
                 AddLog("Nenhum documento aberto.");
