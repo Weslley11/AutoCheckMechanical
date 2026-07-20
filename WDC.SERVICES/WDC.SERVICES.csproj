@@ -40,17 +40,21 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <!-- EmbedInteropTypes=False de propósito (ver mesmo comentário em
-         WDC.MODEL.csproj/WDC.VIEWMODEL.csproj): evita tipo COM duplicado
-         entre os projetos quando um objeto (ex: SldWorks.Application)
-         atravessa a fronteira entre eles. -->
+    <!-- EmbedInteropTypes precisa ficar True (ver mesmo comentário em
+         WDC.MODEL.csproj/WDC.VIEWMODEL.csproj): testado com False pra
+         evitar tipo COM duplicado entre os projetos quando um objeto
+         (ex: SldWorks.Application) atravessa a fronteira entre eles, mas
+         sem embed várias chamadas do SolidWorks.Interop quebram a
+         compilação (CS0266/CS1061, retorno "object" não converte pro
+         tipo específico). Causa real do RPC_E_SERVERFAULT ainda não
+         identificada. -->
     <Reference Include="SolidWorks.Interop.sldworks">
       <HintPath>..\..\..\Program Files\SOLIDWORKS 2024\SOLIDWORKS\SolidWorks.Interop.sldworks.dll</HintPath>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="SolidWorks.Interop.swconst">
       <HintPath>..\..\..\Program Files\SOLIDWORKS 2024\SOLIDWORKS\SolidWorks.Interop.swconst.dll</HintPath>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />

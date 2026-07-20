@@ -36,22 +36,21 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <!-- EmbedInteropTypes=False de propósito: os objetos COM do SolidWorks
-         atravessam a fronteira entre WDC.MODEL/WDC.SERVICES/WDC.VIEWMODEL
-         (ex: SolidWorksSession.Application, criado em WDC.SERVICES, é usado
-         direto em WDC.VIEWMODEL). Se cada projeto embutir seu próprio tipo
-         (NoPIA), o mesmo objeto COM passado entre eles deixa de ser
-         reconhecido como o mesmo tipo em runtime: causa real confirmada
-         de RPC_E_SERVERFAULT ao abrir documento. Com embed desligado nos
-         três projetos, o tipo vem de uma única fonte (a DLL de interop de
-         verdade), sem ambiguidade. -->
+    <!-- EmbedInteropTypes precisa ficar True: testado com False (suspeita
+         de tipo COM duplicado entre WDC.MODEL/WDC.SERVICES/WDC.VIEWMODEL
+         causando RPC_E_SERVERFAULT ao abrir documento), mas sem embed
+         várias chamadas do SolidWorks.Interop.sldworks que devolvem
+         "object" (Vertex/Annotation/Curve/ModelDoc2 etc.) deixam de
+         converter implicitamente pro tipo específico (CS0266/CS1061):
+         o SolidWorks.Interop depende do NoPIA pra isso funcionar. Causa
+         real do RPC_E_SERVERFAULT ainda não identificada. -->
     <Reference Include="SolidWorks.Interop.sldworks">
       <HintPath>..\..\..\Program Files\SOLIDWORKS 2024\SOLIDWORKS\SolidWorks.Interop.sldworks.dll</HintPath>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="SolidWorks.Interop.swconst">
       <HintPath>..\..\..\Program Files\SOLIDWORKS 2024\SOLIDWORKS\SolidWorks.Interop.swconst.dll</HintPath>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

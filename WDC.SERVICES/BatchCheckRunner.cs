@@ -57,6 +57,13 @@ namespace WDC.SERVICES
             ModelDoc2 doc = null;
             bool wasAlreadyOpen = false;
 
+            // Etapa é registrada a cada passo pra saber exatamente qual
+            // chamada COM falhou quando o catch pegar um COMException --
+            // "RPC_E_SERVERFAULT" sozinho não diz se foi
+            // GetOpenDocumentByName, OpenDoc6, o construtor de CheckContext
+            // ou engine.Execute.
+            string etapa = "GetOpenDocumentByName";
+
             try
             {
                 doc = app.GetOpenDocumentByName(filePath) as ModelDoc2;
@@ -64,6 +71,8 @@ namespace WDC.SERVICES
 
                 if (doc == null)
                 {
+                    etapa = "OpenDoc6";
+
                     int errors = 0;
                     int warnings = 0;
 
@@ -83,19 +92,26 @@ namespace WDC.SERVICES
                     }
                 }
 
+                etapa = "new CheckContext";
+
                 CheckContext context = new CheckContext(app, doc)
                 {
                     ForcarChecksDeChapa = forcarChecksDeChapa
                 };
 
+                etapa = "context.SheetCount";
                 item.SheetCount = context.SheetCount;
+
+                etapa = "engine.Execute";
                 item.Results = engine.Execute(context);
+
+                etapa = "ThumbnailStore.Generate";
                 item.ThumbnailPath = ThumbnailStore.Generate(doc, filePath);
             }
             catch (COMException ex)
             {
                 item.OpenFailed = true;
-                item.OpenError = ex.Message;
+                item.OpenError = $"[{etapa}] {ex.Message}";
             }
             finally
             {
