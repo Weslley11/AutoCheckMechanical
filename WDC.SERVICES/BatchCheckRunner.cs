@@ -11,13 +11,25 @@ namespace WDC.SERVICES
 {
     public static class BatchCheckRunner
     {
+        // Recebe a SolidWorksSession (não o SldWorks app direto) de propósito
+        // -- SolidWorksSession.Application é resolvida aqui dentro, na mesma
+        // assembly (WDC.SERVICES) que criou a conexão de verdade
+        // (SolidWorksSession.Connect(), também em WDC.SERVICES). Passar o
+        // objeto COM SldWorks já "desembrulhado" como parâmetro através da
+        // fronteira entre WDC.VIEWMODEL e WDC.SERVICES é a diferença
+        // concreta entre esta versão e a que dava RPC_E_SERVERFAULT em
+        // OpenDoc6 (mas não em GetOpenDocumentByName, chamado antes no mesmo
+        // objeto) -- suspeita de problema de marshaling de parâmetro ref
+        // (Errors/Warnings) especificamente quando o valor do SldWorks
+        // atravessa a fronteira de assembly antes da chamada.
         public static List<BatchFileResult> Run(
-            SldWorks app,
+            SolidWorksSession session,
             CheckEngine engine,
             IEnumerable<string> filePaths,
             Action<BatchFileResult> aoConcluirArquivo = null,
             bool forcarChecksDeChapa = false)
         {
+            SldWorks app = session.Application;
             List<BatchFileResult> results = new List<BatchFileResult>();
 
             ModelDoc2 originalActiveDoc = app.ActiveDoc as ModelDoc2;

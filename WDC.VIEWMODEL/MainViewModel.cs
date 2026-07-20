@@ -853,7 +853,7 @@ namespace WDC.VIEWMODEL
 
                 int concluidos = 0;
 
-                BatchCheckRunner.Run(session.Application, engine, comArquivo.Select(x => x.DocumentoCaminhoOriginal), item =>
+                BatchCheckRunner.Run(session, engine, comArquivo.Select(x => x.DocumentoCaminhoOriginal), item =>
                 {
                     concluidos++;
 
@@ -970,7 +970,7 @@ namespace WDC.VIEWMODEL
 
                 int concluidos = 0;
 
-                List<BatchFileResult> resultados = BatchCheckRunner.Run(session.Application, engine, arquivos, item =>
+                List<BatchFileResult> resultados = BatchCheckRunner.Run(session, engine, arquivos, item =>
                 {
                     concluidos++;
 
@@ -1621,7 +1621,7 @@ namespace WDC.VIEWMODEL
                 AddLog($"Forçando execução dos checks em {item.FileName}...");
 
                 List<BatchFileResult> resultados = BatchCheckRunner.Run(
-                    session.Application,
+                    session,
                     engine,
                     new[] { item.FilePath },
                     forcarChecksDeChapa: true);
