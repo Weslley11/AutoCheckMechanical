@@ -286,9 +286,8 @@ namespace WDC.VIEWMODEL
             RefreshSapStatus();
         });
 
-        // Busca de documentos do DMS pela ECM (mesmo campo EcmText usado
-        // pelo BuscarSapCommand acima), via Web Service ITF_O_S_DOCUMENT_OUTPUT
-        // (SOA), mecanismo separado da macro Excel/ZTPLM025.
+        // Busca de documentos do DMS pela ECM acima, via Web Service
+        // ITF_O_S_DOCUMENT_OUTPUT (SOA).
         public ICommand BuscarDocumentosPorEcmCommand => new DelegateCommand(_ => BuscarDocumentosPorEcm(), () => !BuscandoDocumentos);
 
         // Copia pra uma pasta local o arquivo original (DMS) de cada
@@ -377,24 +376,6 @@ namespace WDC.VIEWMODEL
 
             VerificarArquivos(session, dialog.FileNames);
         }, () => !IsBusy);
-
-        public ICommand TrocarPlanilhaCommand => new DelegateCommand(_ =>
-        {
-            OpenFileDialog dialogPlanilha = new OpenFileDialog
-            {
-                Filter = "Planilhas Excel (*.xlsm;*.xls;*.xlsb;*.xlsx)|*.xlsm;*.xls;*.xlsb;*.xlsx",
-                Title = "Selecionar a planilha com a macro de busca no SAP"
-            };
-
-            if (dialogPlanilha.ShowDialog() != true)
-                return;
-
-            ExcelMacroSettingsStore.Save(dialogPlanilha.FileName);
-
-            StatusText = "Planilha do SAP atualizada: " + dialogPlanilha.FileName;
-        });
-
-        public ICommand BuscarSapCommand => new DelegateCommand(_ => BuscarSap(), () => !IsBusy);
 
         public ICommand ExportLogCommand => new DelegateCommand(_ =>
         {
@@ -1240,128 +1221,6 @@ namespace WDC.VIEWMODEL
             return resultado;
         }
 
-        private void BuscarSap()
-        {
-            string ecm = EcmText?.Trim();
-
-            if (string.IsNullOrEmpty(ecm))
-            {
-                MessageBox.Show("Informe a ECM antes de buscar no SAP.", "Buscar no SAP",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            IsBusy = true;
-            Mouse.OverrideCursor = Cursors.Wait;
-            LogText = "";
-            DetalheTitulo = "LOG";
-
-            try
-            {
-                string caminhoPlanilha = ExcelMacroSettingsStore.LoadCaminho();
-
-                if (string.IsNullOrEmpty(caminhoPlanilha) || !File.Exists(caminhoPlanilha))
-                {
-                    OpenFileDialog dialogPlanilha = new OpenFileDialog
-                    {
-                        Filter = "Planilhas Excel (*.xlsm;*.xls;*.xlsb;*.xlsx)|*.xlsm;*.xls;*.xlsb;*.xlsx",
-                        Title = "Selecionar a planilha com a macro de busca no SAP"
-                    };
-
-                    if (dialogPlanilha.ShowDialog() != true)
-                        return;
-
-                    caminhoPlanilha = dialogPlanilha.FileName;
-                    ExcelMacroSettingsStore.Save(caminhoPlanilha);
-                }
-
-                AddLog($"Rodando a macro da planilha para buscar documentos da ECM {ecm}...");
-                AddLog("Planilha: " + caminhoPlanilha);
-
-                List<string> documentos;
-
-                try
-                {
-                    documentos = ExcelSapService.BuscarEBaixarViaMacro(caminhoPlanilha, ecm);
-                }
-                catch (Exception ex)
-                {
-                    AddLog("Falha ao rodar a macro da planilha: " + ex.Message);
-                    MessageBox.Show("Não foi possível rodar a macro da planilha:\n" + ex.Message,
-                        "Buscar no SAP", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-
-                AddLog($"{documentos.Count} documento(s) SWD encontrado(s) para a ECM {ecm}:");
-
-                foreach (string doc in documentos)
-                    AddLog(" - " + doc);
-
-                if (documentos.Count == 0)
-                {
-                    StatusText = $"Nenhum documento SWD encontrado para a ECM {ecm}.";
-                    return;
-                }
-
-                string pastaDestino = Path.Combine("C:\\SAP_SW", ecm);
-
-                string[] arquivosBaixados = Directory.Exists(pastaDestino)
-                    ? Directory.GetFiles(pastaDestino, "*.slddrw", SearchOption.TopDirectoryOnly)
-                    : new string[0];
-
-                AddLog($"{arquivosBaixados.Length} arquivo(s) .slddrw encontrado(s) em {pastaDestino}.");
-
-                if (arquivosBaixados.Length == 0)
-                {
-                    MessageBox.Show(
-                        $"ECM: {ecm}\nDocumentos encontrados no SAP: {documentos.Count}\n\n" +
-                        "A macro rodou, mas nenhum arquivo .slddrw apareceu em:\n" + pastaDestino,
-                        "Buscar no SAP", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                    StatusText = $"{documentos.Count} documento(s) encontrado(s) no SAP, nenhum arquivo local ainda.";
-                    return;
-                }
-
-                MessageBox.Show(
-                    $"ECM: {ecm}\nDocumentos encontrados no SAP: {documentos.Count}\nArquivos baixados: {arquivosBaixados.Length}\n\n" +
-                    "Os arquivos serão abertos no SolidWorks e verificados agora.",
-                    "Buscar no SAP", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                SolidWorksSession session = GarantirConexao();
-
-                if (!session.IsConnected)
-                    return;
-
-                VerificarArquivos(session, arquivosBaixados);
-
-                string caminhoRelatorio = null;
-
-                try
-                {
-                    caminhoRelatorio = GerarRelatorioAutomatico(arquivosBaixados, ecm, pastaDestino);
-                }
-                catch (Exception ex)
-                {
-                    AddLog("Falha ao gerar o relatório automático: " + ex.Message);
-                }
-
-                if (caminhoRelatorio != null)
-                {
-                    AddLog("Relatório gerado: " + caminhoRelatorio);
-                    StatusText = $"Verificação concluída. Relatório: {caminhoRelatorio}";
-
-                    MessageBox.Show(
-                        $"Verificação concluída para a ECM {ecm}.\n\nRelatório detalhado salvo em:\n{caminhoRelatorio}",
-                        "Buscar no SAP", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-            }
-            finally
-            {
-                Mouse.OverrideCursor = null;
-                IsBusy = false;
-            }
-        }
-
         // Linhas vindas da busca por ECM são identificadas por DocumentoNumero
         // (estável durante todo o ciclo de vida: pendente -> baixado ->
         // checado), não por FilePath -- que muda de um identificador
@@ -1721,27 +1580,6 @@ namespace WDC.VIEWMODEL
                 return "\"" + valor.Replace("\"", "\"\"") + "\"";
 
             return valor;
-        }
-
-        // Gera e salva o relatório automaticamente ao final do fluxo via SAP,
-        // sem precisar do clique manual no botão "Relatório".
-        private string GerarRelatorioAutomatico(IEnumerable<string> arquivosDoLote, string ecm, string pastaDestino)
-        {
-            HashSet<string> caminhos = new HashSet<string>(arquivosDoLote, StringComparer.OrdinalIgnoreCase);
-
-            List<BatchFileResult> resultadosDoLote = BatchResults
-                .Where(x => caminhos.Contains(x.FilePath))
-                .ToList();
-
-            if (resultadosDoLote.Count == 0)
-                return null;
-
-            string nomeArquivo = $"Relatorio_{ecm}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
-            string caminhoRelatorio = Path.Combine(pastaDestino, nomeArquivo);
-
-            ExcelReportService.GerarRelatorio(resultadosDoLote, GetCheckerNames(), CamposTituloAtuais(), caminhoRelatorio);
-
-            return caminhoRelatorio;
         }
 
         private string[] CamposTituloAtuais()

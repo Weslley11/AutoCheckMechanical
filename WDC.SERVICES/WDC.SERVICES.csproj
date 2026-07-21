@@ -60,10 +60,6 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
-    <!-- WindowsBase: SapService.cs usa System.Windows.Threading.Dispatcher
-         pra sincronizar com a UI thread durante a automação via SAP GUI
-         Scripting. -->
-    <Reference Include="WindowsBase" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -124,58 +120,27 @@
     <Compile Include="DocumentSearchService.cs" />
     <Compile Include="DownloadFolderSettingsStore.cs" />
     <Compile Include="EDrawingsSettingsStore.cs" />
-    <Compile Include="ExcelMacroSettingsStore.cs" />
     <Compile Include="ExcelReportService.cs" />
-    <Compile Include="ExcelSapService.cs" />
     <Compile Include="Helpers\AnnotationHelper.cs" />
     <Compile Include="Helpers\BalloonHelper.cs" />
     <Compile Include="Helpers\BendLineHelper.cs" />
     <Compile Include="Helpers\DimensionHelper.cs" />
     <Compile Include="Helpers\DrawingHelper.cs" />
-    <Compile Include="Helpers\EdgeHelper.cs" />
-    <Compile Include="Helpers\GeometryHelper.cs" />
-    <Compile Include="Helpers\MathHelper.cs" />
-    <Compile Include="Helpers\NoteHelper.cs" />
-    <Compile Include="Helpers\OrdinateHelper.cs" />
     <Compile Include="Helpers\PropertyHelper.cs" />
     <Compile Include="Helpers\ScaleHelper.cs" />
-    <Compile Include="Helpers\SelectionHelper.cs" />
     <Compile Include="Helpers\SelectionInspector.cs" />
-    <Compile Include="Helpers\ValidationHelper.cs" />
     <Compile Include="Helpers\ViewHelper.cs" />
     <Compile Include="Helpers\WauBlockHelper.cs" />
     <Compile Include="HistoryStore.cs" />
     <Compile Include="Interfaces\IChecker.cs" />
-    <Compile Include="Readers\DrawingReader.cs" />
     <Compile Include="SapCredentialStore.cs" />
     <Compile Include="SapRfcService.cs" />
-    <Compile Include="SapService.cs" />
     <Compile Include="SolidWorksSettingsStore.cs" />
     <Compile Include="ThemeStore.cs" />
     <Compile Include="ThumbnailStore.cs" />
     <Compile Include="Web References\ITF_O_S_DOCUMENT\ITF_O_S_DOCUMENTService.cs" />
     <Compile Include="Web References\ITF_O_S_DOCUMENT_OUTPUT\ITF_O_S_DOCUMENT_OUTPUTService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <COMReference Include="DesignCheckerLib">
-      <Guid>{F7893286-D8CC-46DA-A4C3-8DF3CCD2F05C}</Guid>
-      <VersionMajor>1</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
-    <COMReference Include="SwCommands">
-      <Guid>{0AC1DE9F-3FBC-4C25-868D-7D4E9139CCE0}</Guid>
-      <VersionMajor>32</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

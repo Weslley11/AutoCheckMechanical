@@ -62,16 +62,13 @@
   <ItemGroup>
     <Compile Include="BatchFileResult.cs" />
     <Compile Include="BendLine.cs" />
-    <Compile Include="BendLineInfo.cs" />
     <Compile Include="CheckResult.cs" />
     <Compile Include="DocumentoEncontrado.cs" />
-    <Compile Include="DrawingAnalysis.cs" />
     <Compile Include="DrawingAnnotation.cs" />
     <Compile Include="DrawingDimension.cs" />
     <Compile Include="DrawingDocument.cs" />
     <Compile Include="DrawingSheet.cs" />
     <Compile Include="DrawingView.cs" />
-    <Compile Include="ValidationResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

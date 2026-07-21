@@ -11,9 +11,9 @@ namespace WDC.SERVICES
     // (.xlsx), formatada (cabeçalho, cores por status, campos divergentes em
     // vermelho, colunas ajustadas), em vez de um CSV simples.
     //
-    // Assim como ExcelSapService, usa Type.InvokeMember (reflection sobre o
-    // RCW) em vez de "dynamic", pelo mesmo motivo já resolvido antes:
-    // TYPE_E_CANTLOADLIBRARY ao usar "dynamic" com a lib de interop do Excel.
+    // Usa Type.InvokeMember (reflection sobre o RCW) em vez de "dynamic",
+    // pelo mesmo motivo já resolvido antes: TYPE_E_CANTLOADLIBRARY ao usar
+    // "dynamic" com a lib de interop do Excel.
     //
     // Abre uma instância própria e invisível do Excel (não reaproveita a
     // instância da planilha de macro do SAP), gera o relatório e fecha tudo

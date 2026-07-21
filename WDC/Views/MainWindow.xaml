@@ -371,8 +371,6 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
@@ -399,32 +397,12 @@
                                 </Border>
 
                                 <Button Grid.Column="2"
-                                        x:Name="btnBuscarSap"
-                                        Content="BUSCAR NO SAP"
-                                        Style="{StaticResource SecondaryButtonStyle}"
-                                        FontSize="13"
-                                        Padding="16,8"
-                                        Margin="12,0,0,0"
-                                        ToolTip="Busca no SAP (ZTPLM025) os documentos SWD da ECM, baixa e roda os checks habilitados"
-                                        Command="{Binding BuscarSapCommand}"/>
-
-                                <Button Grid.Column="3"
-                                        x:Name="btnTrocarPlanilha"
-                                        Style="{StaticResource SecondaryButtonStyle}"
-                                        Padding="8"
-                                        Margin="8,0,0,0"
-                                        ToolTip="Trocar a planilha Excel usada para buscar no SAP"
-                                        Command="{Binding TrocarPlanilhaCommand}">
-                                    <TextBlock Text="&#xE8DE;" FontFamily="Segoe MDL2 Assets" FontSize="12"/>
-                                </Button>
-
-                                <Button Grid.Column="4"
                                         x:Name="btnSapConexao"
                                         Content="CONEXÃO SAP"
                                         Style="{StaticResource SecondaryButtonStyle}"
                                         FontSize="13"
                                         Padding="16,8"
-                                        Margin="8,0,0,0"
+                                        Margin="12,0,0,0"
                                         ToolTip="Conexão SAP via RFC/BAPI (SAP .NET Connector)"
                                         Command="{Binding AbrirSapConexaoCommand}"/>
                             </Grid>
