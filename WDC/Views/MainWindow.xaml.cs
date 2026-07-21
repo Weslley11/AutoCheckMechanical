@@ -24,6 +24,12 @@ namespace WDC.Views
         private Rect _restoreBounds;
         private string _caminhoLinhaSelecionada;
 
+        // Soma das larguras fixas + MinWidth das colunas Star, recalculada a
+        // cada RebuildResultsGrid (varia com a quantidade de checks ativos e
+        // campos do bloco de título) -- é o "menor tamanho aceitável" da
+        // tabela antes de precisar rolar horizontalmente.
+        private double _larguraMinimaResultados;
+
         public MainViewModel ViewModel { get; }
 
         public MainWindow()
@@ -174,13 +180,24 @@ namespace WDC.Views
             int colFolhas = colTituloStart + camposTitulo.Length;
             int colObservacao = colFolhas + 1;
 
+            // ARQUIVO/DESCRIÇÃO/OBSERVAÇÃO usam Star (com MinWidth = largura
+            // atual) em vez de largura fixa: esticam pra preencher o espaço
+            // sobrando quando a janela é mais larga que o necessário. Como o
+            // ScrollViewer que envolve gridResults oferece largura "infinita"
+            // pro conteúdo (é assim que o scroll horizontal funciona), Star
+            // sozinho não bastaria -- por isso ScrollResultados_SizeChanged
+            // também define gridResults.Width explicitamente.
+            const double larguraMinArquivo = 220;
+            const double larguraMinDescricao = 220;
+            const double larguraMinObservacao = 260;
+
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(96) });
-            gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(220) });
+            gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star), MinWidth = larguraMinArquivo });
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(110) });
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(70) });
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(70) });
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
-            gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(220) });
+            gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star), MinWidth = larguraMinDescricao });
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(80) });
 
             foreach (string _ in checkerNames)
@@ -190,7 +207,13 @@ namespace WDC.Views
                 gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(170) });
 
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(90) });
-            gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(260) });
+            gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star), MinWidth = larguraMinObservacao });
+
+            _larguraMinimaResultados = 96 + 110 + 70 + 70 + 80 + 80
+                + checkerNames.Count * 140
+                + camposTitulo.Length * 170
+                + 90
+                + larguraMinArquivo + larguraMinDescricao + larguraMinObservacao;
 
             gridResults.RowDefinitions.Add(new RowDefinition { Height = new GridLength(40) });
 
@@ -242,6 +265,27 @@ namespace WDC.Views
                 AddSheetCountCell(item, colFolhas, rowIndex);
                 AddObservationCell(item, colObservacao, rowIndex);
             }
+
+            AjustarLarguraGridResultados();
+        }
+
+        // Sem isso, o ScrollViewer (que precisa de largura "infinita" pro
+        // scroll horizontal funcionar) faz as colunas Star colapsarem pro
+        // MinWidth mesmo com espaço sobrando. Fixando gridResults.Width
+        // explicitamente no maior valor entre "espaço disponível" e "largura
+        // mínima da tabela", as colunas Star voltam a esticar quando cabe, e
+        // o scroll horizontal continua aparecendo quando não cabe.
+        private void AjustarLarguraGridResultados()
+        {
+            if (scrollResultados.ViewportWidth <= 0)
+                return;
+
+            gridResults.Width = Math.Max(scrollResultados.ViewportWidth, _larguraMinimaResultados);
+        }
+
+        private void ScrollResultados_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            AjustarLarguraGridResultados();
         }
 
         // Seleção de linha (destaque visual) pra permitir copiar as

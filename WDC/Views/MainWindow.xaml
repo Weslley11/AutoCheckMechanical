@@ -686,9 +686,11 @@
                                     </Button>
                                 </Grid>
 
-                                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                <ScrollViewer x:Name="scrollResultados"
+                                              VerticalScrollBarVisibility="Auto"
                                               HorizontalScrollBarVisibility="Auto"
-                                              Margin="8">
+                                              Margin="8"
+                                              SizeChanged="ScrollResultados_SizeChanged">
                                     <Grid x:Name="gridResults"/>
                                 </ScrollViewer>
                             </DockPanel>
