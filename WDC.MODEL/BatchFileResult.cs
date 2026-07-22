@@ -14,11 +14,11 @@ namespace WDC.MODEL
 
         // Preenchidos só nas linhas vindas da busca de documentos por ECM
         // (BuscarDocumentosPorEcmCommand, Web Service ITF_O_S_DOCUMENT_OUTPUT).
-        // Enquanto o documento não foi checado ainda (RunCheckDrawing ainda
-        // não rodou pra ele), FilePath é DocumentoCaminhoOriginal (o "Original"
-        // do DMS) quando existe, ou um identificador sintético ("SAP:...")
-        // quando não há original vinculado -- nos dois casos ThumbnailPath
-        // fica vazio até o check rodar de verdade.
+        // Enquanto o documento não foi baixado de verdade, FilePath é um
+        // identificador sintético ("SAP:...") -- nunca o "Original" bruto do
+        // DMS, que não é um caminho de arquivo de verdade (ver comentário em
+        // DocumentSearchService.Buscar). ThumbnailPath fica vazio até o
+        // check rodar de verdade.
         public string DocumentoNumero { get; set; }
         public string DocumentoTipo { get; set; }
         public string DocumentoParte { get; set; }
@@ -35,5 +35,14 @@ namespace WDC.MODEL
         // ECM usada na busca que trouxe esse documento -- usada por
         // BaixarDocumentos pra criar a subpasta de destino.
         public string DocumentoEcm { get; set; }
+
+        // Componentes (montagens/peças) que este documento referencia
+        // diretamente (1 nível), vindos de DocumentoEncontrado.Estrutura na
+        // busca por ECM. Usado por BaixarOriginaisSwd pra também baixar a
+        // árvore de componentes inteira (via
+        // DocumentSearchService.ResolverEstruturaCompleta) pra dentro da
+        // mesma pasta do arquivo principal -- sem os componentes no disco,
+        // o SolidWorks não acha as referências e mostra tudo suprimido.
+        public List<EstruturaItem> DocumentoEstruturaRaizes { get; set; } = new List<EstruturaItem>();
     }
 }

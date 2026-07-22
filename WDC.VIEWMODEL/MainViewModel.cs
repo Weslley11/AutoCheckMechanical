@@ -1056,7 +1056,7 @@ namespace WDC.VIEWMODEL
                     // Diagnóstico temporário: mostra o que o SAP devolveu de
                     // "Original" pra cada documento, pra descobrir por que
                     // o caminho não está vindo em alguns casos.
-                    AddLog($"{documento.DocumentNumber} ({documento.Type}, versão {documento.Version}): {documento.CaminhosOriginais.Count} original(is).");
+                    AddLog($"{documento.DocumentNumber} ({documento.Type}, versão {documento.Version}): {documento.CaminhosOriginais.Count} original(is), {documento.Estrutura.Count} componente(s) na estrutura.");
 
                     foreach (string debug in documento.OriginaisDebug)
                         AddLog("  " + debug);
@@ -1085,6 +1085,7 @@ namespace WDC.VIEWMODEL
                         DocumentoTemPdf = documento.TemPdf,
                         DocumentoUrlOriginal = documento.UrlOriginalSwd,
                         DocumentoEcm = ecm,
+                        DocumentoEstruturaRaizes = documento.Estrutura.ToList(),
                     });
                 }
 
@@ -1229,6 +1230,8 @@ namespace WDC.VIEWMODEL
 
                     resultado[item.DocumentoNumero] = caminhoLocal;
                     AddLog($"{item.DocumentoNumero} — baixado via URL para {caminhoLocal}.");
+
+                    BaixarEstruturaCompleta(item, Path.GetDirectoryName(caminhoLocal));
                 }
                 catch (Exception ex)
                 {
@@ -1238,6 +1241,90 @@ namespace WDC.VIEWMODEL
             }
 
             return resultado;
+        }
+
+        // Sem os componentes (montagens/peças) que o desenho referencia no
+        // disco, junto com ele, o SolidWorks não acha as referências ao
+        // abrir e mostra tudo suprimido -- por isso baixa a estrutura toda
+        // (recursiva, ver DocumentSearchService.ResolverEstruturaCompleta)
+        // pra dentro da MESMA pasta do arquivo principal, que é onde o
+        // SolidWorks procura por padrão quando não acha um componente no
+        // caminho gravado na montagem. Melhor esforço: falha aqui não
+        // invalida o download do arquivo principal em si, só fica registrado
+        // no log (o desenho pode continuar aparecendo com componentes
+        // suprimidos se algum componente não puder ser resolvido/baixado).
+        private void BaixarEstruturaCompleta(BatchFileResult item, string pastaDestino)
+        {
+            if (item.DocumentoEstruturaRaizes.Count == 0)
+                return;
+
+            AddLog($"{item.DocumentoNumero} — baixando estrutura ({item.DocumentoEstruturaRaizes.Count} componente(s) direto(s))...");
+
+            List<DocumentoEncontrado> componentes;
+
+            try
+            {
+                componentes = DocumentSearchService.ResolverEstruturaCompleta(
+                    item.DocumentoEstruturaRaizes, UsuarioSap, msg => AddLog("  " + msg));
+            }
+            catch (Exception ex)
+            {
+                AddLog($"{item.DocumentoNumero} — falha ao resolver a estrutura: {DocumentSearchService.DescreverErroCompleto(ex)}");
+                return;
+            }
+
+            int disponiveis = 0;
+
+            foreach (DocumentoEncontrado componente in componentes)
+            {
+                string caminhoComponente = Path.Combine(pastaDestino, NomeArquivoComponente(componente));
+
+                // Já baixado antes (componente compartilhado por outro
+                // desenho já verificado, por exemplo) -- não baixa de novo.
+                if (File.Exists(caminhoComponente))
+                {
+                    disponiveis++;
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(componente.UrlOriginalSwd))
+                {
+                    AddLog($"  {componente.DocumentNumber} — sem URL de download, componente pulado (pode continuar aparecendo suprimido no SolidWorks).");
+                    continue;
+                }
+
+                try
+                {
+                    DocumentSearchService.BaixarOriginalPorUrl(componente.UrlOriginalSwd, caminhoComponente);
+                    disponiveis++;
+                    AddLog($"  {componente.DocumentNumber} — componente baixado para {caminhoComponente}.");
+                }
+                catch (Exception ex)
+                {
+                    AddLog($"  {componente.DocumentNumber} — falha ao baixar componente: {DocumentSearchService.DescreverErroCompleto(ex)}");
+                }
+            }
+
+            AddLog($"{item.DocumentoNumero} — estrutura: {disponiveis}/{componentes.Count} componente(s) disponível(is) localmente.");
+        }
+
+        // O nome do arquivo local do componente precisa bater com o que a
+        // montagem espera encontrar pra resolver a referência automaticamente
+        // -- não temos garantia de qual é esse nome, então usamos o Path que
+        // o SAP devolve pro Original SWD do componente como melhor palpite
+        // (ainda não confirmado contra uma estrutura real). Sem Path
+        // nenhum, cai num nome sintético só pra o arquivo existir localmente
+        // (não deve resolver a referência automaticamente, mas ao menos fica
+        // disponível pra "Localizar referências" manual no SolidWorks).
+        private static string NomeArquivoComponente(DocumentoEncontrado componente)
+        {
+            string nomeOriginal = !string.IsNullOrEmpty(componente.CaminhoOriginalSwd)
+                ? Path.GetFileName(componente.CaminhoOriginalSwd)
+                : null;
+
+            return !string.IsNullOrEmpty(nomeOriginal)
+                ? nomeOriginal
+                : $"{componente.DocumentNumber}_{componente.Version}.SLDPRT";
         }
 
         // Linhas vindas da busca por ECM são identificadas por DocumentoNumero

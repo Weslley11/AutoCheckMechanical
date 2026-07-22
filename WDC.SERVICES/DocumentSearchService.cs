@@ -53,6 +53,122 @@ namespace WDC.SERVICES
         // não bater com o que aparece no SAP GUI (CV04N), precisa ajustar.
         public static List<DocumentoEncontrado> BuscarPorEcm(string ecm, string usuario, bool retornarUltimaVersao)
         {
+            DTP_DOCUMENT_OUTPUTDMSSearchBy searchBy = new DTP_DOCUMENT_OUTPUTDMSSearchBy
+            {
+                Header = new DTP_DOCUMENT_OUTPUTDMSSearchByHeader(),
+                Document = new DTP_DOCUMENT_OUTPUTDMSSearchByDocument
+                {
+                    DescriptionList = new string[0],
+                    ChangeNumberList = new[] { ecm },
+                },
+            };
+
+            List<DTP_DOCUMENT_OUTPUT_RDIR> dirs = Buscar(searchBy, usuario, retornarUltimaVersao);
+
+            // Só nos interessam os documentos do tipo SWD (desenho
+            // SolidWorks) -- mesmo filtro que o fluxo antigo via macro
+            // Excel (ZTPLM025) já aplicava implicitamente ao só baixar
+            // .slddrw. Esse filtro NÃO se aplica em BuscarPorChaves (usado
+            // pra resolver os componentes da estrutura), porque montagens/
+            // peças referenciadas provavelmente vêm com um Type diferente
+            // de "SWD" -- ainda não confirmado contra uma estrutura real.
+            return dirs
+                .Where(dir => string.Equals(dir.Type?.Trim(), "SWD", StringComparison.OrdinalIgnoreCase))
+                .Select(MapearDir)
+                .ToList();
+        }
+
+        // Busca por chave exata (DocumentNumber/Type/Part/Version) em vez de
+        // por ECM -- usado pra resolver os componentes (montagens/peças) que
+        // aparecem em DocumentStructureList, já que eles não têm ECM próprio
+        // pra buscar por ChangeNumberList. SearchBy.Header.HeaderInfoList é
+        // o único campo do schema real que aceita identificar documentos
+        // assim (visto no WSDL, nunca exercitado neste app até agora) --
+        // ainda não confirmado contra uma resposta real do SAP.
+        private static List<DocumentoEncontrado> BuscarPorChaves(List<EstruturaItem> chaves, string usuario)
+        {
+            DTP_DOCUMENT_OUTPUTDMSSearchBy searchBy = new DTP_DOCUMENT_OUTPUTDMSSearchBy
+            {
+                Header = new DTP_DOCUMENT_OUTPUTDMSSearchByHeader
+                {
+                    HeaderInfoList = chaves.Select(c => new DTP_DOCUMENT_HEADER
+                    {
+                        DocumentNumber = c.DocumentNumber,
+                        Type = c.Type,
+                        Part = c.Part,
+                        Version = c.Version,
+                    }).ToArray(),
+                },
+            };
+
+            List<DTP_DOCUMENT_OUTPUT_RDIR> dirs = Buscar(searchBy, usuario, retornarUltimaVersao: false);
+
+            return dirs.Select(MapearDir).ToList();
+        }
+
+        // Resolve recursivamente (BFS) toda a árvore de estrutura (BOM) a
+        // partir de uma lista inicial de componentes referenciados por um
+        // documento (documento.Estrutura), devolvendo um DocumentoEncontrado
+        // por componente único encontrado (dedupe por DocumentNumber+Type+
+        // Part+Version). Cada chamada pede ReturnDocumentStructure=true de
+        // novo, então filhos de componentes também têm sua própria
+        // Estrutura, permitindo continuar descendo até não sobrar componente
+        // novo -- limitado a 8 níveis só por segurança contra ciclo/loop
+        // infinito (nunca visto numa estrutura de produto real, mas o
+        // bastante pra nunca travar o app se acontecer).
+        public static List<DocumentoEncontrado> ResolverEstruturaCompleta(
+            List<EstruturaItem> raizes, string usuario, Action<string> log)
+        {
+            List<DocumentoEncontrado> resultado = new List<DocumentoEncontrado>();
+            HashSet<string> visitados = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            List<EstruturaItem> nivelAtual = raizes;
+
+            const int profundidadeMaxima = 8;
+
+            for (int nivel = 0; nivel < profundidadeMaxima && nivelAtual.Count > 0; nivel++)
+            {
+                List<EstruturaItem> chavesNovas = nivelAtual
+                    .Where(c => visitados.Add(ChaveComponente(c)))
+                    .ToList();
+
+                if (chavesNovas.Count == 0)
+                    break;
+
+                log?.Invoke($"Resolvendo nível {nivel + 1} da estrutura: {chavesNovas.Count} componente(s) novo(s).");
+
+                List<DocumentoEncontrado> encontrados;
+
+                try
+                {
+                    encontrados = BuscarPorChaves(chavesNovas, usuario);
+                }
+                catch (Exception ex)
+                {
+                    log?.Invoke($"Falha ao resolver nível {nivel + 1} da estrutura: {DescreverErroCompleto(ex)}");
+                    break;
+                }
+
+                resultado.AddRange(encontrados);
+
+                nivelAtual = encontrados.SelectMany(e => e.Estrutura).ToList();
+            }
+
+            return resultado;
+        }
+
+        private static string ChaveComponente(EstruturaItem item)
+        {
+            return $"{item.DocumentNumber}|{item.Type}|{item.Part}|{item.Version}";
+        }
+
+        // Corpo comum da chamada SOAP (credenciais, tratamento de erro),
+        // compartilhado entre BuscarPorEcm e BuscarPorChaves -- só muda o
+        // SearchBy. Devolve os DIR brutos, sem filtrar por Type nem mapear
+        // pra DocumentoEncontrado (cada chamador decide o que fazer com
+        // eles).
+        private static List<DTP_DOCUMENT_OUTPUT_RDIR> Buscar(
+            DTP_DOCUMENT_OUTPUTDMSSearchBy searchBy, string usuario, bool retornarUltimaVersao)
+        {
             DTP_DOCUMENT_OUTPUT request = new DTP_DOCUMENT_OUTPUT
             {
                 language = "PT",
@@ -90,15 +206,16 @@ namespace WDC.SERVICES
                     },
                     ReturnClassInfo = false,
                     ReturnCurrentVersion = retornarUltimaVersao,
-                    SearchBy = new DTP_DOCUMENT_OUTPUTDMSSearchBy
-                    {
-                        Header = new DTP_DOCUMENT_OUTPUTDMSSearchByHeader(),
-                        Document = new DTP_DOCUMENT_OUTPUTDMSSearchByDocument
-                        {
-                            DescriptionList = new string[0],
-                            ChangeNumberList = new[] { ecm },
-                        },
-                    },
+                    // Pede a lista de componentes (montagens/peças)
+                    // referenciados por cada documento -- necessário pra
+                    // baixar a estrutura toda e evitar componentes suprimidos
+                    // no SolidWorks por referência não encontrada. Nunca
+                    // usado neste app antes de agora; existe no schema real
+                    // (visto no proxy gerado pelo wsdl.exe), mas o formato
+                    // exato do que o SAP devolve aqui ainda não foi
+                    // confirmado contra uma estrutura real.
+                    ReturnDocumentStructure = true,
+                    SearchBy = searchBy,
                 },
             };
 
@@ -126,52 +243,55 @@ namespace WDC.SERVICES
                 throw new InvalidOperationException("O SAP retornou erro na busca: " + mensagens);
             }
 
-            List<DocumentoEncontrado> resultado = new List<DocumentoEncontrado>();
+            return response.DIRList != null
+                ? response.DIRList.ToList()
+                : new List<DTP_DOCUMENT_OUTPUT_RDIR>();
+        }
 
-            if (response.DIRList == null)
-                return resultado;
-
-            foreach (DTP_DOCUMENT_OUTPUT_RDIR dir in response.DIRList)
+        private static DocumentoEncontrado MapearDir(DTP_DOCUMENT_OUTPUT_RDIR dir)
+        {
+            DocumentoEncontrado documento = new DocumentoEncontrado
             {
-                // Só nos interessam os documentos do tipo SWD (desenho
-                // SolidWorks) -- mesmo filtro que o fluxo antigo via macro
-                // Excel (ZTPLM025) já aplicava implicitamente ao só baixar
-                // .slddrw.
-                if (!string.Equals(dir.Type?.Trim(), "SWD", StringComparison.OrdinalIgnoreCase))
-                    continue;
+                DocumentNumber = dir.DocumentNumber,
+                Type = dir.Type,
+                Part = dir.Part,
+                Version = dir.Version,
+                ChangeNumber = dir.ChangeNumber,
+                Descricao = dir.DescriptionList?.Description?.Value,
+            };
 
-                DocumentoEncontrado documento = new DocumentoEncontrado
-                {
-                    DocumentNumber = dir.DocumentNumber,
-                    Type = dir.Type,
-                    Part = dir.Part,
-                    Version = dir.Version,
-                    ChangeNumber = dir.ChangeNumber,
-                    Descricao = dir.DescriptionList?.Description?.Value,
-                };
+            if (dir.Originals != null)
+            {
+                documento.CaminhosOriginais.AddRange(dir.Originals.Select(o => o.Path));
+                documento.TemPdf = dir.Originals.Any(EhOriginalPdf);
 
-                if (dir.Originals != null)
-                {
-                    documento.CaminhosOriginais.AddRange(dir.Originals.Select(o => o.Path));
-                    documento.TemPdf = dir.Originals.Any(EhOriginalPdf);
+                DTP_DOCUMENT_OUTPUT_RDIROriginal originalSwd = dir.Originals.FirstOrDefault(o =>
+                    string.Equals(o.ApplicationCode?.Trim(), "SWD", StringComparison.OrdinalIgnoreCase));
 
-                    DTP_DOCUMENT_OUTPUT_RDIROriginal originalSwd = dir.Originals.FirstOrDefault(o =>
-                        string.Equals(o.ApplicationCode?.Trim(), "SWD", StringComparison.OrdinalIgnoreCase));
+                documento.UrlOriginalSwd = originalSwd?.URL;
+                documento.CaminhoOriginalSwd = originalSwd?.Path;
 
-                    documento.UrlOriginalSwd = originalSwd?.URL;
-
-                    documento.OriginaisDebug.AddRange(dir.Originals.Select(o =>
-                        $"Path=\"{o.Path}\" ApplicationCode=\"{o.ApplicationCode}\" URL=\"{o.URL}\" Code=\"{o.Code}\" StorageCategory=\"{o.StorageCategory}\" CheckedOutUser=\"{o.CheckedOutUser}\""));
-                }
-                else
-                {
-                    documento.OriginaisDebug.Add("(Originals veio nulo no response -- o SAP não devolveu nenhum original pra esse documento)");
-                }
-
-                resultado.Add(documento);
+                documento.OriginaisDebug.AddRange(dir.Originals.Select(o =>
+                    $"Path=\"{o.Path}\" ApplicationCode=\"{o.ApplicationCode}\" URL=\"{o.URL}\" Code=\"{o.Code}\" StorageCategory=\"{o.StorageCategory}\" CheckedOutUser=\"{o.CheckedOutUser}\""));
+            }
+            else
+            {
+                documento.OriginaisDebug.Add("(Originals veio nulo no response -- o SAP não devolveu nenhum original pra esse documento)");
             }
 
-            return resultado;
+            if (dir.DocumentStructureList != null)
+            {
+                documento.Estrutura.AddRange(dir.DocumentStructureList.Select(e => new EstruturaItem
+                {
+                    Item = e.Item,
+                    DocumentNumber = e.DocumentNumber,
+                    Type = e.DocumentType,
+                    Part = e.DocumentPart,
+                    Version = e.DocumentVersion,
+                }));
+            }
+
+            return documento;
         }
 
         // Chama o serviço ITF_O_S_DOCUMENT (singular, distinto do

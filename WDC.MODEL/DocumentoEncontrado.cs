@@ -18,6 +18,20 @@ namespace WDC.MODEL
         // gerar uma URL pra essa combinação de documento/storage category).
         public string UrlOriginalSwd { get; set; }
 
+        // Path bruto do Original SWD, como o SAP devolveu (NÃO é um caminho
+        // de arquivo de verdade -- ver o comentário em
+        // DocumentSearchService.Buscar). Usado só como melhor palpite pro
+        // nome de arquivo original (extensão + nome) ao baixar um componente
+        // da estrutura, já que o SolidWorks resolve referência de montagem
+        // por nome de arquivo.
+        public string CaminhoOriginalSwd { get; set; }
+
+        // Componentes (montagens/peças) referenciados por este documento --
+        // só vem preenchido quando a busca pediu ReturnDocumentStructure=true
+        // (ver DocumentSearchService.ResolverEstruturaCompleta). Vazio pra
+        // documentos sem estrutura (ex: desenho de peça avulsa).
+        public List<EstruturaItem> Estrutura { get; } = new List<EstruturaItem>();
+
         // Diagnóstico temporário -- linha por Original, com os campos
         // brutos que o SAP devolveu, pra ajudar a descobrir por que
         // CaminhosOriginais está vindo vazio em algum caso real.
