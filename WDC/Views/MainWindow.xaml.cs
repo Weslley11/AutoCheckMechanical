@@ -597,7 +597,12 @@ namespace WDC.Views
 
             if (!string.IsNullOrEmpty(item.FilePath))
             {
-                Button btnEDrawings = new Button
+                // Modo "eDrawings" (leve, só visual) virou o padrão ao
+                // clicar no nome do arquivo (ver AddFileNameCell) -- esse
+                // botão no canto da prévia é o modo alternativo, pra abrir
+                // no SolidWorks completo quando precisar de verdade (editar,
+                // rodar o CHECK DRAWING manual no documento ativo, etc.).
+                Button btnSolidWorks = new Button
                 {
                     Content = "",
                     FontFamily = new FontFamily("Segoe MDL2 Assets"),
@@ -612,12 +617,12 @@ namespace WDC.Views
                     HorizontalAlignment = HorizontalAlignment.Right,
                     VerticalAlignment = VerticalAlignment.Bottom,
                     Margin = new Thickness(0, 0, 2, 2),
-                    ToolTip = "Abrir no eDrawings"
+                    ToolTip = "Abrir no SolidWorks"
                 };
 
-                btnEDrawings.Click += (s, e) => ViewModel.AbrirNoEDrawings(item.FilePath);
+                btnSolidWorks.Click += (s, e) => ViewModel.AbrirNoSolidWorks(item);
 
-                conteudo.Children.Add(btnEDrawings);
+                conteudo.Children.Add(btnSolidWorks);
             }
 
             border.Child = conteudo;
@@ -805,12 +810,19 @@ namespace WDC.Views
                 border.ToolTip = imagemAmpliada;
             }
 
+            // Clique no nome do arquivo abre no eDrawings (visualizador leve,
+            // só pra conferência visual rápida) em vez do SolidWorks
+            // completo -- os checks em si continuam rodando via SolidWorks
+            // (BatchCheckRunner/RunCheckDrawing), só a abertura manual pra
+            // olhar o desenho depois é que mudou. "Abrir no SolidWorks"
+            // continua disponível pelo botão no canto da prévia (ver
+            // AddPreviewCell) pra quem precisa do SolidWorks de verdade.
             border.MouseLeftButtonUp += (s, e) =>
             {
                 SelecionarLinha(item);
-                ViewModel.AbrirNoSolidWorks(item);
+                ViewModel.AbrirNoEDrawings(item.FilePath);
             };
-            border.ToolTip = border.ToolTip ?? "Clique para abrir no SolidWorks.";
+            border.ToolTip = border.ToolTip ?? "Clique para abrir no eDrawings.";
 
             Grid.SetColumn(border, column);
             Grid.SetRow(border, row);
