@@ -392,6 +392,18 @@ namespace WDC.Views
 
             bool preenchido = !string.IsNullOrWhiteSpace(valor);
             bool divergente = resultadoBlocoTitulo != null && resultadoBlocoTitulo.CamposDivergentes.Contains(nomeCampo);
+            bool verificado = resultadoBlocoTitulo != null && resultadoBlocoTitulo.CamposVerificados.Contains(nomeCampo);
+
+            Brush corTexto;
+
+            if (divergente)
+                corTexto = (Brush)FindResource("BrushAccentOrange");
+            else if (!preenchido)
+                corTexto = (Brush)FindResource("BrushAccentOrange");
+            else if (verificado)
+                corTexto = Brushes.LimeGreen;
+            else
+                corTexto = (Brush)FindResource("BrushTextPrimary");
 
             border.Child = new TextBlock
             {
@@ -399,9 +411,7 @@ namespace WDC.Views
                 FontSize = 12,
                 TextTrimming = TextTrimming.CharacterEllipsis,
                 VerticalAlignment = VerticalAlignment.Center,
-                Foreground = (preenchido && !divergente)
-                    ? (Brush)FindResource("BrushTextPrimary")
-                    : (Brush)FindResource("BrushAccentOrange")
+                Foreground = corTexto
             };
 
             border.ToolTip = divergente

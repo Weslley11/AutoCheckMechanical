@@ -131,11 +131,13 @@ namespace WDC.SERVICES
                 {
                     string valor = null;
                     bool divergente = false;
+                    bool verificado = false;
 
                     if (resultadoBlocoTitulo != null)
                     {
                         resultadoBlocoTitulo.Fields.TryGetValue(nomeCampo, out valor);
                         divergente = resultadoBlocoTitulo.CamposDivergentes.Contains(nomeCampo);
+                        verificado = resultadoBlocoTitulo.CamposVerificados.Contains(nomeCampo);
                     }
 
                     object celula = EscreverCelula(planilha, linha, coluna++, valor ?? "");
@@ -144,6 +146,11 @@ namespace WDC.SERVICES
                     {
                         Definir(Get(celula, "Font"), "Bold", true);
                         Definir(Get(celula, "Font"), "Color", Bgr(156, 0, 6));
+                    }
+                    else if (verificado)
+                    {
+                        Definir(Get(celula, "Font"), "Bold", true);
+                        Definir(Get(celula, "Font"), "Color", Bgr(0, 128, 0));
                     }
                 }
 

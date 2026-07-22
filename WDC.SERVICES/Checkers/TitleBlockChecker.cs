@@ -187,6 +187,10 @@ namespace WDC.SERVICES.Checkers
                 result.CamposDivergentes.Add("Massa Líquida");
                 result.AddWarning("Divergência entre a Massa Líquida do bloco e a massa calculada da peça.");
             }
+            else
+            {
+                result.CamposVerificados.Add("Massa Líquida");
+            }
         }
 
         // Converte um texto de massa da legenda (ex.: "2,383 kg") pra um
@@ -235,7 +239,12 @@ namespace WDC.SERVICES.Checkers
         private static readonly RegraDivergenciaMaterial[] RegrasDivergenciaMaterial =
         {
             new RegraDivergenciaMaterial(new[] { "Aluminio", "Aluminio 6063-T6" }, new[] { "Alum" }),
-            new RegraDivergenciaMaterial(new[] { "ZINCADO" }, new[] { "ACO Zn", "GALVALUME" }),
+            // "ZIN" cobre a abreviação usada na Matéria-Prima pra chapa de
+            // aço zincado (ex.: "CH.ACO ZIN 2,66mm (#12)") -- sem ela, esse
+            // caso batia no gatilho "ZINCADO" mas não encontrava "ACO Zn"
+            // (com "Zn" de zinco) nem "GALVALUME" no texto, e acusava
+            // divergência num par de campos que na verdade estava correto.
+            new RegraDivergenciaMaterial(new[] { "ZINCADO" }, new[] { "ACO Zn", "ZIN", "GALVALUME" }),
             new RegraDivergenciaMaterial(new[] { "policarbonato" }, new[] { "policarbonato" }),
             new RegraDivergenciaMaterial(new[] { "Cobre" }, new[] { "COBRE" }),
             new RegraDivergenciaMaterial(new[] { "Aco inox" }, new[] { "INOX" }),
@@ -271,7 +280,11 @@ namespace WDC.SERVICES.Checkers
                     continue;
 
                 if (ContemAlgum(materiaPrima, regra.EsperadosMateriaPrima))
+                {
+                    result.CamposVerificados.Add("Material");
+                    result.CamposVerificados.Add("Matéria-Prima");
                     return;
+                }
 
                 AddLog(result, $"Divergência: Material = \"{material}\", Matéria-Prima = \"{materiaPrima}\".");
                 AddError(result, $"Divergência entre Material (\"{material}\") e Matéria-Prima (\"{materiaPrima}\").");

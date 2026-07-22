@@ -18,6 +18,13 @@ namespace WDC.MODEL
         // (ex.: Material x Matéria-Prima).
         public HashSet<string> CamposDivergentes { get; }
 
+        // Nomes de campos que passaram por uma comparação/equivalência
+        // explícita (ex.: Massa Líquida do bloco x massa calculada da peça,
+        // Material x Matéria-Prima) e bateram -- destacados em verde na
+        // tabela, diferente de um campo só preenchido sem nenhuma
+        // comparação (cor padrão).
+        public HashSet<string> CamposVerificados { get; }
+
         public CheckResult()
         {
             Errors = new List<string>();
@@ -25,6 +32,7 @@ namespace WDC.MODEL
             Logs = new List<string>();
             Fields = new Dictionary<string, string>();
             CamposDivergentes = new HashSet<string>();
+            CamposVerificados = new HashSet<string>();
         }
 
         public void AddLog(string text)
