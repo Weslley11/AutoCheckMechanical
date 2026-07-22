@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using WDC.SERVICES.Core;
 using WDC.SERVICES.Helpers;
@@ -297,15 +298,38 @@ namespace WDC.SERVICES.Checkers
             }
         }
 
+        // Sem tirar acento, "Aço 1020" (como o SolidWorks devolve, com
+        // cedilha) nunca batia com o gatilho "Aco 1020" (sem cedilha) --
+        // IndexOf com OrdinalIgnoreCase ignora maiúsculas/minúsculas, mas não
+        // trata "ç"/"c" ou "í"/"i" como equivalentes. Resultado: nenhuma
+        // regra batia (nem a de sucesso, nem a de divergência), e o campo
+        // ficava sem destaque nenhum -- nem verde, nem laranja -- em vez de
+        // reconhecer que "Aço 1020" e "CH.ACO 1,90mm" são o mesmo material.
         private static bool ContemAlgum(string texto, string[] substrings)
         {
+            string textoSemAcento = RemoverAcentos(texto);
+
             foreach (string substring in substrings)
             {
-                if (texto.IndexOf(substring, StringComparison.OrdinalIgnoreCase) >= 0)
+                if (textoSemAcento.IndexOf(RemoverAcentos(substring), StringComparison.OrdinalIgnoreCase) >= 0)
                     return true;
             }
 
             return false;
+        }
+
+        private static string RemoverAcentos(string texto)
+        {
+            string decomposto = texto.Normalize(NormalizationForm.FormD);
+            StringBuilder semAcento = new StringBuilder(decomposto.Length);
+
+            foreach (char c in decomposto)
+            {
+                if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                    semAcento.Append(c);
+            }
+
+            return semAcento.ToString().Normalize(NormalizationForm.FormC);
         }
     }
 }
