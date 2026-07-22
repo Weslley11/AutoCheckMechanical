@@ -1053,8 +1053,6 @@ namespace WDC.VIEWMODEL
 
                 foreach (DocumentoEncontrado documento in resultados)
                 {
-                    string caminhoOriginal = documento.CaminhosOriginais.FirstOrDefault();
-
                     // Diagnóstico temporário: mostra o que o SAP devolveu de
                     // "Original" pra cada documento, pra descobrir por que
                     // o caminho não está vindo em alguns casos.
@@ -1065,21 +1063,25 @@ namespace WDC.VIEWMODEL
 
                     UpsertBatchResult(new BatchFileResult
                     {
-                        // Usa o "Original" do DMS como FilePath quando existe
-                        // (é o que o RunCheckDrawing vai abrir no SolidWorks
-                        // depois); sem original, vira um identificador
-                        // sintético só pra distinguir a linha, não um
-                        // caminho de arquivo de verdade.
-                        FilePath = !string.IsNullOrEmpty(caminhoOriginal)
-                            ? caminhoOriginal
-                            : $"SAP:{documento.DocumentNumber}:{documento.Version}",
+                        // O "Original" que o SAP devolve aqui (caminhoOriginal)
+                        // NÃO é um caminho de arquivo de verdade -- é só a
+                        // convenção de nome local que o SAP GUI/macro antigo
+                        // usava ("C:\SAP_SW\{numero}{tipo}{versão}.SLDDRW"),
+                        // sem relação com o arquivo que baixamos de verdade
+                        // (CaminhoLocalEsperado, "{numero}_{versão}.SLDDRW"
+                        // dentro da pasta de download configurada). Usar
+                        // caminhoOriginal como FilePath já causou "Arquivo
+                        // não encontrado" ao clicar pra abrir antes de baixar
+                        // -- por isso aqui sempre fica um identificador
+                        // sintético até o arquivo real existir (preenchido em
+                        // BaixarDocumentos/RunCheckDocumentosPendentes).
+                        FilePath = $"SAP:{documento.DocumentNumber}:{documento.Version}",
                         FileName = documento.DocumentNumber,
                         DocumentoNumero = documento.DocumentNumber,
                         DocumentoTipo = documento.Type,
                         DocumentoParte = documento.Part,
                         DocumentoVersao = documento.Version,
                         DocumentoDescricao = documento.Descricao,
-                        DocumentoCaminhoOriginal = caminhoOriginal,
                         DocumentoTemPdf = documento.TemPdf,
                         DocumentoUrlOriginal = documento.UrlOriginalSwd,
                         DocumentoEcm = ecm,
@@ -1142,6 +1144,23 @@ namespace WDC.VIEWMODEL
             try
             {
                 Dictionary<string, string> resultado = BaixarOriginaisSwd(documentos, pastaBase);
+
+                // Sem isso, FilePath/DocumentoCaminhoOriginal continuam com o
+                // identificador sintético ("SAP:...") mesmo depois do
+                // download ter dado certo -- e "Abrir no SolidWorks"
+                // (clicando na linha) tentaria abrir esse identificador em
+                // vez do arquivo real que acabou de ser salvo.
+                foreach (BatchFileResult item in documentos)
+                {
+                    if (resultado.TryGetValue(item.DocumentoNumero, out string caminhoLocal) && !string.IsNullOrEmpty(caminhoLocal))
+                    {
+                        item.FilePath = caminhoLocal;
+                        item.DocumentoCaminhoOriginal = caminhoLocal;
+                    }
+                }
+
+                InvalidarResultados();
+                HistoryStore.Save(BatchResults);
 
                 int copiados = resultado.Values.Count(v => !string.IsNullOrEmpty(v));
                 int falhas = resultado.Count - copiados;
@@ -1317,6 +1336,19 @@ namespace WDC.VIEWMODEL
         // estiver aberto), ao clicar no nome do arquivo na tabela.
         public void AbrirNoSolidWorks(BatchFileResult item)
         {
+            // FilePath ainda é o identificador sintético ("SAP:...") de uma
+            // linha vinda da busca por ECM que ainda não foi baixada -- não é
+            // um caminho de arquivo de verdade, então nem faz sentido testar
+            // File.Exists nele (avisa de forma específica em vez de mostrar
+            // "Arquivo não encontrado: SAP:...", que parece um caminho real).
+            if (!string.IsNullOrEmpty(item.FilePath) && item.FilePath.StartsWith("SAP:", StringComparison.Ordinal))
+            {
+                MessageBox.Show(
+                    "Esse documento ainda não foi baixado.\nUse \"BAIXAR DOCUMENTOS\" ou \"CHECK DRAWING\" primeiro.",
+                    "Abrir no SolidWorks", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
             if (string.IsNullOrEmpty(item.FilePath) || !File.Exists(item.FilePath))
             {
                 MessageBox.Show("Arquivo não encontrado:\n" + item.FilePath, "Abrir no SolidWorks",
@@ -1389,6 +1421,14 @@ namespace WDC.VIEWMODEL
         // precisar abrir o SolidWorks completo.
         public void AbrirNoEDrawings(string filePath)
         {
+            if (!string.IsNullOrEmpty(filePath) && filePath.StartsWith("SAP:", StringComparison.Ordinal))
+            {
+                MessageBox.Show(
+                    "Esse documento ainda não foi baixado.\nUse \"BAIXAR DOCUMENTOS\" ou \"CHECK DRAWING\" primeiro.",
+                    "Abrir no eDrawings", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
             if (string.IsNullOrEmpty(filePath) || !File.Exists(filePath))
             {
                 MessageBox.Show("Arquivo não encontrado:\n" + filePath, "Abrir no eDrawings",
