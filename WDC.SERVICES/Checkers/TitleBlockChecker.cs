@@ -182,11 +182,38 @@ namespace WDC.SERVICES.Checkers
 
             if (diferenca > toleranciaAbsoluta)
             {
-                AddError(result,
-                    $"Massa Líquida do bloco ({massaBloco:0.###} kg) diverge da massa calculada da peça ({massaCalculada:0.###} kg) em mais de 1%.");
+                // Erro clássico de configuração de template: a unidade de
+                // Massa do documento (Ferramentas > Opções > Propriedades do
+                // Documento > Unidades > Massa) está em gramas em vez de
+                // quilogramas (ou vice-versa) -- CreateMassProperty().Mass
+                // devolve o valor cru nessa unidade do documento, não
+                // necessariamente kg. Detecta esse caso específico (razão
+                // ~1000x entre os dois valores, característica de um mix-up
+                // kg/g) pra dar um diagnóstico mais direto do que só
+                // "diverge", já que a causa mais provável não é a peça em si.
+                double proporcao = massaCalculada > 0 ? massaBloco / massaCalculada : 0;
 
-                result.CamposDivergentes.Add("Massa Líquida");
-                result.AddWarning("Divergência entre a Massa Líquida do bloco e a massa calculada da peça.");
+                bool pareceErroDeUnidade = proporcao > 0 &&
+                    (EhProximoDe(proporcao, 1000) || EhProximoDe(proporcao, 0.001));
+
+                if (pareceErroDeUnidade)
+                {
+                    AddError(result,
+                        $"Massa Líquida do bloco ({massaBloco:0.###}) e massa calculada da peça ({massaCalculada:0.###}) " +
+                        "diferem por um fator de ~1000 -- parece erro de unidade (g em vez de kg, ou vice-versa). " +
+                        "Confira Ferramentas > Opções > Propriedades do Documento > Unidades > Massa.");
+
+                    result.CamposDivergentes.Add("Massa Líquida");
+                    result.AddWarning("A unidade de Massa do documento parece estar configurada errada (g/kg trocados).");
+                }
+                else
+                {
+                    AddError(result,
+                        $"Massa Líquida do bloco ({massaBloco:0.###} kg) diverge da massa calculada da peça ({massaCalculada:0.###} kg) em mais de 1%.");
+
+                    result.CamposDivergentes.Add("Massa Líquida");
+                    result.AddWarning("Divergência entre a Massa Líquida do bloco e a massa calculada da peça.");
+                }
             }
             else
             {
@@ -203,6 +230,15 @@ namespace WDC.SERVICES.Checkers
             string limpo = Regex.Replace(texto, "[^0-9,.-]", "").Replace(',', '.');
 
             return double.TryParse(limpo, NumberStyles.Float, CultureInfo.InvariantCulture, out valor);
+        }
+
+        // Tolerância de 5% em torno do alvo -- o bastante pra pegar o caso
+        // de mix-up kg/g mesmo com arredondamento no valor do bloco, sem
+        // disparar em divergências "normais" que não chegam nem perto de
+        // 1000x.
+        private static bool EhProximoDe(double valor, double alvo)
+        {
+            return Math.Abs(valor - alvo) <= Math.Abs(alvo) * 0.05;
         }
 
         private void RegistrarCampo(CheckResult result, string rotulo, string valor)
