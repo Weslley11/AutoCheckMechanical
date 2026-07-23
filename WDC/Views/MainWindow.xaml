@@ -28,6 +28,7 @@
     <Window.Resources>
 
         <conv:FiltroStatusToBoolConverter x:Key="FiltroStatusToBoolConverter"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
 
         <!-- Paleta inspirada no app WBC (MahApps.Metro, tema BaseDark + accent Steel).
              Tons de cinza (#212121/#373737/#424242/#525252) conferidos direto no
@@ -919,12 +920,49 @@
                     Background="{DynamicResource BrushTitleBar}"
                     BorderBrush="{DynamicResource BrushBorder}"
                     BorderThickness="0,1,0,0">
-                <TextBlock Name="txtStatus"
-                           Text="{Binding StatusText}"
-                           Foreground="{DynamicResource BrushTextSecondary}"
-                           FontSize="12"
-                           VerticalAlignment="Center"
-                           Margin="16,0"/>
+                <Grid Margin="16,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0"
+                               Name="txtStatus"
+                               Text="{Binding StatusText}"
+                               Foreground="{DynamicResource BrushTextSecondary}"
+                               FontSize="12"
+                               VerticalAlignment="Center"/>
+
+                    <!-- Só aparece durante o check em lote (VerificarArquivos/
+                         RunCheckDocumentosPendentes): um item só (check do
+                         documento ativo) não passa por aqui. -->
+                    <TextBlock Grid.Column="1"
+                               Foreground="{DynamicResource BrushTextSecondary}"
+                               FontSize="12"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0"
+                               Visibility="{Binding ProgressoVisivel, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{}{0}/{1}">
+                                <Binding Path="ProgressoAtual"/>
+                                <Binding Path="ProgressoTotal"/>
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+
+                    <ProgressBar Grid.Column="2"
+                                 Width="160"
+                                 Height="8"
+                                 Minimum="0"
+                                 Maximum="{Binding ProgressoTotal}"
+                                 Value="{Binding ProgressoAtual}"
+                                 Foreground="{DynamicResource BrushAccentTeal}"
+                                 Background="{DynamicResource BrushPanel}"
+                                 BorderThickness="0"
+                                 VerticalAlignment="Center"
+                                 Visibility="{Binding ProgressoVisivel, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </Grid>
             </Border>
 
         </Grid>

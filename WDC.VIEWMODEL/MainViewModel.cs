@@ -176,6 +176,32 @@ namespace WDC.VIEWMODEL
             set { _isBusy = value; OnPropertyChanged(); }
         }
 
+        // Progresso do check em lote (VerificarArquivos/
+        // RunCheckDocumentosPendentes) -- ProgressoVisivel fica true só
+        // durante o lote em si, não no check de documento único
+        // (RunCheckDrawing sem pendentes), onde uma barra não faz sentido
+        // (um item só).
+        private bool _progressoVisivel;
+        public bool ProgressoVisivel
+        {
+            get { return _progressoVisivel; }
+            set { _progressoVisivel = value; OnPropertyChanged(); }
+        }
+
+        private int _progressoAtual;
+        public int ProgressoAtual
+        {
+            get { return _progressoAtual; }
+            set { _progressoAtual = value; OnPropertyChanged(); }
+        }
+
+        private int _progressoTotal;
+        public int ProgressoTotal
+        {
+            get { return _progressoTotal; }
+            set { _progressoTotal = value; OnPropertyChanged(); }
+        }
+
         private HashSet<string> _checkersDesativados;
         public HashSet<string> CheckersDesativados
         {
@@ -953,9 +979,14 @@ namespace WDC.VIEWMODEL
 
                 int concluidos = 0;
 
+                ProgressoVisivel = true;
+                ProgressoAtual = 0;
+                ProgressoTotal = comArquivo.Count;
+
                 BatchCheckRunner.Run(session, engine, comArquivo.Select(x => x.DocumentoCaminhoOriginal), item =>
                 {
                     concluidos++;
+                    ProgressoAtual = concluidos;
 
                     if (pendentesPorCaminho.TryGetValue(item.FilePath, out BatchFileResult pendente))
                     {
@@ -998,6 +1029,7 @@ namespace WDC.VIEWMODEL
             {
                 Mouse.OverrideCursor = null;
                 IsBusy = false;
+                ProgressoVisivel = false;
             }
         }
 
@@ -1118,9 +1150,14 @@ namespace WDC.VIEWMODEL
 
                 int concluidos = 0;
 
+                ProgressoVisivel = true;
+                ProgressoAtual = 0;
+                ProgressoTotal = arquivos.Count;
+
                 List<BatchFileResult> resultados = BatchCheckRunner.Run(session, engine, arquivos, item =>
                 {
                     concluidos++;
+                    ProgressoAtual = concluidos;
 
                     UpsertBatchResult(item);
                     InvalidarResultados();
@@ -1150,6 +1187,7 @@ namespace WDC.VIEWMODEL
             {
                 Mouse.OverrideCursor = null;
                 IsBusy = false;
+                ProgressoVisivel = false;
             }
         }
 
