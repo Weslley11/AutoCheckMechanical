@@ -370,6 +370,8 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
@@ -394,19 +396,37 @@
                                              Padding="8,6"
                                              ToolTip="Número da ECM no SAP"/>
                                 </Border>
+
+                                <Button Grid.Column="2"
+                                        x:Name="btnBuscarDocumentosPorEcm"
+                                        Content="BUSCAR DOCUMENTOS (SAP)"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        FontSize="13"
+                                        Padding="16,8"
+                                        Margin="12,0,0,0"
+                                        ToolTip="Busca no DMS (SOAP) os documentos vinculados à ECM acima"
+                                        Command="{Binding BuscarDocumentosPorEcmCommand}"/>
+
+                                <Button Grid.Column="3"
+                                        x:Name="btnBaixarDocumentos"
+                                        Content="BAIXAR DOCUMENTOS"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        FontSize="13"
+                                        Padding="16,8"
+                                        Margin="8,0,0,0"
+                                        ToolTip="Copia pra uma pasta local o arquivo original (DMS) de cada documento na lista"
+                                        Command="{Binding BaixarDocumentosCommand}"/>
                             </Grid>
 
-                            <!-- Busca de documentos do DMS pela mesma ECM acima, via Web
-                                 Service ITF_O_S_DOCUMENT_OUTPUT (SOA), com opção de versão
-                                 igual ao SAP GUI (CV04N). -->
+                            <!-- Opção de versão pra busca de documentos por ECM acima, via
+                                 Web Service ITF_O_S_DOCUMENT_OUTPUT (SOA), igual ao SAP GUI
+                                 (CV04N). -->
                             <Grid Margin="0,12,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
                                 <TextBlock Text="VERSÃO"
@@ -430,25 +450,6 @@
                                              Foreground="{DynamicResource BrushTextPrimary}"
                                              VerticalAlignment="Center"
                                              IsChecked="{Binding BuscarUltimaVersao}"/>
-
-                                <Button Grid.Column="4"
-                                        x:Name="btnBuscarDocumentosPorEcm"
-                                        Content="BUSCAR DOCUMENTOS (SAP)"
-                                        Style="{StaticResource SecondaryButtonStyle}"
-                                        FontSize="13"
-                                        Padding="16,8"
-                                        Margin="0,0,8,0"
-                                        ToolTip="Busca no DMS (SOAP) os documentos vinculados à ECM acima"
-                                        Command="{Binding BuscarDocumentosPorEcmCommand}"/>
-
-                                <Button Grid.Column="5"
-                                        x:Name="btnBaixarDocumentos"
-                                        Content="BAIXAR DOCUMENTOS"
-                                        Style="{StaticResource SecondaryButtonStyle}"
-                                        FontSize="13"
-                                        Padding="16,8"
-                                        ToolTip="Copia pra uma pasta local o arquivo original (DMS) de cada documento na lista"
-                                        Command="{Binding BaixarDocumentosCommand}"/>
                             </Grid>
 
                             <!-- Pasta padrão onde BAIXAR DOCUMENTOS salva os arquivos:
