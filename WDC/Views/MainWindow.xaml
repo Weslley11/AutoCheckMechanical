@@ -228,7 +228,7 @@
                     </Viewbox>
 
                     <TextBlock Grid.Column="1"
-                               Text="AUTOCHECK MECHANICAL"
+                               Text="WAU DESIGN CHECK"
                                FontSize="12"
                                FontWeight="Bold"
                                Foreground="{DynamicResource BrushTextPrimary}"
@@ -283,7 +283,7 @@
                     </Viewbox>
 
                     <TextBlock Grid.Column="1"
-                               Text="AUTOCHECK MECHANICAL"
+                               Text="WAU DESIGN CHECK"
                                FontSize="22"
                                FontWeight="Bold"
                                Foreground="{DynamicResource BrushTextPrimary}"
@@ -370,7 +370,6 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="200"/>
-                                    <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
@@ -395,16 +394,6 @@
                                              Padding="8,6"
                                              ToolTip="Número da ECM no SAP"/>
                                 </Border>
-
-                                <Button Grid.Column="2"
-                                        x:Name="btnSapConexao"
-                                        Content="CONEXÃO SAP"
-                                        Style="{StaticResource SecondaryButtonStyle}"
-                                        FontSize="13"
-                                        Padding="16,8"
-                                        Margin="12,0,0,0"
-                                        ToolTip="Conexão SAP via RFC/BAPI (SAP .NET Connector)"
-                                        Command="{Binding AbrirSapConexaoCommand}"/>
                             </Grid>
 
                             <!-- Busca de documentos do DMS pela mesma ECM acima, via Web
