@@ -912,12 +912,56 @@ namespace WDC.VIEWMODEL
                 StatusText = $"{documentosPendentes.Count} documento(s) verificado(s).";
 
                 SalvarLogAutomaticamente("CheckDrawing");
+
+                MostrarResumoVerificacao(documentosPendentes);
             }
             finally
             {
                 Mouse.OverrideCursor = null;
                 IsBusy = false;
             }
+        }
+
+        // Resumo final mostrado ao usuário depois de verificar os documentos
+        // vindos da busca por ECM -- lê o resultado de volta em BatchResults
+        // (não de documentosPendentes direto) porque BatchCheckRunner cria
+        // um BatchFileResult novo pra cada item processado (não muta o
+        // "pendente" original), então quem reflete o resultado real do
+        // check é a linha já mesclada em BatchResults via UpsertBatchResult.
+        private void MostrarResumoVerificacao(List<BatchFileResult> documentosPendentes)
+        {
+            HashSet<string> numerosVerificados = new HashSet<string>(
+                documentosPendentes.Select(x => x.DocumentoNumero));
+
+            List<BatchFileResult> resultadosFinais = BatchResults
+                .Where(x => numerosVerificados.Contains(x.DocumentoNumero))
+                .ToList();
+
+            int totalDocumentos = documentosPendentes.Count;
+            int comErro = resultadosFinais.Count(TemErro);
+            int semErro = totalDocumentos - comErro;
+            string ecm = documentosPendentes.FirstOrDefault()?.DocumentoEcm;
+
+            AddLog("--------------------------------");
+            AddLog($"Verificação concluída. ECM: {ecm} | Documentos: {totalDocumentos} | Sem erro: {semErro} | Com erro: {comErro}");
+
+            MessageBox.Show(
+                "Verificação concluída.\n\n" +
+                $"Projeto (ECM): {ecm}\n" +
+                $"Documentos verificados: {totalDocumentos}\n" +
+                $"Sem erro: {semErro}\n" +
+                $"Com erro: {comErro}",
+                "Check Drawing",
+                MessageBoxButton.OK,
+                comErro > 0 ? MessageBoxImage.Warning : MessageBoxImage.Information);
+        }
+
+        // Um documento conta como "com erro" tanto se o arquivo nem abriu
+        // (OpenFailed) quanto se abriu mas algum check reprovou (excluindo
+        // os dispensados/Skipped, que não representam falha).
+        private static bool TemErro(BatchFileResult item)
+        {
+            return item.OpenFailed || item.Results.Any(r => !r.Skipped && !r.Success);
         }
 
         private static string CaminhoLocalEsperado(BatchFileResult item, string pastaBase)
