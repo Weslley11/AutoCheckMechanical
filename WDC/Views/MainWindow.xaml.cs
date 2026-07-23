@@ -71,8 +71,47 @@ namespace WDC.Views
             };
 
             ViewModel.ResultsInvalidated += (s, e) => RebuildResultsGrid();
+            ViewModel.VerificacaoConcluida += (s, e) => PiscarBarraDeTarefas();
 
             AplicarTema(ViewModel.TemaEscuro);
+        }
+
+        // O check em lote pode demorar, e é comum o usuário trocar de janela
+        // enquanto espera -- pisca a barra de tarefas (igual notificação de
+        // mensagem nova no Teams/Skype) até o usuário voltar pra essa janela.
+        // Só pisca se a janela não estiver em primeiro plano; se o usuário já
+        // está olhando o app, não tem por que chamar atenção.
+        private void PiscarBarraDeTarefas()
+        {
+            if (IsActive)
+                return;
+
+            FLASHWINFO info = new FLASHWINFO
+            {
+                cbSize = (uint)Marshal.SizeOf(typeof(FLASHWINFO)),
+                hwnd = new WindowInteropHelper(this).Handle,
+                dwFlags = FLASHW_ALL | FLASHW_TIMERNOFG,
+                uCount = uint.MaxValue,
+                dwTimeout = 0
+            };
+
+            FlashWindowEx(ref info);
+        }
+
+        [DllImport("user32.dll")]
+        private static extern bool FlashWindowEx(ref FLASHWINFO pwfi);
+
+        private const uint FLASHW_ALL = 3;
+        private const uint FLASHW_TIMERNOFG = 12;
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct FLASHWINFO
+        {
+            public uint cbSize;
+            public IntPtr hwnd;
+            public uint dwFlags;
+            public uint uCount;
+            public uint dwTimeout;
         }
 
         private void AplicarTema(bool escuro)

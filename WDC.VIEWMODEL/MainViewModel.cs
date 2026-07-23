@@ -57,6 +57,17 @@ namespace WDC.VIEWMODEL
             ResultsInvalidated?.Invoke(this, EventArgs.Empty);
         }
 
+        // Disparado ao final de uma verificação em lote (VerificarArquivos/
+        // RunCheckDocumentosPendentes) -- a View usa isso pra piscar a barra
+        // de tarefas, já que o lote pode demorar e o usuário costuma trocar
+        // de janela enquanto espera.
+        public event EventHandler VerificacaoConcluida;
+
+        private void NotificarVerificacaoConcluida()
+        {
+            VerificacaoConcluida?.Invoke(this, EventArgs.Empty);
+        }
+
         private string _userName;
         public string UserName
         {
@@ -312,6 +323,37 @@ namespace WDC.VIEWMODEL
                 return;
 
             PastaDownloadDocumentos = Path.GetDirectoryName(dialogPasta.FileName);
+        });
+
+        public ICommand AbrirPastaDownloadCommand => new DelegateCommand(_ =>
+        {
+            string pasta = PastaDownloadDocumentos?.Trim();
+
+            if (string.IsNullOrEmpty(pasta))
+            {
+                MessageBox.Show("Informe a pasta de download antes de abrir.", "Abrir pasta",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Cria a pasta se ainda não existir (ex: antes do primeiro
+            // download) em vez de só falhar -- é mais útil abrir uma pasta
+            // vazia recém-criada do que mostrar um erro "pasta não existe"
+            // pra algo que o usuário só quer configurar.
+            try
+            {
+                Directory.CreateDirectory(pasta);
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = pasta,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Não foi possível abrir a pasta:\n" + ex.Message,
+                    "Abrir pasta", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         });
 
         public ICommand GoToHistoryCommand => new DelegateCommand(_ =>
@@ -925,6 +967,7 @@ namespace WDC.VIEWMODEL
 
                 SalvarLogAutomaticamente("CheckDrawing");
 
+                NotificarVerificacaoConcluida();
                 MostrarResumoVerificacao(documentosPendentes);
             }
             finally
@@ -1076,6 +1119,8 @@ namespace WDC.VIEWMODEL
                     : $"{resultados.Count} arquivo(s) verificado(s), {falhas} com falha ao abrir.";
 
                 SalvarLogAutomaticamente("VerificarArquivos");
+
+                NotificarVerificacaoConcluida();
             }
             finally
             {

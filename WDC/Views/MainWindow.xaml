@@ -460,6 +460,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
                                 <TextBlock Text="PASTA DE DOWNLOAD"
@@ -484,6 +485,16 @@
                                 </Border>
 
                                 <Button Grid.Column="2"
+                                        Content="&#xE838;"
+                                        FontFamily="Segoe MDL2 Assets"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        FontSize="13"
+                                        Padding="12,8"
+                                        Margin="8,0,0,0"
+                                        ToolTip="Abrir a pasta de download no Explorer"
+                                        Command="{Binding AbrirPastaDownloadCommand}"/>
+
+                                <Button Grid.Column="3"
                                         Content="..."
                                         Style="{StaticResource SecondaryButtonStyle}"
                                         FontSize="13"
