@@ -349,7 +349,6 @@ namespace WDC.VIEWMODEL
 
         public ICommand ReconnectCommand => new DelegateCommand(_ =>
         {
-            LogText = "";
             AddLog("Verificando conexão...");
 
             GarantirConexao();
@@ -376,6 +375,18 @@ namespace WDC.VIEWMODEL
 
             VerificarArquivos(session, dialog.FileNames);
         }, () => !IsBusy);
+
+        // Log acumula tudo (buscas, downloads, verificações) em vez de
+        // limpar sozinho a cada ação -- ver comentário em VerificarArquivos/
+        // RunCheckDrawing/BuscarDocumentosPorEcm. Esse botão é o jeito
+        // manual de zerar quando quiser, já que o log só reinicia sozinho
+        // ao abrir o app de novo (LogText começa vazio a cada nova
+        // MainViewModel).
+        public ICommand ClearLogCommand => new DelegateCommand(_ =>
+        {
+            LogText = "";
+            DetalheTitulo = "LOG";
+        });
 
         public ICommand ExportLogCommand => new DelegateCommand(_ =>
         {
@@ -688,6 +699,9 @@ namespace WDC.VIEWMODEL
 
         private void RunCheckDrawing()
         {
+            DetalheTitulo = "LOG";
+            AddLog("Iniciando verificação (CHECK DRAWING)...");
+
             // Se há documentos vindos da busca por ECM ainda não checados na
             // lista, o botão CHECK DRAWING processa esse lote em vez do
             // documento ativo no SolidWorks (comportamento original, usado
@@ -702,9 +716,7 @@ namespace WDC.VIEWMODEL
                 return;
             }
 
-            DetalheTitulo = "LOG";
-            LogText = "";
-            AddLog("Iniciando AutoCheck...");
+            AddLog("Documento ativo do SolidWorks...");
 
             SolidWorksSession session = GarantirConexao();
 
@@ -802,7 +814,7 @@ namespace WDC.VIEWMODEL
             }
 
             DetalheTitulo = "LOG";
-            LogText = "";
+            AddLog($"Verificando {documentosPendentes.Count} documento(s) pendente(s) da busca por ECM...");
             IsBusy = true;
             Mouse.OverrideCursor = Cursors.Wait;
 
@@ -1024,6 +1036,9 @@ namespace WDC.VIEWMODEL
             if (arquivos.Count == 0)
                 return;
 
+            DetalheTitulo = "LOG";
+            AddLog("Iniciando verificação (VERIFICAR ARQUIVOS)...");
+
             CheckEngine engine = new CheckEngine();
             CheckerManager.Register(engine, CheckersDesativados);
 
@@ -1088,7 +1103,7 @@ namespace WDC.VIEWMODEL
             Mouse.OverrideCursor = Cursors.Wait;
             StatusText = $"Buscando documentos da ECM {ecm} no SAP...";
             DetalheTitulo = "LOG";
-            LogText = "";
+            AddLog($"Iniciando verificação ECM {ecm}...");
             AddLog($"Buscando documentos da ECM {ecm} no SAP...");
 
             try
@@ -1183,7 +1198,6 @@ namespace WDC.VIEWMODEL
             IsBusy = true;
             Mouse.OverrideCursor = Cursors.Wait;
             DetalheTitulo = "LOG";
-            LogText = "";
             AddLog($"Baixando {documentos.Count} documento(s) para {pastaBase}...");
 
             try
