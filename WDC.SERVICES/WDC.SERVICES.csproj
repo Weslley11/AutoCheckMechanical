@@ -119,6 +119,7 @@
     <Compile Include="Core\SolidWorksSession.cs" />
     <Compile Include="DocumentSearchService.cs" />
     <Compile Include="DownloadFolderSettingsStore.cs" />
+    <Compile Include="EcmHistoricoStore.cs" />
     <Compile Include="EDrawingsSettingsStore.cs" />
     <Compile Include="ExcelReportService.cs" />
     <Compile Include="Helpers\AnnotationHelper.cs" />

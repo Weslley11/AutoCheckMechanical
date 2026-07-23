@@ -222,6 +222,17 @@ namespace WDC.VIEWMODEL
             set { _buscandoDocumentos = value; OnPropertyChanged(); }
         }
 
+        // Últimas ECMs buscadas no SAP, mais recente primeiro -- alimenta o
+        // dropdown do campo ECM (EcmHistoricoStore). A lista é reatribuída
+        // (não mutada) a cada busca bem-sucedida pra disparar OnPropertyChanged
+        // e o ComboBox reconhecer que o item novo entrou.
+        private List<string> _ecmsRecentes = new List<string>();
+        public List<string> EcmsRecentes
+        {
+            get { return _ecmsRecentes; }
+            private set { _ecmsRecentes = value; OnPropertyChanged(); }
+        }
+
         // Pasta padrão onde BaixarDocumentosCommand salva os arquivos
         // (dentro de uma subpasta com o nome da ECM) -- editável direto no
         // campo de texto, persistida a cada alteração.
@@ -257,6 +268,7 @@ namespace WDC.VIEWMODEL
 
             TemaEscuro = ThemeStore.LoadTemaEscuro();
             PastaDownloadDocumentos = DownloadFolderSettingsStore.LoadCaminho() ?? @"C:\SAP_SW";
+            EcmsRecentes = EcmHistoricoStore.Load();
 
             RefreshSapStatus();
 
@@ -1155,6 +1167,8 @@ namespace WDC.VIEWMODEL
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
+
+            EcmsRecentes = EcmHistoricoStore.Add(ecm);
 
             BuscandoDocumentos = true;
             Mouse.OverrideCursor = Cursors.Wait;
