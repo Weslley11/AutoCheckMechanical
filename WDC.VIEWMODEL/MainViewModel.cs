@@ -115,6 +115,18 @@ namespace WDC.VIEWMODEL
             }
         }
 
+        private FiltroStatus _filtroStatusSelecionado = FiltroStatus.Todos;
+        public FiltroStatus FiltroStatusSelecionado
+        {
+            get { return _filtroStatusSelecionado; }
+            set
+            {
+                _filtroStatusSelecionado = value;
+                OnPropertyChanged();
+                InvalidarResultados();
+            }
+        }
+
         private string _arquivoAtual = "Nenhum arquivo carregado";
         public string ArquivoAtual
         {
@@ -1468,13 +1480,34 @@ namespace WDC.VIEWMODEL
                 ? BatchResults
                 : BatchResults.Where(x => _chavesDestaSessao.Contains(ChaveDoItem(x)));
 
-            if (string.IsNullOrWhiteSpace(FiltroTexto))
-                return baseList.ToList();
+            if (!string.IsNullOrWhiteSpace(FiltroTexto))
+            {
+                baseList = baseList.Where(x => x.FileName != null &&
+                    x.FileName.IndexOf(FiltroTexto, StringComparison.OrdinalIgnoreCase) >= 0);
+            }
 
-            return baseList
-                .Where(x => x.FileName != null &&
-                            x.FileName.IndexOf(FiltroTexto, StringComparison.OrdinalIgnoreCase) >= 0)
-                .ToList();
+            switch (FiltroStatusSelecionado)
+            {
+                case FiltroStatus.ComErro:
+                    baseList = baseList.Where(TemErro);
+                    break;
+                case FiltroStatus.SemErro:
+                    baseList = baseList.Where(x => !EstaPendente(x) && !TemErro(x));
+                    break;
+                case FiltroStatus.Pendente:
+                    baseList = baseList.Where(EstaPendente);
+                    break;
+            }
+
+            return baseList.ToList();
+        }
+
+        // Ainda não foi aberto/checado nenhuma vez -- mesma condição usada
+        // em RunCheckDrawing pra decidir se há documentos pendentes da
+        // busca por ECM esperando verificação.
+        private static bool EstaPendente(BatchFileResult item)
+        {
+            return item.Results.Count == 0 && !item.OpenFailed;
         }
 
         public void ShowFileDetails(BatchFileResult item)

@@ -2,6 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        xmlns:conv="clr-namespace:WDC.Converters"
         Title="WAU Design Check"
         Height="760"
         Width="1280"
@@ -25,6 +26,8 @@
     </shell:WindowChrome.WindowChrome>
 
     <Window.Resources>
+
+        <conv:FiltroStatusToBoolConverter x:Key="FiltroStatusToBoolConverter"/>
 
         <!-- Paleta inspirada no app WBC (MahApps.Metro, tema BaseDark + accent Steel).
              Tons de cinza (#212121/#373737/#424242/#525252) conferidos direto no
@@ -126,6 +129,40 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrushHoverSurface}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Filtro rápido de status (RESULTADOS): RadioButton estilizado como
+             chip, IsChecked amarrado a um valor de FiltroStatus via
+             FiltroStatusToBoolConverter. -->
+        <Style x:Key="FiltroStatusRadioButtonStyle" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{DynamicResource BrushTextSecondary}"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="Margin" Value="0,0,4,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="bd"
+                                Background="Transparent"
+                                CornerRadius="10"
+                                BorderBrush="{DynamicResource BrushBorder}"
+                                BorderThickness="1"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrushHoverSurface}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource BrushAccentTeal}"/>
+                                <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -632,6 +669,28 @@
                                                FontSize="11"
                                                Foreground="{DynamicResource BrushTextSecondary}"
                                                VerticalAlignment="Center"/>
+
+                                    <StackPanel Grid.Column="1"
+                                                Orientation="Horizontal"
+                                                Margin="16,0,0,0"
+                                                VerticalAlignment="Center">
+                                        <RadioButton Content="Todos"
+                                                     GroupName="FiltroStatus"
+                                                     Style="{StaticResource FiltroStatusRadioButtonStyle}"
+                                                     IsChecked="{Binding FiltroStatusSelecionado, Converter={StaticResource FiltroStatusToBoolConverter}, ConverterParameter=Todos}"/>
+                                        <RadioButton Content="Com erro"
+                                                     GroupName="FiltroStatus"
+                                                     Style="{StaticResource FiltroStatusRadioButtonStyle}"
+                                                     IsChecked="{Binding FiltroStatusSelecionado, Converter={StaticResource FiltroStatusToBoolConverter}, ConverterParameter=ComErro}"/>
+                                        <RadioButton Content="OK"
+                                                     GroupName="FiltroStatus"
+                                                     Style="{StaticResource FiltroStatusRadioButtonStyle}"
+                                                     IsChecked="{Binding FiltroStatusSelecionado, Converter={StaticResource FiltroStatusToBoolConverter}, ConverterParameter=SemErro}"/>
+                                        <RadioButton Content="Pendente"
+                                                     GroupName="FiltroStatus"
+                                                     Style="{StaticResource FiltroStatusRadioButtonStyle}"
+                                                     IsChecked="{Binding FiltroStatusSelecionado, Converter={StaticResource FiltroStatusToBoolConverter}, ConverterParameter=Pendente}"/>
+                                    </StackPanel>
 
                                     <Border Grid.Column="2"
                                             Width="220"

@@ -81,6 +81,7 @@
     <Compile Include="CheckerOptionViewModel.cs" />
     <Compile Include="ChecksConfigViewModel.cs" />
     <Compile Include="DelegateCommand.cs" />
+    <Compile Include="FiltroStatus.cs" />
     <Compile Include="MainViewModel.cs" />
     <Compile Include="SapConnectionViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
