@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -140,7 +141,13 @@ namespace WDC.Views
             {
                 _restoreBounds = new Rect(Left, Top, Width, Height);
 
-                Rect workArea = SystemParameters.WorkArea;
+                // SystemParameters.WorkArea é sempre a área útil do monitor
+                // PRIMÁRIO, não do monitor onde a janela está de verdade --
+                // é por isso que "maximizar" jogava a janela pro outro
+                // monitor num setup com mais de uma tela. ObterAreaUtilDoMonitorAtual
+                // usa MonitorFromWindow (Win32) pra achar o monitor onde a
+                // janela está de fato antes de pegar a área útil dele.
+                Rect workArea = ObterAreaUtilDoMonitorAtual();
 
                 Left = workArea.Left;
                 Top = workArea.Top;
@@ -149,6 +156,57 @@ namespace WDC.Views
 
                 _isPseudoMaximized = true;
             }
+        }
+
+        private Rect ObterAreaUtilDoMonitorAtual()
+        {
+            IntPtr hwnd = new WindowInteropHelper(this).Handle;
+            IntPtr hMonitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+
+            MONITORINFO info = new MONITORINFO();
+            info.cbSize = Marshal.SizeOf(typeof(MONITORINFO));
+
+            if (!GetMonitorInfo(hMonitor, ref info))
+                return SystemParameters.WorkArea;
+
+            // rcWork vem em pixels físicos -- precisa converter pra DIPs
+            // (unidades independentes de DPI, que é o que Left/Top/Width/
+            // Height da Window esperam) usando o DPI de verdade da janela,
+            // senão a janela fica com o tamanho errado em monitores com
+            // escala diferente de 100%.
+            DpiScale dpi = VisualTreeHelper.GetDpi(this);
+
+            return new Rect(
+                info.rcWork.Left / dpi.DpiScaleX,
+                info.rcWork.Top / dpi.DpiScaleY,
+                (info.rcWork.Right - info.rcWork.Left) / dpi.DpiScaleX,
+                (info.rcWork.Bottom - info.rcWork.Top) / dpi.DpiScaleY);
+        }
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint dwFlags);
+
+        [DllImport("user32.dll")]
+        private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
+
+        private const uint MONITOR_DEFAULTTONEAREST = 2;
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RECT
+        {
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MONITORINFO
+        {
+            public int cbSize;
+            public RECT rcMonitor;
+            public RECT rcWork;
+            public uint dwFlags;
         }
 
         private void RebuildResultsGrid()
