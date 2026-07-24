@@ -265,11 +265,21 @@ namespace WDC.SERVICES
                 documento.CaminhosOriginais.AddRange(dir.Originals.Select(o => o.Path));
                 documento.TemPdf = dir.Originals.Any(EhOriginalPdf);
 
-                DTP_DOCUMENT_OUTPUT_RDIROriginal originalSwd = dir.Originals.FirstOrDefault(o =>
-                    string.Equals(o.ApplicationCode?.Trim(), "SWD", StringComparison.OrdinalIgnoreCase));
+                // O original "nativo" (arquivo CAD de verdade) pode ser SWD
+                // (desenho), SWA (montagem) ou SWP (peça), dependendo do
+                // tipo do documento -- antes só aceitava "SWD", o que fazia
+                // os componentes da estrutura (Estrutura/
+                // ResolverEstruturaCompleta), que são montagem/peça na
+                // maioria das vezes, ficarem sem URL de download (pulados
+                // silenciosamente como "sem URL").
+                DTP_DOCUMENT_OUTPUT_RDIROriginal originalCad = dir.Originals.FirstOrDefault(EhOriginalCad);
+                DTP_DOCUMENT_OUTPUT_RDIROriginal originalPdf = dir.Originals.FirstOrDefault(EhOriginalPdf);
 
-                documento.UrlOriginalSwd = originalSwd?.URL;
-                documento.CaminhoOriginalSwd = originalSwd?.Path;
+                documento.UrlOriginalNativo = originalCad?.URL;
+                documento.CaminhoOriginalNativo = originalCad?.Path;
+                documento.TipoOriginalNativo = originalCad?.ApplicationCode;
+
+                documento.UrlOriginalPdf = originalPdf?.URL;
 
                 documento.OriginaisDebug.AddRange(dir.Originals.Select(o =>
                     $"Path=\"{o.Path}\" ApplicationCode=\"{o.ApplicationCode}\" URL=\"{o.URL}\" Code=\"{o.Code}\" StorageCategory=\"{o.StorageCategory}\" CheckedOutUser=\"{o.CheckedOutUser}\""));
@@ -643,6 +653,34 @@ namespace WDC.SERVICES
 
             return !string.IsNullOrEmpty(original.Path) &&
                 original.Path.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase);
+        }
+
+        // SWD = desenho (.SLDDRW), SWA = montagem (.SLDASM), SWP = peça
+        // (.SLDPRT) -- os 3 tipos de arquivo nativo do SolidWorks que a WEG
+        // usa como ApplicationCode no DMS.
+        private static readonly string[] TiposDocumentoCad = { "SWD", "SWA", "SWP" };
+
+        private static bool EhOriginalCad(DTP_DOCUMENT_OUTPUT_RDIROriginal original)
+        {
+            return !string.IsNullOrEmpty(original.ApplicationCode) &&
+                TiposDocumentoCad.Any(tipo => string.Equals(original.ApplicationCode.Trim(), tipo, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Extensão de arquivo local pro tipo nativo (ApplicationCode ou
+        // Type do documento -- os dois usam o mesmo código SWD/SWA/SWP).
+        // Cai em .SLDDRW por padrão (era o único tipo suportado antes desta
+        // mudança) se vier um código desconhecido, em vez de lançar exceção.
+        public static string ExtensaoParaTipoCad(string tipo)
+        {
+            switch (tipo?.Trim().ToUpperInvariant())
+            {
+                case "SWA":
+                    return ".SLDASM";
+                case "SWP":
+                    return ".SLDPRT";
+                default:
+                    return ".SLDDRW";
+            }
         }
 
         // "Método X não pode ser refletido" (e outras exceções do

@@ -1130,6 +1130,7 @@ namespace WDC.VIEWMODEL
                         item.DocumentoTemPdf = pendente.DocumentoTemPdf;
                         item.DocumentoEcm = pendente.DocumentoEcm;
                         item.DocumentoUrlOriginal = pendente.DocumentoUrlOriginal;
+                        item.DocumentoUrlOriginalPdf = pendente.DocumentoUrlOriginalPdf;
                     }
 
                     UpsertBatchResult(item);
@@ -1209,7 +1210,8 @@ namespace WDC.VIEWMODEL
         private static string CaminhoLocalEsperado(BatchFileResult item, string pastaBase)
         {
             string pastaEcm = Path.Combine(pastaBase, string.IsNullOrWhiteSpace(item.DocumentoEcm) ? "SEM_ECM" : item.DocumentoEcm);
-            return Path.Combine(pastaEcm, $"{item.DocumentoNumero}_{item.DocumentoVersao}.SLDDRW");
+            string extensao = DocumentSearchService.ExtensaoParaTipoCad(item.DocumentoTipo);
+            return Path.Combine(pastaEcm, $"{item.DocumentoNumero}_{item.DocumentoVersao}{extensao}");
         }
 
         // Sem essa checagem, um arquivo ruim deixado por uma tentativa de
@@ -1382,7 +1384,8 @@ namespace WDC.VIEWMODEL
                         DocumentoVersao = documento.Version,
                         DocumentoDescricao = documento.Descricao,
                         DocumentoTemPdf = documento.TemPdf,
-                        DocumentoUrlOriginal = documento.UrlOriginalSwd,
+                        DocumentoUrlOriginal = documento.UrlOriginalNativo,
+                        DocumentoUrlOriginalPdf = documento.UrlOriginalPdf,
                         DocumentoEcm = ecm,
                         DocumentoEstruturaRaizes = documento.Estrutura.ToList(),
                     });
@@ -1503,9 +1506,13 @@ namespace WDC.VIEWMODEL
         // continua implementado em DocumentSearchService.
         // BaixarOriginalViaItfDocument, só não é chamado daqui.
         //
-        // Documentos sem URL (o Web Service só devolve, pro original SWD,
+        // Documentos sem URL (o Web Service só devolve, pro original nativo,
         // um caminho de convenção local -- "C:\SAP_SW\...", não um caminho
-        // de rede copiável) ficam marcados como falha.
+        // de rede copiável) ficam marcados como falha. Baixa também o PDF
+        // (BaixarPdf) e a estrutura completa (BaixarEstruturaCompleta) de
+        // cada documento, quando existirem -- pedido pra ter todos os
+        // arquivos relacionados (SWD/SWA/SWP/PDF) disponíveis localmente,
+        // não só o desenho principal.
         private Dictionary<string, string> BaixarOriginaisSwd(List<BatchFileResult> alvo, string pastaBase)
         {
             Dictionary<string, string> resultado = new Dictionary<string, string>();
@@ -1529,6 +1536,7 @@ namespace WDC.VIEWMODEL
                     resultado[item.DocumentoNumero] = caminhoLocal;
                     AddLog($"{item.DocumentoNumero} — baixado via URL para {caminhoLocal}.");
 
+                    BaixarPdf(item, caminhoLocal);
                     BaixarEstruturaCompleta(item, Path.GetDirectoryName(caminhoLocal));
                 }
                 catch (Exception ex)
@@ -1539,6 +1547,27 @@ namespace WDC.VIEWMODEL
             }
 
             return resultado;
+        }
+
+        // Melhor esforço: o PDF é um complemento do original CAD (SWD/SWA/
+        // SWP), não o arquivo principal -- falha aqui não invalida o
+        // download do item.
+        private void BaixarPdf(BatchFileResult item, string caminhoArquivoNativo)
+        {
+            if (string.IsNullOrEmpty(item.DocumentoUrlOriginalPdf))
+                return;
+
+            string caminhoPdf = Path.ChangeExtension(caminhoArquivoNativo, ".pdf");
+
+            try
+            {
+                DocumentSearchService.BaixarOriginalPorUrl(item.DocumentoUrlOriginalPdf, caminhoPdf);
+                AddLog($"{item.DocumentoNumero} — PDF baixado para {caminhoPdf}.");
+            }
+            catch (Exception ex)
+            {
+                AddLog($"{item.DocumentoNumero} — falha ao baixar o PDF: {DocumentSearchService.DescreverErroCompleto(ex)}");
+            }
         }
 
         // Sem os componentes (montagens/peças) que o desenho referencia no
@@ -1585,7 +1614,7 @@ namespace WDC.VIEWMODEL
                     continue;
                 }
 
-                if (string.IsNullOrEmpty(componente.UrlOriginalSwd))
+                if (string.IsNullOrEmpty(componente.UrlOriginalNativo))
                 {
                     AddLog($"  {componente.DocumentNumber} — sem URL de download, componente pulado (pode continuar aparecendo suprimido no SolidWorks).");
                     continue;
@@ -1593,9 +1622,24 @@ namespace WDC.VIEWMODEL
 
                 try
                 {
-                    DocumentSearchService.BaixarOriginalPorUrl(componente.UrlOriginalSwd, caminhoComponente);
+                    DocumentSearchService.BaixarOriginalPorUrl(componente.UrlOriginalNativo, caminhoComponente);
                     disponiveis++;
                     AddLog($"  {componente.DocumentNumber} — componente baixado para {caminhoComponente}.");
+
+                    if (!string.IsNullOrEmpty(componente.UrlOriginalPdf))
+                    {
+                        string caminhoPdfComponente = Path.ChangeExtension(caminhoComponente, ".pdf");
+
+                        try
+                        {
+                            DocumentSearchService.BaixarOriginalPorUrl(componente.UrlOriginalPdf, caminhoPdfComponente);
+                            AddLog($"  {componente.DocumentNumber} — PDF do componente baixado para {caminhoPdfComponente}.");
+                        }
+                        catch (Exception ex)
+                        {
+                            AddLog($"  {componente.DocumentNumber} — falha ao baixar o PDF do componente: {DocumentSearchService.DescreverErroCompleto(ex)}");
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -1609,20 +1653,26 @@ namespace WDC.VIEWMODEL
         // O nome do arquivo local do componente precisa bater com o que a
         // montagem espera encontrar pra resolver a referência automaticamente
         // -- não temos garantia de qual é esse nome, então usamos o Path que
-        // o SAP devolve pro Original SWD do componente como melhor palpite
-        // (ainda não confirmado contra uma estrutura real). Sem Path
-        // nenhum, cai num nome sintético só pra o arquivo existir localmente
-        // (não deve resolver a referência automaticamente, mas ao menos fica
-        // disponível pra "Localizar referências" manual no SolidWorks).
+        // o SAP devolve pro Original nativo do componente como melhor
+        // palpite (ainda não confirmado contra uma estrutura real). Sem
+        // Path nenhum, cai num nome sintético com a extensão certa pro tipo
+        // (SWA/SWP/SWD, via ExtensaoParaTipoCad) só pra o arquivo existir
+        // localmente (não deve resolver a referência automaticamente, mas
+        // ao menos fica disponível pra "Localizar referências" manual no
+        // SolidWorks).
         private static string NomeArquivoComponente(DocumentoEncontrado componente)
         {
-            string nomeOriginal = !string.IsNullOrEmpty(componente.CaminhoOriginalSwd)
-                ? Path.GetFileName(componente.CaminhoOriginalSwd)
+            string nomeOriginal = !string.IsNullOrEmpty(componente.CaminhoOriginalNativo)
+                ? Path.GetFileName(componente.CaminhoOriginalNativo)
                 : null;
 
-            return !string.IsNullOrEmpty(nomeOriginal)
-                ? nomeOriginal
-                : $"{componente.DocumentNumber}_{componente.Version}.SLDPRT";
+            if (!string.IsNullOrEmpty(nomeOriginal))
+                return nomeOriginal;
+
+            string extensao = DocumentSearchService.ExtensaoParaTipoCad(
+                componente.TipoOriginalNativo ?? componente.Type);
+
+            return $"{componente.DocumentNumber}_{componente.Version}{extensao}";
         }
 
         // Linhas vindas da busca por ECM são identificadas por DocumentoNumero

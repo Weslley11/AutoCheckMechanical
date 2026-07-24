@@ -27,10 +27,15 @@ namespace WDC.MODEL
         public string DocumentoCaminhoOriginal { get; set; }
         public bool DocumentoTemPdf { get; set; }
 
-        // URL de download HTTP do original SWD (só existe quando o SAP
-        // devolve uma) -- quando preenchida, BaixarDocumentos baixa por
-        // aqui em vez de precisar do SAP GUI Scripting.
+        // URL de download HTTP do original nativo -- SWD/SWA/SWP, o que
+        // existir (só existe quando o SAP devolve uma) -- quando
+        // preenchida, BaixarDocumentos baixa por aqui em vez de precisar do
+        // SAP GUI Scripting.
         public string DocumentoUrlOriginal { get; set; }
+
+        // URL de download HTTP do PDF do documento (exportação separada do
+        // nativo CAD), quando existe.
+        public string DocumentoUrlOriginalPdf { get; set; }
 
         // ECM usada na busca que trouxe esse documento -- usada por
         // BaixarDocumentos pra criar a subpasta de destino.
