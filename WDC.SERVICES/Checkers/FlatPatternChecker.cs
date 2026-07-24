@@ -20,14 +20,8 @@ namespace WDC.SERVICES.Checkers
                 return result;
             }
 
-            if (WauBlockHelper.DesenhoDispensaChecksDeChapa(context))
-            {
-                result.Skipped = true;
-                result.Message = "Check dispensado (sem info de chapa).";
-                AddLog(result, "Sem Matéria-Prima e sem vista planificada: check dispensado.");
-                result.AddWarning("Sem info de chapa: checks de layer/planificado dispensados.");
+            if (TrySkipSemInfoDeChapa(context, result))
                 return result;
-            }
 
             foreach (View view in context.Views)
             {

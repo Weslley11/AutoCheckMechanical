@@ -54,8 +54,10 @@ namespace WDC.SERVICES
                     serializer.WriteObject(stream, new List<string>(checkersDesativados));
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine(
+                    $"CheckerSettingsStore.Save: falha ao salvar ({ex.GetType().Name}): {ex.Message}");
             }
         }
     }

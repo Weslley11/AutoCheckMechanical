@@ -122,6 +122,7 @@
     <Compile Include="EcmHistoricoStore.cs" />
     <Compile Include="EDrawingsSettingsStore.cs" />
     <Compile Include="ExcelReportService.cs" />
+    <Compile Include="SimpleTextSettingsStore.cs" />
     <Compile Include="Helpers\AnnotationHelper.cs" />
     <Compile Include="Helpers\BalloonHelper.cs" />
     <Compile Include="Helpers\BendLineHelper.cs" />

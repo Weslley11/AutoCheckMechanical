@@ -46,10 +46,10 @@ namespace WDC.SERVICES
                 Definir(excel, "Visible", false);
                 Definir(excel, "DisplayAlerts", false);
 
-                object workbooks = Get(excel, "Workbooks");
+                object workbooks = Chamar(excel, "Workbooks");
                 workbook = Chamar(workbooks, "Add");
 
-                object planilha = Get(workbook, "ActiveSheet");
+                object planilha = Chamar(workbook, "ActiveSheet");
 
                 EscreverCabecalho(planilha, checkerNames, camposTitulo);
                 EscreverLinhas(planilha, resultados, checkerNames, camposTitulo);
@@ -89,9 +89,9 @@ namespace WDC.SERVICES
             {
                 object celula = EscreverCelula(planilha, 1, c + 1, cabecalho[c]);
 
-                Definir(Get(celula, "Font"), "Bold", true);
-                Definir(Get(celula, "Font"), "Color", Bgr(255, 255, 255));
-                Definir(Get(celula, "Interior"), "Color", Bgr(0x2F, 0x4F, 0x64));
+                Definir(Chamar(celula, "Font"), "Bold", true);
+                Definir(Chamar(celula, "Font"), "Color", Bgr(255, 255, 255));
+                Definir(Chamar(celula, "Interior"), "Color", Bgr(0x2F, 0x4F, 0x64));
             }
         }
 
@@ -144,13 +144,13 @@ namespace WDC.SERVICES
 
                     if (divergente)
                     {
-                        Definir(Get(celula, "Font"), "Bold", true);
-                        Definir(Get(celula, "Font"), "Color", Bgr(156, 0, 6));
+                        Definir(Chamar(celula, "Font"), "Bold", true);
+                        Definir(Chamar(celula, "Font"), "Color", Bgr(156, 0, 6));
                     }
                     else if (verificado)
                     {
-                        Definir(Get(celula, "Font"), "Bold", true);
-                        Definir(Get(celula, "Font"), "Color", Bgr(0, 128, 0));
+                        Definir(Chamar(celula, "Font"), "Bold", true);
+                        Definir(Chamar(celula, "Font"), "Color", Bgr(0, 128, 0));
                     }
                 }
 
@@ -207,21 +207,21 @@ namespace WDC.SERVICES
 
             object celula = EscreverCelula(planilha, linha, coluna, texto);
 
-            Definir(Get(celula, "Font"), "Bold", true);
-            Definir(Get(celula, "Font"), "Color", corFonte);
-            Definir(Get(celula, "Interior"), "Color", corFundo);
+            Definir(Chamar(celula, "Font"), "Bold", true);
+            Definir(Chamar(celula, "Font"), "Color", corFonte);
+            Definir(Chamar(celula, "Interior"), "Color", corFundo);
             Definir(celula, "HorizontalAlignment", -4108); // xlCenter
         }
 
         private static void Formatar(object excel, object planilha)
         {
-            object intervaloUsado = Get(planilha, "UsedRange");
+            object intervaloUsado = Chamar(planilha, "UsedRange");
 
-            Definir(Get(intervaloUsado, "Borders"), "LineStyle", XlContinuous);
+            Definir(Chamar(intervaloUsado, "Borders"), "LineStyle", XlContinuous);
 
-            Chamar(Get(intervaloUsado, "Columns"), "AutoFit");
+            Chamar(Chamar(intervaloUsado, "Columns"), "AutoFit");
 
-            object janela = Get(excel, "ActiveWindow");
+            object janela = Chamar(excel, "ActiveWindow");
             Definir(janela, "SplitColumn", 0);
             Definir(janela, "SplitRow", 1);
             Definir(janela, "FreezePanes", true);
@@ -239,16 +239,6 @@ namespace WDC.SERVICES
         private static int Bgr(int r, int g, int b)
         {
             return r + (g << 8) + (b << 16);
-        }
-
-        private static object Get(object alvo, string nome)
-        {
-            return alvo.GetType().InvokeMember(
-                nome,
-                BindingFlags.GetProperty | BindingFlags.InvokeMethod,
-                null,
-                alvo,
-                new object[0]);
         }
 
         private static void Definir(object alvo, string nome, object valor)

@@ -52,8 +52,10 @@ namespace WDC.SERVICES
                     serializer.WriteObject(stream, results);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine(
+                    $"HistoryStore.Save: falha ao salvar ({ex.GetType().Name}): {ex.Message}");
             }
         }
 

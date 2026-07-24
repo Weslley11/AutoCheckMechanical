@@ -1,4 +1,5 @@
-﻿using WDC.SERVICES.Interfaces;
+﻿using WDC.SERVICES.Helpers;
+using WDC.SERVICES.Interfaces;
 using WDC.MODEL;
 
 namespace WDC.SERVICES.Core
@@ -29,5 +30,23 @@ namespace WDC.SERVICES.Core
             result.Errors.Add(text);
         }
 
+        // Bloco repetido em todo checker de chapa (Flat Pattern/Layer/Scale/
+        // Bloco Legenda WAU): marca o result como dispensado quando o
+        // desenho não tem info de chapa (ver
+        // WauBlockHelper.DesenhoDispensaChecksDeChapa). Devolve true quando
+        // dispensou -- o chamador só precisa dar "return result" nesse caso.
+        protected bool TrySkipSemInfoDeChapa(CheckContext context, CheckResult result,
+            string mensagemAviso = "Sem info de chapa: checks de layer/planificado dispensados.")
+        {
+            if (!WauBlockHelper.DesenhoDispensaChecksDeChapa(context))
+                return false;
+
+            result.Skipped = true;
+            result.Message = "Check dispensado (sem info de chapa).";
+            AddLog(result, "Sem Matéria-Prima e sem vista planificada: check dispensado.");
+            result.AddWarning(mensagemAviso);
+
+            return true;
+        }
     }
 }

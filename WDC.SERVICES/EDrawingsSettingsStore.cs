@@ -1,46 +1,17 @@
-using System;
-using System.IO;
-
 namespace WDC.SERVICES
 {
     public static class EDrawingsSettingsStore
     {
-        private static readonly string FilePath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "WDC",
-            "edrawings_exe.txt");
+        private const string NomeArquivo = "edrawings_exe.txt";
 
         public static string LoadCaminho()
         {
-            try
-            {
-                if (!File.Exists(FilePath))
-                    return null;
-
-                string caminho = File.ReadAllText(FilePath).Trim();
-
-                return string.IsNullOrEmpty(caminho) ? null : caminho;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+            return SimpleTextSettingsStore.LoadCaminho(NomeArquivo);
         }
 
         public static void Save(string caminho)
         {
-            try
-            {
-                string directory = Path.GetDirectoryName(FilePath);
-
-                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-                    Directory.CreateDirectory(directory);
-
-                File.WriteAllText(FilePath, caminho ?? "");
-            }
-            catch (Exception)
-            {
-            }
+            SimpleTextSettingsStore.Save(NomeArquivo, caminho);
         }
     }
 }
