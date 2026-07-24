@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using SolidWorks.Interop.sldworks;
+﻿using SolidWorks.Interop.sldworks;
 
 namespace WDC.MODEL
 {
@@ -21,27 +20,8 @@ namespace WDC.MODEL
 
         public bool IsVertical { get; set; }
 
-        public bool IsDimensioned { get; set; }
-
-        public List<DrawingDimension> Dimensions { get; }
-
         public double CenterX { get; set; }
 
         public double CenterY { get; set; }
-
-        public double Length { get; set; }
-
-        public double Angle { get; set; }
-
-        public bool HasDimension { get; set; }
-
-        public bool HasBendNote { get; set; }
-
-        public bool IsChecked { get; set; }
-
-        public BendLine()
-        {
-            Dimensions = new List<DrawingDimension>();
-        }
     }
 }

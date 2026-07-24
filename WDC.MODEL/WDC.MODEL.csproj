@@ -65,10 +65,6 @@
     <Compile Include="CheckResult.cs" />
     <Compile Include="DocumentoEncontrado.cs" />
     <Compile Include="DrawingAnnotation.cs" />
-    <Compile Include="DrawingDimension.cs" />
-    <Compile Include="DrawingDocument.cs" />
-    <Compile Include="DrawingSheet.cs" />
-    <Compile Include="DrawingView.cs" />
     <Compile Include="EstruturaItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -80,7 +80,6 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Assets\Assets.cs" />
     <Compile Include="Converters\FiltroStatusToBoolConverter.cs" />
     <Resource Include="Assets\Images\GRID.png" />
     <Page Include="Views\MainWindow.xaml">

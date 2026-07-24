@@ -124,136 +124,6 @@ namespace WDC.SERVICES.Helpers
             return GetAll(view).Count;
         }
 
-        public static List<DisplayDimension> GetLinear(View view)
-        {
-            List<DisplayDimension> list = new List<DisplayDimension>();
-
-            foreach (DisplayDimension dim in GetAll(view))
-            {
-                if (dim.Type2 == (int)swDimensionType_e.swLinearDimension)
-                {
-                    list.Add(dim);
-                }
-            }
-            return list;
-        }
-
-        public static int CountLinear(View view)
-        {
-            return GetLinear(view).Count;
-        }
-
-        public static List<DisplayDimension> GetOrdinate(View view)
-        {
-            List<DisplayDimension> list = new List<DisplayDimension>();
-
-            foreach (DisplayDimension dim in GetAll(view))
-            {
-                if (dim.Type2 == (int)swDimensionType_e.swOrdinateDimension)
-                {
-                    list.Add(dim);
-                }
-            }
-
-            return list;
-        }
-
-        public static void DumpAttachedEntities(View view, CheckResult result)
-        {
-            foreach (DisplayDimension disp in GetAll(view))
-            {
-                Annotation ann = disp.GetAnnotation();
-
-                object[] entities = ann.GetAttachedEntities3() as object[];
-
-                result.AddLog("--------------------------------");
-                result.AddLog($"Cota: {disp.GetDimension2(0)?.FullName}");
-
-                if (entities == null)
-                {
-                    result.AddLog("Nenhuma entidade anexada.");
-                    continue;
-                }
-
-                result.AddLog($"Qtd entidades: {entities.Length}");
-
-                foreach (object entity in entities)
-                {
-                    if (entity == null)
-                    {
-                        result.AddLog("NULL");
-                        continue;
-                    }
-
-                    result.AddLog("--------------------------------");
-                    result.AddLog($"CLR: {entity.GetType().FullName}");
-
-                    Edge edge = entity as Edge;
-
-                    if (edge != null)
-                    {
-                        result.AddLog("É EDGE");
-
-                        try
-                        {
-                            Curve curve = edge.GetCurve();
-
-                            if (curve != null)
-                            {
-                                result.AddLog($"Curve Identity: {curve.Identity()}");
-
-                                double[] start = edge.GetStartVertex()?.GetPoint() as double[];
-                                double[] end = edge.GetEndVertex()?.GetPoint() as double[];
-
-                                if (start != null)
-                                    result.AddLog($"Start: X={start[0]}  Y={start[1]}  Z={start[2]}");
-
-                                if (end != null)
-                                    result.AddLog($"End..: X={end[0]}  Y={end[1]}  Z={end[2]}");
-                            }
-                        }
-                        catch (System.Exception ex)
-                        {
-                            result.AddLog(ex.Message);
-                        }
-
-                        continue;
-                    }
-
-                    SketchPoint point = entity as SketchPoint;
-
-                    if (point != null)
-                    {
-                        result.AddLog("É SKETCH POINT");
-                        result.AddLog($"X={point.X}");
-                        result.AddLog($"Y={point.Y}");
-                        result.AddLog($"Z={point.Z}");
-                    }
-                }
-            }
-        }
-
-        public static int CountOrdinate(View view)
-        {
-            return GetOrdinate(view).Count;
-        }
-
-        public static List<DisplayDimension> GetHoleCallouts(View view)
-        {
-            List<DisplayDimension> list = new List<DisplayDimension>();
-
-            foreach (DisplayDimension dim in GetAll(view))
-            {
-                if (dim.Type2 == (int)swDimensionType_e.swDiameterDimension)
-                {
-                    list.Add(dim);
-                }
-            }
-
-            return list;
-
-        }
-
         public static List<Edge> GetAttachedEdges(DisplayDimension disp)
         {
             List<Edge> list = new List<Edge>();
@@ -285,6 +155,9 @@ namespace WDC.SERVICES.Helpers
         public static List<SketchPoint> GetAttachedSketchPoints(DisplayDimension disp)
         {
             List<SketchPoint> points = new List<SketchPoint>();
+
+            if (disp == null)
+                return points;
 
             Annotation ann = disp.GetAnnotation();
 

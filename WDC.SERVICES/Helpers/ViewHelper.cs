@@ -19,11 +19,6 @@ namespace WDC.SERVICES.Helpers
             return config.ToUpper().Contains("FLAT");
         }
 
-        public static string GetConfiguration(View view)
-        {
-            return view?.ReferencedConfiguration;
-        }
-
         public static string GetLayer(View view)
         {
             if (view == null)
@@ -45,28 +40,6 @@ namespace WDC.SERVICES.Helpers
             return view.UseSheetScale == 1;
         }
 
-        public static List<SketchSegment> GetBendLines(View view)
-        {
-            List<SketchSegment> list = new List<SketchSegment>();
-
-            if (view == null)
-                return list;
-
-            object[] bends = view.GetBendLines() as object[];
-
-            if (bends == null)
-                return list;
-
-            foreach (object obj in bends)
-            {
-                SketchSegment seg = obj as SketchSegment;
-
-                if (seg != null)
-                    list.Add(seg);
-            }
-
-            return list;
-        }
         public static List<BendLine> GetBendLinesInfo(View view)
         {
             List<BendLine> list = new List<BendLine>();

@@ -29,14 +29,5 @@ namespace WDC.SERVICES.Core
             result.Errors.Add(text);
         }
 
-        protected void AddWarning(CheckResult result, string text)
-        {
-            result.AddLog("AVISO: " + text);
-        }
-
-        protected void AddInfo(CheckResult result, string text)
-        {
-            result.AddLog(text);
-        }
     }
 }
