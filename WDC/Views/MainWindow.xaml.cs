@@ -27,6 +27,17 @@ namespace WDC.Views
         // tabela antes de precisar rolar horizontalmente.
         private double _larguraMinimaResultados;
 
+        // Cada linha da grade tem 15-20+ células, e cada uma pedia seu
+        // próprio ContextMenu (CriarMenuCopiarLinha) e sua própria decodificação
+        // de thumbnail (CarregarThumbnail) -- tudo idêntico dentro da mesma
+        // linha. Os dois caches abaixo vivem só durante um RebuildResultsGrid
+        // (limpos no início dele), então uma linha reaproveita a mesma
+        // instância de ContextMenu/BitmapImage em vez de recriar por célula.
+        // WPF permite compartilhar um ContextMenu entre vários donos (é o
+        // mesmo mecanismo por trás de ContextMenu via StaticResource).
+        private readonly Dictionary<BatchFileResult, ContextMenu> _menuCache = new Dictionary<BatchFileResult, ContextMenu>();
+        private readonly Dictionary<string, BitmapImage> _thumbnailCache = new Dictionary<string, BitmapImage>();
+
         public MainViewModel ViewModel { get; }
 
         public MainWindow()
@@ -250,6 +261,9 @@ namespace WDC.Views
             gridResults.ColumnDefinitions.Clear();
             gridResults.Children.Clear();
 
+            _menuCache.Clear();
+            _thumbnailCache.Clear();
+
             List<string> checkerNames = ViewModel.GetCheckerNames();
             List<BatchFileResult> resultados = ViewModel.GetResultadosFiltrados();
 
@@ -405,6 +419,9 @@ namespace WDC.Views
 
         private ContextMenu CriarMenuCopiarLinha(BatchFileResult item)
         {
+            if (_menuCache.TryGetValue(item, out ContextMenu existente))
+                return existente;
+
             MenuItem menuCopiar = new MenuItem { Header = "Copiar linha" };
 
             menuCopiar.Click += (s, e) =>
@@ -420,6 +437,8 @@ namespace WDC.Views
             ContextMenu menu = new ContextMenu();
             menu.Items.Add(menuCopiar);
             menu.Items.Add(menuRemover);
+
+            _menuCache[item] = menu;
 
             return menu;
         }
@@ -628,10 +647,13 @@ namespace WDC.Views
             gridResults.Children.Add(border);
         }
 
-        private static BitmapImage CarregarThumbnail(string caminho)
+        private BitmapImage CarregarThumbnail(string caminho)
         {
             if (string.IsNullOrEmpty(caminho) || !File.Exists(caminho))
                 return null;
+
+            if (_thumbnailCache.TryGetValue(caminho, out BitmapImage existente))
+                return existente;
 
             try
             {
@@ -642,6 +664,8 @@ namespace WDC.Views
                 bitmap.UriSource = new Uri(caminho, UriKind.Absolute);
                 bitmap.EndInit();
                 bitmap.Freeze();
+
+                _thumbnailCache[caminho] = bitmap;
 
                 return bitmap;
             }
