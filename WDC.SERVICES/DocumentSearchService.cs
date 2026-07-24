@@ -320,6 +320,9 @@ namespace WDC.SERVICES
                 };
             }
 
+            if (dir.ObjectLinks?.MasterMaterialList != null)
+                documento.MateriaisVinculados.AddRange(dir.ObjectLinks.MasterMaterialList.Where(m => !string.IsNullOrWhiteSpace(m)));
+
             return documento;
         }
 

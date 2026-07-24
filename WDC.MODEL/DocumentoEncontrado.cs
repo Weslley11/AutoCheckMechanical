@@ -50,6 +50,16 @@ namespace WDC.MODEL
         // como fallback, só logado pra confirmar se o campo vem preenchido).
         public EstruturaItem DocumentoSuperior { get; set; }
 
+        // Materiais (peça/montagem no SAP, fora do DMS) vinculados a este
+        // documento via ObjectLinks.MasterMaterialList -- diagnóstico: como
+        // Estrutura/DocumentoSuperior vieram vazios mesmo com Lista Técnica
+        // real confirmada, a hipótese é que essa Lista Técnica é dado de
+        // Materiais (SAP CS03/BOM), não de Gestão de Documentos, e o elo
+        // entre o desenho e o material é esse link, não DocumentStructureList.
+        // Só logado por enquanto -- ainda não existe no app uma interface
+        // SAP de explosão de lista técnica pra usar esse número de material.
+        public List<string> MateriaisVinculados { get; } = new List<string>();
+
         // Diagnóstico temporário -- linha por Original, com os campos
         // brutos que o SAP devolveu, pra ajudar a descobrir por que
         // CaminhosOriginais está vindo vazio em algum caso real.

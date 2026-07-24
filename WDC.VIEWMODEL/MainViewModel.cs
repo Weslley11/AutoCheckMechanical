@@ -1394,6 +1394,10 @@ namespace WDC.VIEWMODEL
                         ? $"  SuperiorDocument: {documento.DocumentoSuperior.DocumentNumber} ({documento.DocumentoSuperior.Type}, versão {documento.DocumentoSuperior.Version})"
                         : "  SuperiorDocument: (vazio)");
 
+                    AddLog(documento.MateriaisVinculados.Count > 0
+                        ? $"  MasterMaterialList: {string.Join(", ", documento.MateriaisVinculados)}"
+                        : "  MasterMaterialList: (vazio)");
+
                     foreach (string debug in documento.OriginaisDebug)
                         AddLog("  " + debug);
 
