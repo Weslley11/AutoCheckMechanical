@@ -704,12 +704,12 @@ namespace WDC.Views
 
             if (!string.IsNullOrEmpty(item.FilePath))
             {
-                // Modo "eDrawings" (leve, só visual) virou o padrão ao
-                // clicar no nome do arquivo (ver AddFileNameCell) -- esse
-                // botão no canto da prévia é o modo alternativo, pra abrir
-                // no SolidWorks completo quando precisar de verdade (editar,
-                // rodar o CHECK DRAWING manual no documento ativo, etc.).
-                Button btnSolidWorks = new Button
+                // O "olho" no canto da prévia é pra visualização rápida --
+                // abre no eDrawings (leve), não no SolidWorks completo.
+                // Abrir no SolidWorks de verdade é via duplo clique no nome
+                // do arquivo (ver AddFileNameCell) -- essa é a ação
+                // "deliberada" de abrir o app pesado; o olho é só peek.
+                Button btnEDrawings = new Button
                 {
                     Content = "",
                     FontFamily = new FontFamily("Segoe MDL2 Assets"),
@@ -724,12 +724,12 @@ namespace WDC.Views
                     HorizontalAlignment = HorizontalAlignment.Right,
                     VerticalAlignment = VerticalAlignment.Bottom,
                     Margin = new Thickness(0, 0, 2, 2),
-                    ToolTip = "Abrir no SolidWorks"
+                    ToolTip = "Abrir no eDrawings"
                 };
 
-                btnSolidWorks.Click += (s, e) => ViewModel.AbrirNoSolidWorks(item);
+                btnEDrawings.Click += (s, e) => ViewModel.AbrirNoEDrawings(item.FilePath);
 
-                conteudo.Children.Add(btnSolidWorks);
+                conteudo.Children.Add(btnEDrawings);
             }
 
             border.Child = conteudo;
