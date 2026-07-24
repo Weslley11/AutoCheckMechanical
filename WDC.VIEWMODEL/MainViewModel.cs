@@ -1139,6 +1139,7 @@ namespace WDC.VIEWMODEL
 
                     string statusItem = item.OpenFailed ? $"FALHA AO ABRIR ({item.OpenError})" : "OK";
                     AddLog($"[{concluidos}/{comArquivo.Count}] {item.FileName} — {statusItem}");
+                    LogDetalhesErros(item);
                     StatusText = $"Verificando... {concluidos}/{comArquivo.Count} concluído(s) ({item.FileName}).";
 
                     // Força o WPF a processar a fila de render agora, já que tudo
@@ -1205,6 +1206,26 @@ namespace WDC.VIEWMODEL
         private static bool TemErro(BatchFileResult item)
         {
             return item.OpenFailed || item.Results.Any(r => !r.Skipped && !r.Success);
+        }
+
+        // O log do lote (RunCheckDocumentosPendentes/VerificarArquivos) só
+        // mostrava "OK"/"FALHA AO ABRIR" -- isso é só se o arquivo abriu,
+        // não se os checks passaram. Sem essa chamada, "Com erro" no resumo
+        // final não tinha nenhum detalhe de qual checker reprovou e por quê
+        // (só o check de documento único, via RunCheckDrawing, já mostrava
+        // isso).
+        private void LogDetalhesErros(BatchFileResult item)
+        {
+            if (item.OpenFailed)
+                return;
+
+            foreach (CheckResult resultado in item.Results)
+            {
+                if (resultado.Skipped || resultado.Success)
+                    continue;
+
+                AddLog($"    [{resultado.Checker}] " + string.Join(" | ", resultado.Errors));
+            }
         }
 
         private static string CaminhoLocalEsperado(BatchFileResult item, string pastaBase)
@@ -1307,6 +1328,7 @@ namespace WDC.VIEWMODEL
 
                     string statusItem = item.OpenFailed ? $"FALHA AO ABRIR ({item.OpenError})" : "OK";
                     AddLog($"[{concluidos}/{arquivos.Count}] {item.FileName} — {statusItem}");
+                    LogDetalhesErros(item);
                     StatusText = $"Verificando... {concluidos}/{arquivos.Count} concluído(s) ({item.FileName}).";
 
                     // Força o WPF a processar a fila de render agora, já que tudo
