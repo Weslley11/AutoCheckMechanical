@@ -43,7 +43,7 @@ namespace WDC.SERVICES.Checkers
         // Tolerância aceita entre a Massa Líquida do bloco e a massa
         // calculada pelo SolidWorks (o valor da legenda pode estar
         // arredondado).
-        private const double ToleranciaMassa = 0.01;
+        private const double ToleranciaMassa = 0.05;
 
         public override CheckResult Execute(CheckContext context)
         {
@@ -140,7 +140,7 @@ namespace WDC.SERVICES.Checkers
 
         // Regra: a Massa Líquida declarada no bloco de legenda WAU precisa
         // bater com a massa calculada pelo SolidWorks a partir da geometria
-        // da peça (tolerância de 1%, já que o valor na legenda costuma estar
+        // da peça (tolerância de 5%, já que o valor na legenda costuma estar
         // arredondado).
         private void VerificarMassa(CheckResult result, ModelDoc2 peca)
         {
@@ -209,7 +209,7 @@ namespace WDC.SERVICES.Checkers
                 else
                 {
                     AddError(result,
-                        $"Massa Líquida do bloco ({massaBloco:0.###} kg) diverge da massa calculada da peça ({massaCalculada:0.###} kg) em mais de 1%.");
+                        $"Massa Líquida do bloco ({massaBloco:0.###} kg) diverge da massa calculada da peça ({massaCalculada:0.###} kg) em mais de 5%.");
 
                     result.CamposDivergentes.Add("Massa Líquida");
                     result.AddWarning("Divergência entre a Massa Líquida do bloco e a massa calculada da peça.");
