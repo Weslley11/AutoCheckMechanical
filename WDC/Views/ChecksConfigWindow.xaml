@@ -44,11 +44,13 @@
                     Content="Cancelar"
                     Padding="16,6"
                     Margin="0,0,8,0"
+                    IsCancel="True"
                     Command="{Binding CancelCommand}"/>
             <Button Name="btnSalvar"
                     Content="Salvar"
                     Padding="16,6"
                     FontWeight="Bold"
+                    IsDefault="True"
                     Command="{Binding SaveCommand}"/>
         </StackPanel>
     </Grid>

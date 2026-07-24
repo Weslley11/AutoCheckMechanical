@@ -1396,21 +1396,7 @@ namespace WDC.VIEWMODEL
 
                 foreach (DocumentoEncontrado documento in resultados)
                 {
-                    // Diagnóstico temporário: mostra o que o SAP devolveu de
-                    // "Original" pra cada documento, pra descobrir por que
-                    // o caminho não está vindo em alguns casos.
-                    AddLog($"{documento.DocumentNumber} ({documento.Type}, versão {documento.Version}): {documento.CaminhosOriginais.Count} original(is), {documento.Estrutura.Count} componente(s) na estrutura, {documento.ComponentesEcm.Count} componente(s) SWA/SWP na ECM.");
-
-                    AddLog(documento.DocumentoSuperior != null
-                        ? $"  SuperiorDocument: {documento.DocumentoSuperior.DocumentNumber} ({documento.DocumentoSuperior.Type}, versão {documento.DocumentoSuperior.Version})"
-                        : "  SuperiorDocument: (vazio)");
-
-                    AddLog(documento.MateriaisVinculados.Count > 0
-                        ? $"  MasterMaterialList: {string.Join(", ", documento.MateriaisVinculados)}"
-                        : "  MasterMaterialList: (vazio)");
-
-                    foreach (string debug in documento.OriginaisDebug)
-                        AddLog("  " + debug);
+                    AddLog($"{documento.DocumentNumber} ({documento.Type}, versão {documento.Version}): {documento.CaminhosOriginais.Count} original(is), {documento.ComponentesEcm.Count} componente(s) SWA/SWP na ECM.");
 
                     UpsertBatchResult(new BatchFileResult
                     {

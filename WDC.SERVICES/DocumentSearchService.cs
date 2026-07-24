@@ -305,15 +305,15 @@ namespace WDC.SERVICES
                 documento.TipoOriginalNativo = originalCad?.ApplicationCode;
 
                 documento.UrlOriginalPdf = originalPdf?.URL;
-
-                documento.OriginaisDebug.AddRange(dir.Originals.Select(o =>
-                    $"Path=\"{o.Path}\" ApplicationCode=\"{o.ApplicationCode}\" URL=\"{o.URL}\" Code=\"{o.Code}\" StorageCategory=\"{o.StorageCategory}\" CheckedOutUser=\"{o.CheckedOutUser}\""));
-            }
-            else
-            {
-                documento.OriginaisDebug.Add("(Originals veio nulo no response -- o SAP não devolveu nenhum original pra esse documento)");
             }
 
+            // DocumentStructureList/SuperiorDocument confirmados vazios
+            // mesmo em documentos com Lista Técnica real no SAP (visto em
+            // teste real) -- a estrutura de verdade vem por outro caminho
+            // (ver BuscarPorEcm/ComponentesEcm: SWA/SWP da mesma ECM vêm
+            // como DIRs distintos, não aninhados aqui). Ainda assim captura
+            // DocumentStructureList quando vier preenchido, caso essa
+            // interface passe a devolver em algum cenário não testado.
             if (dir.DocumentStructureList != null)
             {
                 documento.Estrutura.AddRange(dir.DocumentStructureList.Select(e => new EstruturaItem
@@ -325,28 +325,6 @@ namespace WDC.SERVICES
                     Version = e.DocumentVersion,
                 }));
             }
-
-            // Diagnóstico: DocumentStructureList veio vazio mesmo em
-            // documentos confirmados como desenho de montagem com Lista
-            // Técnica real no SAP (visto num teste real) -- SuperiorDocument
-            // é outro campo do schema (nunca usado até agora) que pode
-            // apontar pro documento de montagem/peça "pai" desse desenho.
-            // Só captura aqui pra log de diagnóstico; ResolverEstruturaCompleta
-            // ainda não usa isso como fallback -- primeiro precisa confirmar
-            // se o SAP realmente preenche esse campo pra esses casos.
-            if (dir.SuperiorDocument != null && !string.IsNullOrWhiteSpace(dir.SuperiorDocument.DocumentNumber))
-            {
-                documento.DocumentoSuperior = new EstruturaItem
-                {
-                    DocumentNumber = dir.SuperiorDocument.DocumentNumber,
-                    Type = dir.SuperiorDocument.Type,
-                    Part = dir.SuperiorDocument.Part,
-                    Version = dir.SuperiorDocument.Version,
-                };
-            }
-
-            if (dir.ObjectLinks?.MasterMaterialList != null)
-                documento.MateriaisVinculados.AddRange(dir.ObjectLinks.MasterMaterialList.Where(m => !string.IsNullOrWhiteSpace(m)));
 
             return documento;
         }

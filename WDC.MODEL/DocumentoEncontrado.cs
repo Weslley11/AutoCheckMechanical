@@ -42,24 +42,6 @@ namespace WDC.MODEL
         // documentos sem estrutura (ex: desenho de peça avulsa).
         public List<EstruturaItem> Estrutura { get; } = new List<EstruturaItem>();
 
-        // Documento "pai" (montagem/peça que este desenho representa),
-        // quando o SAP devolve o campo SuperiorDocument -- diagnóstico:
-        // Estrutura veio vazia mesmo em desenhos confirmados como montagem
-        // com Lista Técnica real no SAP, então isso pode ser um caminho
-        // alternativo pra achar a estrutura de verdade (ainda não usado
-        // como fallback, só logado pra confirmar se o campo vem preenchido).
-        public EstruturaItem DocumentoSuperior { get; set; }
-
-        // Materiais (peça/montagem no SAP, fora do DMS) vinculados a este
-        // documento via ObjectLinks.MasterMaterialList -- diagnóstico: como
-        // Estrutura/DocumentoSuperior vieram vazios mesmo com Lista Técnica
-        // real confirmada, a hipótese é que essa Lista Técnica é dado de
-        // Materiais (SAP CS03/BOM), não de Gestão de Documentos, e o elo
-        // entre o desenho e o material é esse link, não DocumentStructureList.
-        // Só logado por enquanto -- ainda não existe no app uma interface
-        // SAP de explosão de lista técnica pra usar esse número de material.
-        public List<string> MateriaisVinculados { get; } = new List<string>();
-
         // Componentes (montagens SWA / peças SWP) encontrados na MESMA busca
         // por ECM que trouxe este documento -- confirmado por log real: a
         // busca por ChangeNumberList devolve o SWD, a(s) SWA e a(s) SWP como
@@ -73,10 +55,5 @@ namespace WDC.MODEL
         // baixa todos pra pasta da ECM, e o SolidWorks resolve por nome de
         // arquivo o que for referenciado de verdade.
         public List<DocumentoEncontrado> ComponentesEcm { get; } = new List<DocumentoEncontrado>();
-
-        // Diagnóstico temporário -- linha por Original, com os campos
-        // brutos que o SAP devolveu, pra ajudar a descobrir por que
-        // CaminhosOriginais está vindo vazio em algum caso real.
-        public List<string> OriginaisDebug { get; } = new List<string>();
     }
 }

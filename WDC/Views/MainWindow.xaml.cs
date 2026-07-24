@@ -467,11 +467,14 @@ namespace WDC.Views
 
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key != Key.C || (Keyboard.Modifiers & ModifierKeys.Control) != ModifierKeys.Control)
+            bool ehCopiar = e.Key == Key.C && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
+            bool ehRemover = e.Key == Key.Delete;
+
+            if (!ehCopiar && !ehRemover)
                 return;
 
-            // Deixa o Ctrl+C padrão (copiar texto selecionado) funcionar
-            // normalmente quando o foco está numa caixa de texto.
+            // Deixa Ctrl+C/Delete padrão (copiar/apagar texto selecionado)
+            // funcionar normalmente quando o foco está numa caixa de texto.
             if (Keyboard.FocusedElement is TextBox)
                 return;
 
@@ -483,7 +486,11 @@ namespace WDC.Views
             if (item == null)
                 return;
 
-            CopiarLinha(item);
+            if (ehCopiar)
+                CopiarLinha(item);
+            else
+                RemoverLinha(item);
+
             e.Handled = true;
         }
 
@@ -635,6 +642,10 @@ namespace WDC.Views
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             };
+
+            border.ToolTip = string.IsNullOrEmpty(item.DocumentoNumero)
+                ? null
+                : (item.DocumentoTemPdf ? "Documento tem PDF vinculado no DMS." : "Documento sem PDF vinculado no DMS.");
 
             border.MouseLeftButtonUp += (s, e) =>
             {
@@ -798,6 +809,10 @@ namespace WDC.Views
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             };
+
+            border.ToolTip = item.OpenFailed
+                ? null
+                : $"{item.SheetCount} folha(s) no desenho.";
 
             border.MouseLeftButtonUp += (s, e) =>
             {
@@ -1019,6 +1034,13 @@ namespace WDC.Views
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center
             };
+
+            if (item.OpenFailed)
+                border.ToolTip = item.OpenError;
+            else if (result != null && !result.Success && !result.Skipped && result.Errors.Count > 0)
+                border.ToolTip = string.Join("\n", result.Errors);
+            else if (result != null && !string.IsNullOrEmpty(result.Message))
+                border.ToolTip = result.Message;
 
             border.MouseLeftButtonUp += (s, e) =>
             {
