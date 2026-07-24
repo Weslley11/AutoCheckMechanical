@@ -14,12 +14,14 @@ using WDC.SERVICES.Checkers;
 using WDC.SERVICES.Core;
 using WDC.MODEL;
 using WDC.SERVICES;
+using WDC.EDRAWINGS;
 using Microsoft.Win32;
 using SolidWorks.Interop.swconst;
 using CheckContextModel = WDC.SERVICES.Core.CheckContext;
 using SwApp = SolidWorks.Interop.sldworks.SldWorks;
 using SwModelDoc2 = SolidWorks.Interop.sldworks.ModelDoc2;
 using SwFrame = SolidWorks.Interop.sldworks.IFrame;
+using SwDrawingDoc = SolidWorks.Interop.sldworks.DrawingDoc;
 
 namespace WDC.VIEWMODEL
 {
@@ -467,6 +469,135 @@ namespace WDC.VIEWMODEL
 
             VerificarArquivos(session, dialog.FileNames);
         }, () => !IsBusy);
+
+        // Botão experimental (prova de conceito): abre o MESMO arquivo via
+        // eDrawings (WDC.EDRAWINGS.EDrawingsMassService) e via SolidWorks,
+        // cronometrando os dois, pra comparar velocidade. Só calcula
+        // massa/folhas/camadas (o único subconjunto que a API do eDrawings
+        // expõe) -- não roda os checks de verdade (bloco de título, cotas,
+        // balões), que continuam exclusivos do SolidWorks. Isolado de
+        // propósito do fluxo normal de check pra não arriscar nada que já
+        // está funcionando.
+        public ICommand TestarEDrawingsCommand => new DelegateCommand(_ => TestarEDrawings(), () => !IsBusy);
+
+        private void TestarEDrawings()
+        {
+            OpenFileDialog dialog = new OpenFileDialog
+            {
+                Filter = "Desenhos SolidWorks (*.slddrw)|*.slddrw",
+                Title = "Selecionar desenho para o teste eDrawings x SolidWorks"
+            };
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            string caminho = dialog.FileName;
+
+            DetalheTitulo = "LOG";
+            AddLog($"Iniciando teste eDrawings x SolidWorks: {Path.GetFileName(caminho)}");
+
+            IsBusy = true;
+            Mouse.OverrideCursor = Cursors.Wait;
+
+            try
+            {
+                AddLog("Abrindo via eDrawings (controle ActiveX)...");
+
+                EDrawingsMassResult resultadoEDrawings;
+
+                try
+                {
+                    resultadoEDrawings = EDrawingsMassService.AbrirEMedir(caminho);
+                }
+                catch (Exception ex)
+                {
+                    resultadoEDrawings = new EDrawingsMassResult
+                    {
+                        Sucesso = false,
+                        Erro = "Exceção não tratada: " + ex.Message
+                    };
+                }
+
+                if (resultadoEDrawings.Sucesso)
+                {
+                    AddLog($"eDrawings OK em {resultadoEDrawings.TempoDecorridoMs} ms -- " +
+                        $"Massa: {resultadoEDrawings.MassaKg:0.###} kg | Folhas: {resultadoEDrawings.QuantidadeFolhas} | Camadas: {resultadoEDrawings.QuantidadeCamadas}");
+                }
+                else
+                {
+                    AddLog($"eDrawings FALHOU depois de {resultadoEDrawings.TempoDecorridoMs} ms: {resultadoEDrawings.Erro}");
+                }
+
+                AddLog("Abrindo o mesmo arquivo via SolidWorks...");
+
+                SolidWorksSession session = GarantirConexao();
+
+                if (!session.IsConnected)
+                {
+                    AddLog("SolidWorks não conectado -- não dá pra comparar.");
+                    return;
+                }
+
+                Stopwatch cronometroSw = Stopwatch.StartNew();
+                SwApp app = session.Application;
+                SwModelDoc2 doc = app.GetOpenDocumentByName(caminho) as SwModelDoc2;
+                bool jaEstavaAberto = doc != null;
+
+                try
+                {
+                    if (doc == null)
+                    {
+                        int errors = 0;
+                        int warnings = 0;
+
+                        doc = app.OpenDoc6(
+                            caminho,
+                            (int)swDocumentTypes_e.swDocDRAWING,
+                            (int)swOpenDocOptions_e.swOpenDocOptions_Silent,
+                            "",
+                            ref errors,
+                            ref warnings) as SwModelDoc2;
+                    }
+
+                    if (doc == null)
+                    {
+                        AddLog("SolidWorks não conseguiu abrir o arquivo pra comparação.");
+                        return;
+                    }
+
+                    double massaSw = doc.Extension.CreateMassProperty().Mass;
+                    int folhasSw = (doc as SwDrawingDoc)?.GetSheetCount() ?? 0;
+
+                    cronometroSw.Stop();
+
+                    AddLog($"SolidWorks OK em {cronometroSw.ElapsedMilliseconds} ms -- " +
+                        $"Massa: {massaSw:0.###} kg | Folhas: {folhasSw}");
+                }
+                finally
+                {
+                    if (doc != null && !jaEstavaAberto)
+                    {
+                        try
+                        {
+                            app.CloseDoc(doc.GetTitle());
+                        }
+                        catch (COMException)
+                        {
+                        }
+                    }
+                }
+
+                AddLog("--------------------------------");
+                AddLog(resultadoEDrawings.Sucesso
+                    ? $"Comparação: eDrawings {resultadoEDrawings.TempoDecorridoMs} ms x SolidWorks {cronometroSw.ElapsedMilliseconds} ms."
+                    : "Comparação não concluída (eDrawings falhou -- veja o erro acima).");
+            }
+            finally
+            {
+                Mouse.OverrideCursor = null;
+                IsBusy = false;
+            }
+        }
 
         // Log acumula tudo (buscas, downloads, verificações) em vez de
         // limpar sozinho a cada ação -- ver comentário em VerificarArquivos/

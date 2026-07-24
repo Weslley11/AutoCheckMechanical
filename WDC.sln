@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WDC.VIEWMODEL", "WDC.VIEWMO
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WDC", "WDC\WDC.csproj", "{6F511B1E-20A8-45B3-BC8B-E8870EF5F8E5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WDC.EDRAWINGS", "WDC.EDRAWINGS\WDC.EDRAWINGS.csproj", "{C6EBB1C4-AD6E-41C5-AD32-1303C68B9247}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{6F511B1E-20A8-45B3-BC8B-E8870EF5F8E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F511B1E-20A8-45B3-BC8B-E8870EF5F8E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F511B1E-20A8-45B3-BC8B-E8870EF5F8E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6EBB1C4-AD6E-41C5-AD32-1303C68B9247}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6EBB1C4-AD6E-41C5-AD32-1303C68B9247}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6EBB1C4-AD6E-41C5-AD32-1303C68B9247}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6EBB1C4-AD6E-41C5-AD32-1303C68B9247}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

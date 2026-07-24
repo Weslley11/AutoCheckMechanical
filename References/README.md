@@ -29,5 +29,21 @@ Usadas pra chamar o Web Service SOA `ITF_O_S_DOCUMENT_OUTPUT` do mesmo jeito
 que o WBC e o WAU Factory Viewer fazem (`Weg.Iceberg.Infrastructure.Uddi.
 SoapClientFactory` + `Wau.Util.Services.SapServices.GetServiceCredential()`).
 
+## eDrawings (interop do controle ActiveX)
+
+Proprietário da SolidWorks Corp/Dassault, não redistribuído. Copie:
+
+- `eDrawings.Interop.EModelViewControl.dll`
+
+Necessário só pra compilar `WDC.EDRAWINGS` (o botão experimental "TESTE
+EDRAWINGS" que compara o tempo de calcular massa/folhas/camadas via eDrawings
+contra o mesmo cálculo via SolidWorks -- não faz parte do fluxo normal de
+check). Mesma DLL usada de verdade pelo WAU Factory Viewer
+(`WFV.EDRAWINGS.csproj`) -- pode copiar de lá, ou gerar de novo no Visual
+Studio via "Adicionar Referência > Componentes COM" apontando pro eDrawings
+instalado localmente (o CLSID em `EDrawingsHost.cs` é do eDrawings 2022,
+confirmado no WFV; se a versão instalada aqui for diferente, pode precisar
+gerar o interop de novo em vez de reusar a DLL do WFV).
+
 Esta pasta (e os `.dll` dentro dela) é ignorada pelo git -- veja `.gitignore`
 na raiz do repositório.

@@ -75,6 +75,13 @@
       <Project>{ADEA3D4A-76CF-4B20-B558-17459E95AFC1}</Project>
       <Name>WDC.SERVICES</Name>
     </ProjectReference>
+    <!-- Só pro botão experimental "TESTE EDRAWINGS" (TestarEDrawingsCommand
+         em MainViewModel.cs): prova de conceito, não faz parte do fluxo
+         normal de check. -->
+    <ProjectReference Include="..\WDC.EDRAWINGS\WDC.EDRAWINGS.csproj">
+      <Project>{C6EBB1C4-AD6E-41C5-AD32-1303C68B9247}</Project>
+      <Name>WDC.EDRAWINGS</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseViewModel.cs" />

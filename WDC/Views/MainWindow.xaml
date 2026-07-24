@@ -742,6 +742,15 @@
                                 Padding="18,10"
                                 Margin="12,0,0,0"
                                 Command="{Binding VerificarArquivosCommand}"/>
+                        <Button Name="btnTestarEDrawings"
+                                Content="TESTE EDRAWINGS"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                FontSize="14"
+                                Padding="18,10"
+                                Margin="12,0,0,0"
+                                Opacity="0.75"
+                                ToolTip="Experimental: compara o tempo de abrir o mesmo arquivo via eDrawings x SolidWorks (só massa/folhas/camadas, não roda os checks de verdade)"
+                                Command="{Binding TestarEDrawingsCommand}"/>
                     </StackPanel>
 
                     <Grid Grid.Row="3">
