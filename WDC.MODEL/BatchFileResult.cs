@@ -8,6 +8,14 @@ namespace WDC.MODEL
         public string FilePath { get; set; }
         public bool OpenFailed { get; set; }
         public string OpenError { get; set; }
+
+        // Quantas vezes seguidas esse documento falhou ao abrir (RPC_E_SERVERFAULT
+        // do SolidWorks e afins são comuns e às vezes transitórios -- ver
+        // BatchCheckRunner.RunSingleFile) -- carregado adiante por
+        // MainViewModel.UpsertBatchResult a cada nova tentativa, zerado
+        // assim que o documento abre com sucesso de novo. Ajuda a distinguir
+        // "travado há N tentativas" de "ainda nem tentou".
+        public int TentativasAbertura { get; set; }
         public int SheetCount { get; set; }
         public string ThumbnailPath { get; set; }
         public List<CheckResult> Results { get; set; } = new List<CheckResult>();

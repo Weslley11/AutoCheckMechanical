@@ -430,12 +430,17 @@ namespace WDC.Views
                 CopiarLinha(item);
             };
 
+            MenuItem menuAbrirPasta = new MenuItem { Header = "Abrir pasta desse documento" };
+
+            menuAbrirPasta.Click += (s, e) => ViewModel.AbrirPastaDoDocumento(item);
+
             MenuItem menuRemover = new MenuItem { Header = "Remover da lista" };
 
             menuRemover.Click += (s, e) => RemoverLinha(item);
 
             ContextMenu menu = new ContextMenu();
             menu.Items.Add(menuCopiar);
+            menu.Items.Add(menuAbrirPasta);
             menu.Items.Add(menuRemover);
 
             _menuCache[item] = menu;
@@ -1004,7 +1009,12 @@ namespace WDC.Views
             string texto;
             Brush cor;
 
-            if (item.OpenFailed || result == null)
+            if (item.OpenFailed)
+            {
+                texto = item.TentativasAbertura > 1 ? $"— ({item.TentativasAbertura}x)" : "—";
+                cor = (Brush)FindResource("BrushTextSecondary");
+            }
+            else if (result == null)
             {
                 texto = "—";
                 cor = (Brush)FindResource("BrushTextSecondary");
@@ -1036,7 +1046,7 @@ namespace WDC.Views
             };
 
             if (item.OpenFailed)
-                border.ToolTip = item.OpenError;
+                border.ToolTip = $"{item.OpenError}\n({item.TentativasAbertura}ª tentativa seguida -- CHECK DRAWING tenta de novo automaticamente.)";
             else if (result != null && !result.Success && !result.Skipped && result.Errors.Count > 0)
                 border.ToolTip = string.Join("\n", result.Errors);
             else if (result != null && !string.IsNullOrEmpty(result.Message))

@@ -681,6 +681,43 @@ namespace WDC.VIEWMODEL
             }
         });
 
+        // Exporta só os documentos com erro (independente do filtro de
+        // status selecionado na tela) -- útil pra mandar como "lista de
+        // pendências" pra quem vai corrigir os desenhos, sem o resto dos
+        // documentos que já passaram no check.
+        public ICommand ExportarErrosCommand => new DelegateCommand(_ =>
+        {
+            List<BatchFileResult> comErro = BaseListParaFiltro().Where(TemErro).ToList();
+
+            if (comErro.Count == 0)
+            {
+                MessageBox.Show("Não há documentos com erro na tabela pra exportar.", "Exportar Erros",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            SaveFileDialog dialog = new SaveFileDialog
+            {
+                Filter = "Planilha do Excel (*.xlsx)|*.xlsx",
+                FileName = "WDC_Erros_" + DateTime.Now.ToString("yyyyMMdd_HHmmss")
+            };
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            try
+            {
+                ExcelReportService.GerarRelatorio(comErro, GetCheckerNames(), CamposTituloAtuais(), dialog.FileName);
+
+                StatusText = $"Lista de erros exportada ({comErro.Count} documento(s)): " + dialog.FileName;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Não foi possível gerar a lista de erros:\n" + ex.Message,
+                    "Exportar Erros", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        });
+
         public ICommand MinimizeCommand => new DelegateCommand(_ => _minimizar());
 
         public ICommand MaximizeRestoreCommand => new DelegateCommand(_ => _maximizarRestaurar());
@@ -1300,6 +1337,54 @@ namespace WDC.VIEWMODEL
             HistoryStore.Save(BatchResults);
         }
 
+        // Abre o Explorer já selecionando o arquivo desse documento (ou só a
+        // pasta, se o arquivo em si não existir mais) -- complementa
+        // AbrirPastaDownloadCommand, que só abre a pasta base configurada
+        // (não a subpasta da ECM/o arquivo específico dessa linha).
+        public void AbrirPastaDoDocumento(BatchFileResult item)
+        {
+            // Antes do download, FilePath é um identificador sintético
+            // ("SAP:{numero}:{versao}", ver BuscarDocumentosPorEcm) -- não
+            // existe pasta nenhuma pra abrir ainda.
+            if (string.IsNullOrEmpty(item.FilePath) || item.FilePath.StartsWith("SAP:", StringComparison.Ordinal))
+            {
+                MessageBox.Show("Esse documento ainda não foi baixado -- não há pasta local pra abrir.",
+                    "Abrir pasta", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            try
+            {
+                if (File.Exists(item.FilePath))
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "explorer.exe",
+                        Arguments = $"/select,\"{item.FilePath}\"",
+                        UseShellExecute = true
+                    });
+
+                    return;
+                }
+
+                string pasta = Path.GetDirectoryName(item.FilePath);
+
+                if (string.IsNullOrEmpty(pasta) || !Directory.Exists(pasta))
+                {
+                    MessageBox.Show("A pasta desse documento não existe (ainda não foi baixado).",
+                        "Abrir pasta", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                Process.Start(new ProcessStartInfo { FileName = pasta, UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Não foi possível abrir a pasta:\n" + ex.Message,
+                    "Abrir pasta", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         // Reaproveitado pelo fluxo manual (VERIFICAR ARQUIVOS...) e pelo fluxo
         // de download automático via SAP.
         private void VerificarArquivos(SolidWorksSession session, IEnumerable<string> filePaths)
@@ -1751,6 +1836,13 @@ namespace WDC.VIEWMODEL
                 ? BatchResults.FindIndex(x => x.DocumentoNumero == item.DocumentoNumero)
                 : BatchResults.FindIndex(x => x.FilePath == item.FilePath);
 
+            // BatchCheckRunner cria um BatchFileResult novo a cada tentativa
+            // (não muta o anterior), então o contador de tentativas de
+            // abertura precisa ser carregado manualmente aqui -- soma 1 se
+            // essa tentativa também falhou, zera assim que abrir com sucesso.
+            int tentativasAnteriores = existingIndex >= 0 ? BatchResults[existingIndex].TentativasAbertura : 0;
+            item.TentativasAbertura = item.OpenFailed ? tentativasAnteriores + 1 : 0;
+
             if (existingIndex >= 0)
                 BatchResults[existingIndex] = item;
             else
@@ -1773,15 +1865,7 @@ namespace WDC.VIEWMODEL
 
         public List<BatchFileResult> GetResultadosFiltrados()
         {
-            IEnumerable<BatchFileResult> baseList = MostrarHistoricoCompleto
-                ? BatchResults
-                : BatchResults.Where(x => _chavesDestaSessao.Contains(ChaveDoItem(x)));
-
-            if (!string.IsNullOrWhiteSpace(FiltroTexto))
-            {
-                baseList = baseList.Where(x => x.FileName != null &&
-                    x.FileName.IndexOf(FiltroTexto, StringComparison.OrdinalIgnoreCase) >= 0);
-            }
+            IEnumerable<BatchFileResult> baseList = BaseListParaFiltro();
 
             switch (FiltroStatusSelecionado)
             {
@@ -1799,6 +1883,27 @@ namespace WDC.VIEWMODEL
             return baseList.ToList();
         }
 
+        // Mesmo escopo (histórico completo/só sessão atual + busca por
+        // texto) usado por GetResultadosFiltrados, sem aplicar
+        // FiltroStatusSelecionado -- usado por ExportarErrosCommand pra
+        // exportar os erros independente do filtro de status que estiver
+        // selecionado na tela no momento (evita depender do usuário lembrar
+        // de trocar o filtro antes de exportar).
+        private IEnumerable<BatchFileResult> BaseListParaFiltro()
+        {
+            IEnumerable<BatchFileResult> baseList = MostrarHistoricoCompleto
+                ? BatchResults
+                : BatchResults.Where(x => _chavesDestaSessao.Contains(ChaveDoItem(x)));
+
+            if (!string.IsNullOrWhiteSpace(FiltroTexto))
+            {
+                baseList = baseList.Where(x => x.FileName != null &&
+                    x.FileName.IndexOf(FiltroTexto, StringComparison.OrdinalIgnoreCase) >= 0);
+            }
+
+            return baseList;
+        }
+
         // Ainda não foi aberto/checado nenhuma vez -- mesma condição usada
         // em RunCheckDrawing pra decidir se há documentos pendentes da
         // busca por ECM esperando verificação.
@@ -1814,7 +1919,7 @@ namespace WDC.VIEWMODEL
 
             if (item.OpenFailed)
             {
-                AddLog("Falha ao abrir o arquivo.");
+                AddLog($"Falha ao abrir o arquivo ({item.TentativasAbertura}ª tentativa seguida).");
                 AddLog(item.OpenError);
                 return;
             }
