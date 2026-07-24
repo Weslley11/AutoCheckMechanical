@@ -917,19 +917,26 @@ namespace WDC.Views
                 border.ToolTip = imagemAmpliada;
             }
 
-            // Clique no nome do arquivo abre no eDrawings (visualizador leve,
-            // só pra conferência visual rápida) em vez do SolidWorks
-            // completo -- os checks em si continuam rodando via SolidWorks
-            // (BatchCheckRunner/RunCheckDrawing), só a abertura manual pra
-            // olhar o desenho depois é que mudou. "Abrir no SolidWorks"
-            // continua disponível pelo botão no canto da prévia (ver
-            // AddPreviewCell) pra quem precisa do SolidWorks de verdade.
+            // Um clique no nome do arquivo abre no eDrawings (visualizador
+            // leve, só pra conferência visual rápida) -- os checks em si
+            // continuam rodando via SolidWorks (BatchCheckRunner/
+            // RunCheckDrawing), só a abertura manual pra olhar o desenho
+            // depois é que muda conforme o clique. Dois cliques abrem no
+            // SolidWorks completo (mesma ação do botão "Abrir no SolidWorks"
+            // no canto da prévia, ver AddPreviewCell) -- ClickCount==2 é como
+            // o WPF sinaliza duplo-clique dentro do próprio evento
+            // MouseLeftButtonUp (dispara duas vezes num duplo-clique, a
+            // segunda com ClickCount=2), sem precisar de um handler à parte.
             border.MouseLeftButtonUp += (s, e) =>
             {
                 SelecionarLinha(item);
-                ViewModel.AbrirNoEDrawings(item.FilePath);
+
+                if (e.ClickCount >= 2)
+                    ViewModel.AbrirNoSolidWorks(item);
+                else
+                    ViewModel.AbrirNoEDrawings(item.FilePath);
             };
-            border.ToolTip = border.ToolTip ?? "Clique para abrir no eDrawings.";
+            border.ToolTip = border.ToolTip ?? "Clique para abrir no eDrawings. Duplo clique para abrir no SolidWorks.";
 
             Grid.SetColumn(border, column);
             Grid.SetRow(border, row);
