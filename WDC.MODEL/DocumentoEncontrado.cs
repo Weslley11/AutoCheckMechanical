@@ -42,6 +42,14 @@ namespace WDC.MODEL
         // documentos sem estrutura (ex: desenho de peça avulsa).
         public List<EstruturaItem> Estrutura { get; } = new List<EstruturaItem>();
 
+        // Documento "pai" (montagem/peça que este desenho representa),
+        // quando o SAP devolve o campo SuperiorDocument -- diagnóstico:
+        // Estrutura veio vazia mesmo em desenhos confirmados como montagem
+        // com Lista Técnica real no SAP, então isso pode ser um caminho
+        // alternativo pra achar a estrutura de verdade (ainda não usado
+        // como fallback, só logado pra confirmar se o campo vem preenchido).
+        public EstruturaItem DocumentoSuperior { get; set; }
+
         // Diagnóstico temporário -- linha por Original, com os campos
         // brutos que o SAP devolveu, pra ajudar a descobrir por que
         // CaminhosOriginais está vindo vazio em algum caso real.

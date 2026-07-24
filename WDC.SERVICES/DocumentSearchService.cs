@@ -301,6 +301,25 @@ namespace WDC.SERVICES
                 }));
             }
 
+            // Diagnóstico: DocumentStructureList veio vazio mesmo em
+            // documentos confirmados como desenho de montagem com Lista
+            // Técnica real no SAP (visto num teste real) -- SuperiorDocument
+            // é outro campo do schema (nunca usado até agora) que pode
+            // apontar pro documento de montagem/peça "pai" desse desenho.
+            // Só captura aqui pra log de diagnóstico; ResolverEstruturaCompleta
+            // ainda não usa isso como fallback -- primeiro precisa confirmar
+            // se o SAP realmente preenche esse campo pra esses casos.
+            if (dir.SuperiorDocument != null && !string.IsNullOrWhiteSpace(dir.SuperiorDocument.DocumentNumber))
+            {
+                documento.DocumentoSuperior = new EstruturaItem
+                {
+                    DocumentNumber = dir.SuperiorDocument.DocumentNumber,
+                    Type = dir.SuperiorDocument.Type,
+                    Part = dir.SuperiorDocument.Part,
+                    Version = dir.SuperiorDocument.Version,
+                };
+            }
+
             return documento;
         }
 

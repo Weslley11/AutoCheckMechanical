@@ -1390,6 +1390,10 @@ namespace WDC.VIEWMODEL
                     // o caminho não está vindo em alguns casos.
                     AddLog($"{documento.DocumentNumber} ({documento.Type}, versão {documento.Version}): {documento.CaminhosOriginais.Count} original(is), {documento.Estrutura.Count} componente(s) na estrutura.");
 
+                    AddLog(documento.DocumentoSuperior != null
+                        ? $"  SuperiorDocument: {documento.DocumentoSuperior.DocumentNumber} ({documento.DocumentoSuperior.Type}, versão {documento.DocumentoSuperior.Version})"
+                        : "  SuperiorDocument: (vazio)");
+
                     foreach (string debug in documento.OriginaisDebug)
                         AddLog("  " + debug);
 
