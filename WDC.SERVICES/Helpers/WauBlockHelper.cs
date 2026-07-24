@@ -1,4 +1,5 @@
 using SolidWorks.Interop.sldworks;
+using SolidWorks.Interop.swconst;
 using WDC.SERVICES.Core;
 
 namespace WDC.SERVICES.Helpers
@@ -77,13 +78,35 @@ namespace WDC.SERVICES.Helpers
             return false;
         }
 
-        // Regra: Matéria-Prima NÃO preenchida + nenhuma vista com a planificada
-        // (com ou sem o bloco de legenda WAU inserido) => provavelmente o
-        // desenho é apenas um auxílio de montagem (ou similar), sem
-        // obrigatoriedade de ter informações de chapa/dobra. Nesse caso os
-        // checks de Layer, Flat Pattern e Scale devem ser dispensados (não é
-        // "OK" e nem "ERRO"). O usuário pode forçar a execução mesmo assim
-        // (context.ForcarChecksDeChapa) através de um botão na tela.
+        // Um desenho é "de montagem" quando pelo menos uma das vistas
+        // principais referencia um documento do tipo swDocASSEMBLY.
+        // Diferente de checar Matéria-Prima vazia (que é só uma pista
+        // indireta), isso confirma diretamente que o modelo referenciado é
+        // uma montagem -- e montagem estruturalmente nunca tem planificação
+        // (flat pattern é conceito de peça de chapa), então os checks de
+        // chapa não fazem sentido nenhum aqui, independente do preenchimento
+        // de Matéria-Prima no desenho.
+        public static bool EhDesenhoDeMontagem(CheckContext context)
+        {
+            foreach (View view in context.Views)
+            {
+                ModelDoc2 modeloReferenciado = view.ReferencedDocument as ModelDoc2;
+
+                if (modeloReferenciado != null && modeloReferenciado.GetType() == (int)swDocumentTypes_e.swDocASSEMBLY)
+                    return true;
+            }
+
+            return false;
+        }
+
+        // Regra: desenho de montagem (confirmado pelo tipo do modelo
+        // referenciado) OU Matéria-Prima NÃO preenchida + nenhuma vista
+        // planificada (com ou sem o bloco de legenda WAU inserido) =>
+        // provavelmente o desenho não tem obrigatoriedade de informações de
+        // chapa/dobra. Nesse caso os checks de Layer, Flat Pattern e Scale
+        // devem ser dispensados (não é "OK" e nem "ERRO"). O usuário pode
+        // forçar a execução mesmo assim (context.ForcarChecksDeChapa) através
+        // de um botão na tela.
         public static bool DesenhoDispensaChecksDeChapa(CheckContext context)
         {
             if (context.ForcarChecksDeChapa)
@@ -91,6 +114,9 @@ namespace WDC.SERVICES.Helpers
 
             if (!context.IsDrawing)
                 return false;
+
+            if (EhDesenhoDeMontagem(context))
+                return true;
 
             if (!string.IsNullOrWhiteSpace(GetMateriaPrima(context)))
                 return false;

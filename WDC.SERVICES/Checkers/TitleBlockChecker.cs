@@ -55,6 +55,15 @@ namespace WDC.SERVICES.Checkers
                 return result;
             }
 
+            if (WauBlockHelper.DesenhoDispensaChecksDeChapa(context))
+            {
+                result.Skipped = true;
+                result.Message = "Check dispensado (sem info de chapa).";
+                AddLog(result, "Sem Matéria-Prima e sem vista planificada: check dispensado.");
+                result.AddWarning("Sem info de chapa: check de bloco de legenda dispensado.");
+                return result;
+            }
+
             bool flatPatternEncontrada = false;
 
             foreach (View view in context.Views)
