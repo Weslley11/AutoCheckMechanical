@@ -51,7 +51,7 @@ namespace WDC.SERVICES
         // de verdade, mesmo que ainda não liberada). Essa leitura do campo
         // ainda não foi confirmada contra um teste real -- se o resultado
         // não bater com o que aparece no SAP GUI (CV04N), precisa ajustar.
-        public static List<DocumentoEncontrado> BuscarPorEcm(string ecm, string usuario, bool retornarUltimaVersao)
+        public static List<DocumentoEncontrado> BuscarPorEcm(string ecm, string usuario, bool retornarUltimaVersao, Action<string> log = null)
         {
             DTP_DOCUMENT_OUTPUTDMSSearchBy searchBy = new DTP_DOCUMENT_OUTPUTDMSSearchBy
             {
@@ -64,6 +64,18 @@ namespace WDC.SERVICES
             };
 
             List<DTP_DOCUMENT_OUTPUT_RDIR> dirs = Buscar(searchBy, usuario, retornarUltimaVersao);
+
+            // Diagnóstico: loga TODOS os documentos que a busca por ECM
+            // devolveu, antes do filtro de Type=="SWD" abaixo -- pra
+            // confirmar se a montagem/peça (SWA/SWP) já vem como um DIR
+            // separado vinculado à mesma ECM (é assim que a "LT de
+            // documentos" aparece na CV13: documentos distintos linkados
+            // pelo mesmo ChangeNumber, não uma lista dentro do DIR do SWD).
+            // Se for isso, não precisamos do DocumentStructureList/
+            // SuperiorDocument (que vieram vazios) -- só de não descartar
+            // esses DIRs aqui.
+            log?.Invoke($"ECM {ecm}: SAP devolveu {dirs.Count} documento(s) no total (antes do filtro SWD): " +
+                string.Join(" | ", dirs.Select(d => $"{d.DocumentNumber}/{d.Type}/{d.Part}/{d.Version}")));
 
             // Só nos interessam os documentos do tipo SWD (desenho
             // SolidWorks) -- mesmo filtro que o fluxo antigo via macro

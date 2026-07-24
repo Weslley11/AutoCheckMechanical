@@ -1381,7 +1381,7 @@ namespace WDC.VIEWMODEL
 
             try
             {
-                List<DocumentoEncontrado> resultados = DocumentSearchService.BuscarPorEcm(ecm, UsuarioSap, BuscarUltimaVersao);
+                List<DocumentoEncontrado> resultados = DocumentSearchService.BuscarPorEcm(ecm, UsuarioSap, BuscarUltimaVersao, AddLog);
 
                 foreach (DocumentoEncontrado documento in resultados)
                 {
