@@ -306,11 +306,13 @@ namespace WDC.Views
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(90) });
             gridResults.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star), MinWidth = larguraMinObservacao });
 
-            _larguraMinimaResultados = 96 + 110 + 70 + 70 + 80 + 80
-                + checkerNames.Count * 140
-                + camposTitulo.Length * 170
-                + 90
-                + larguraMinArquivo + larguraMinDescricao + larguraMinObservacao;
+            // Somado a partir das ColumnDefinitions de verdade (largura fixa
+            // pras normais, MinWidth pras Star) em vez de repetir os números
+            // dos Add acima -- antes eram dois lugares com os mesmos valores
+            // hardcoded, e mudar um sem o outro quebrava o cálculo de
+            // rolagem horizontal (ScrollResultados_SizeChanged) sem avisar.
+            _larguraMinimaResultados = gridResults.ColumnDefinitions
+                .Sum(c => c.Width.IsStar ? c.MinWidth : c.Width.Value);
 
             gridResults.RowDefinitions.Add(new RowDefinition { Height = new GridLength(40) });
 
@@ -511,8 +513,16 @@ namespace WDC.Views
                 Foreground = corTexto
             };
 
+            // TitleBlockChecker marca CamposDivergentes tanto pro par
+            // Material/Matéria-Prima quanto pra Massa Líquida (valor do
+            // bloco x massa calculada da peça) -- são divergências
+            // diferentes, cada campo mostra a explicação certa pra ele.
+            string mensagemDivergencia = nomeCampo == "Massa Líquida"
+                ? "Massa Líquida do bloco diverge da massa calculada da peça (ver LOG para detalhes)."
+                : "Divergência entre os campos Material e Matéria-Prima.";
+
             border.ToolTip = divergente
-                ? "Divergência entre os campos Material e Matéria-Prima."
+                ? mensagemDivergencia
                 : (preenchido ? valor : $"Campo \"{nomeCampo}\" vazio.");
             border.MouseLeftButtonUp += (s, e) =>
             {
@@ -711,7 +721,7 @@ namespace WDC.Views
                 // "deliberada" de abrir o app pesado; o olho é só peek.
                 Button btnEDrawings = new Button
                 {
-                    Content = "",
+                    Content = "",
                     FontFamily = new FontFamily("Segoe MDL2 Assets"),
                     FontSize = 11,
                     Width = 20,
@@ -837,12 +847,12 @@ namespace WDC.Views
             }
             else
             {
+                // Sem handler duplicado aqui: "texto" já tem o próprio
+                // MouseLeftButtonUp (linha acima) e é o único filho do
+                // border nesse caso -- um handler igual no border faria o
+                // clique disparar SelecionarLinha/ShowFileDetails duas vezes
+                // (o evento borbulha de texto pro border).
                 border.Child = texto;
-                border.MouseLeftButtonUp += (s, e) =>
-                {
-                    SelecionarLinha(item);
-                    ViewModel.ShowFileDetails(item);
-                };
             }
 
             Grid.SetColumn(border, column);

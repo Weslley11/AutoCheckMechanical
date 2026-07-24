@@ -19,25 +19,35 @@ namespace WDC.SERVICES.Helpers
 
             string originalSheetName = (drawing.GetCurrentSheet() as Sheet)?.GetName();
 
-            foreach (string sheetName in sheetNames)
+            // try/finally pra garantir que a aba original volta a ser a
+            // ativa mesmo se ActivateSheet/GetViews falhar no meio (COM do
+            // SolidWorks já se mostrou instável nesta sessão -- ex.:
+            // RPC_E_SERVERFAULT em OpenDoc6) -- sem isso, uma falha parcial
+            // deixava o desenho na aba errada pro resto do check.
+            try
             {
-                drawing.ActivateSheet(sheetName);
-
-                Sheet sheet = drawing.GetCurrentSheet();
-
-                object[] sheetViews = sheet.GetViews() as object[];
-
-                if (sheetViews == null)
-                    continue;
-
-                foreach (View view in sheetViews)
+                foreach (string sheetName in sheetNames)
                 {
-                    views.Add(view);
+                    drawing.ActivateSheet(sheetName);
+
+                    Sheet sheet = drawing.GetCurrentSheet();
+
+                    object[] sheetViews = sheet.GetViews() as object[];
+
+                    if (sheetViews == null)
+                        continue;
+
+                    foreach (View view in sheetViews)
+                    {
+                        views.Add(view);
+                    }
                 }
             }
-
-            if (!string.IsNullOrEmpty(originalSheetName))
-                drawing.ActivateSheet(originalSheetName);
+            finally
+            {
+                if (!string.IsNullOrEmpty(originalSheetName))
+                    drawing.ActivateSheet(originalSheetName);
+            }
 
             return views;
         }
