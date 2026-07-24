@@ -1210,8 +1210,17 @@ namespace WDC.VIEWMODEL
         private static string CaminhoLocalEsperado(BatchFileResult item, string pastaBase)
         {
             string pastaEcm = Path.Combine(pastaBase, string.IsNullOrWhiteSpace(item.DocumentoEcm) ? "SEM_ECM" : item.DocumentoEcm);
-            string extensao = DocumentSearchService.ExtensaoParaTipoCad(item.DocumentoTipo);
-            return Path.Combine(pastaEcm, $"{item.DocumentoNumero}_{item.DocumentoVersao}{extensao}");
+
+            // Preserva a nomenclatura original do SAP quando disponível
+            // (mesmo critério já usado pros componentes da estrutura, ver
+            // NomeArquivoComponente) em vez de inventar "{numero}_
+            // {versão}.ext" -- só cai no nome sintético quando o SAP não
+            // devolveu nenhum Path de Original pra esse documento.
+            string nomeArquivo = !string.IsNullOrEmpty(item.DocumentoNomeArquivoOriginal)
+                ? item.DocumentoNomeArquivoOriginal
+                : $"{item.DocumentoNumero}_{item.DocumentoVersao}{DocumentSearchService.ExtensaoParaTipoCad(item.DocumentoTipo)}";
+
+            return Path.Combine(pastaEcm, nomeArquivo);
         }
 
         // Sem essa checagem, um arquivo ruim deixado por uma tentativa de
@@ -1386,6 +1395,9 @@ namespace WDC.VIEWMODEL
                         DocumentoTemPdf = documento.TemPdf,
                         DocumentoUrlOriginal = documento.UrlOriginalNativo,
                         DocumentoUrlOriginalPdf = documento.UrlOriginalPdf,
+                        DocumentoNomeArquivoOriginal = !string.IsNullOrEmpty(documento.CaminhoOriginalNativo)
+                            ? Path.GetFileName(documento.CaminhoOriginalNativo)
+                            : null,
                         DocumentoEcm = ecm,
                         DocumentoEstruturaRaizes = documento.Estrutura.ToList(),
                     });

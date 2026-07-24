@@ -27,6 +27,15 @@ namespace WDC.MODEL
         public string DocumentoCaminhoOriginal { get; set; }
         public bool DocumentoTemPdf { get; set; }
 
+        // Nome de arquivo (só o nome, não caminho completo) que o SAP
+        // devolveu na metadata do Original nativo -- ex.:
+        // "10014227142SWD000.SLDDRW". Usado como nomenclatura de verdade ao
+        // baixar (CaminhoLocalEsperado), em vez do nome sintético "{numero}_
+        // {versão}.ext" que este app inventa. Null quando o SAP não devolve
+        // nenhum Path pra esse documento -- nesse caso cai no nome
+        // sintético mesmo.
+        public string DocumentoNomeArquivoOriginal { get; set; }
+
         // URL de download HTTP do original nativo -- SWD/SWA/SWP, o que
         // existir (só existe quando o SAP devolve uma) -- quando
         // preenchida, BaixarDocumentos baixa por aqui em vez de precisar do
