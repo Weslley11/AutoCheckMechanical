@@ -929,8 +929,19 @@ namespace WDC.VIEWMODEL
             // lista, o botão CHECK DRAWING processa esse lote em vez do
             // documento ativo no SolidWorks (comportamento original, usado
             // quando a lista não tem documentos pendentes).
+            //
+            // Inclui de propósito quem já tentou e falhou ao abrir
+            // (OpenFailed) -- sem isso, um documento que travou uma vez (ex.:
+            // RPC_E_SERVERFAULT do SolidWorks, visto ser bem comum e muitas
+            // vezes transitório) ficava permanentemente fora do lote
+            // automático: clicar em CHECK DRAWING de novo nunca tentava esse
+            // arquivo de novo, e o usuário só conseguia rodar o check nele
+            // manualmente (duplo clique no nome). EstaPendente/o filtro
+            // "Pendente" da tabela continuam tratando OpenFailed como "com
+            // erro" (categoria de exibição correta), não como pendente -- só
+            // esse gatilho de retry automático do botão que muda.
             List<BatchFileResult> documentosPendentes = BatchResults
-                .Where(x => !string.IsNullOrEmpty(x.DocumentoNumero) && x.Results.Count == 0 && !x.OpenFailed)
+                .Where(x => !string.IsNullOrEmpty(x.DocumentoNumero) && x.Results.Count == 0)
                 .ToList();
 
             if (documentosPendentes.Count > 0)
