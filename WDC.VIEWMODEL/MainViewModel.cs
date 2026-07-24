@@ -1842,10 +1842,24 @@ namespace WDC.VIEWMODEL
                     int errors = 0;
                     int warnings = 0;
 
+                    // swOpenDocOptions_ViewOnly abre o desenho em modo
+                    // "Detailing" (o mesmo do diálogo Abrir do próprio
+                    // SolidWorks: não carrega o modelo 3D referenciado, só a
+                    // vista 2D já em cache) -- bem mais rápido pra só olhar o
+                    // desenho, que é o único propósito deste botão (o check
+                    // de massa/geometria precisa do modelo carregado de
+                    // verdade, por isso essa flag NÃO é usada em
+                    // BatchCheckRunner/RunCheckDrawing). Não confirmado
+                    // contra a documentação oficial da API (help.solidworks.
+                    // com bloqueado pela política de rede deste ambiente) --
+                    // baseado em várias fontes de terceiros convergindo no
+                    // mesmo nome/comportamento pra swDocDRAWING. Se abrir
+                    // resolvido mesmo assim (ou der erro), é o primeiro
+                    // lugar a conferir.
                     doc = app.OpenDoc6(
                         item.FilePath,
                         (int)swDocumentTypes_e.swDocDRAWING,
-                        (int)swOpenDocOptions_e.swOpenDocOptions_Silent,
+                        (int)swOpenDocOptions_e.swOpenDocOptions_Silent | (int)swOpenDocOptions_e.swOpenDocOptions_ViewOnly,
                         "",
                         ref errors,
                         ref warnings) as SwModelDoc2;
