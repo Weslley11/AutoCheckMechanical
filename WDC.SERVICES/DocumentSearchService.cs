@@ -65,29 +65,42 @@ namespace WDC.SERVICES
 
             List<DTP_DOCUMENT_OUTPUT_RDIR> dirs = Buscar(searchBy, usuario, retornarUltimaVersao);
 
-            // Diagnóstico: loga TODOS os documentos que a busca por ECM
-            // devolveu, antes do filtro de Type=="SWD" abaixo -- pra
-            // confirmar se a montagem/peça (SWA/SWP) já vem como um DIR
-            // separado vinculado à mesma ECM (é assim que a "LT de
-            // documentos" aparece na CV13: documentos distintos linkados
-            // pelo mesmo ChangeNumber, não uma lista dentro do DIR do SWD).
-            // Se for isso, não precisamos do DocumentStructureList/
-            // SuperiorDocument (que vieram vazios) -- só de não descartar
-            // esses DIRs aqui.
+            // Confirmado por log real (27 documentos numa ECM com 9 SWD):
+            // a busca por ChangeNumberList devolve o SWD, a(s) SWA e a(s)
+            // SWP como DIRs distintos vinculados à mesma ECM -- não uma
+            // lista aninhada dentro do DIR do SWD (DocumentStructureList/
+            // SuperiorDocument, ambos confirmados vazios nesse mesmo teste).
+            // É assim que a "LT de documentos" aparece na CV13. Como não dá
+            // pra saber com certeza qual SWA/SWP pertence a qual SWD só
+            // pelo DocumentNumber, todos os componentes (SWA/SWP) da ECM
+            // ficam disponíveis pra download em CADA documento SWD --
+            // BaixarEstruturaCompleta baixa todos pra pasta da ECM, e o
+            // SolidWorks resolve por nome de arquivo o que for referenciado
+            // de verdade (mesmo mecanismo que já usa pra ResolverEstrutura
+            // Completa/Estrutura).
             log?.Invoke($"ECM {ecm}: SAP devolveu {dirs.Count} documento(s) no total (antes do filtro SWD): " +
                 string.Join(" | ", dirs.Select(d => $"{d.DocumentNumber}/{d.Type}/{d.Part}/{d.Version}")));
 
-            // Só nos interessam os documentos do tipo SWD (desenho
-            // SolidWorks) -- mesmo filtro que o fluxo antigo via macro
-            // Excel (ZTPLM025) já aplicava implicitamente ao só baixar
-            // .slddrw. Esse filtro NÃO se aplica em BuscarPorChaves (usado
-            // pra resolver os componentes da estrutura), porque montagens/
-            // peças referenciadas provavelmente vêm com um Type diferente
-            // de "SWD" -- ainda não confirmado contra uma estrutura real.
-            return dirs
+            List<DocumentoEncontrado> documentosSwd = dirs
                 .Where(dir => string.Equals(dir.Type?.Trim(), "SWD", StringComparison.OrdinalIgnoreCase))
                 .Select(MapearDir)
                 .ToList();
+
+            List<DocumentoEncontrado> componentesEcm = dirs
+                .Where(dir => !string.Equals(dir.Type?.Trim(), "SWD", StringComparison.OrdinalIgnoreCase) && EhTipoDocumentoCad(dir.Type))
+                .Select(MapearDir)
+                .ToList();
+
+            foreach (DocumentoEncontrado documento in documentosSwd)
+                documento.ComponentesEcm.AddRange(componentesEcm);
+
+            return documentosSwd;
+        }
+
+        private static bool EhTipoDocumentoCad(string tipo)
+        {
+            return !string.IsNullOrEmpty(tipo) &&
+                TiposDocumentoCad.Any(t => string.Equals(tipo.Trim(), t, StringComparison.OrdinalIgnoreCase));
         }
 
         // Busca por chave exata (DocumentNumber/Type/Part/Version) em vez de

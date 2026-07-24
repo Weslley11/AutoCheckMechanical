@@ -58,5 +58,12 @@ namespace WDC.MODEL
         // mesma pasta do arquivo principal -- sem os componentes no disco,
         // o SolidWorks não acha as referências e mostra tudo suprimido.
         public List<EstruturaItem> DocumentoEstruturaRaizes { get; set; } = new List<EstruturaItem>();
+
+        // Componentes (SWA/SWP) já resolvidos por completo (URL, PDF etc.)
+        // na própria busca por ECM (DocumentoEncontrado.ComponentesEcm) --
+        // ao contrário de DocumentoEstruturaRaizes (só chaves, precisa de
+        // uma segunda chamada SOAP pra virar arquivo baixável), esses já
+        // podem ser baixados direto, sem round-trip adicional no SAP.
+        public List<DocumentoEncontrado> DocumentoComponentesDiretos { get; set; } = new List<DocumentoEncontrado>();
     }
 }

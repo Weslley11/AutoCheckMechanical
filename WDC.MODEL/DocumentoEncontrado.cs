@@ -60,6 +60,20 @@ namespace WDC.MODEL
         // SAP de explosão de lista técnica pra usar esse número de material.
         public List<string> MateriaisVinculados { get; } = new List<string>();
 
+        // Componentes (montagens SWA / peças SWP) encontrados na MESMA busca
+        // por ECM que trouxe este documento -- confirmado por log real: a
+        // busca por ChangeNumberList devolve o SWD, a(s) SWA e a(s) SWP como
+        // DIRs distintos vinculados à mesma ECM (não uma lista aninhada
+        // dentro do DIR do SWD), então não precisa de uma segunda chamada
+        // (BuscarPorChaves/ResolverEstruturaCompleta) pra ter os dados
+        // completos (URL etc.) desses componentes -- já vêm prontos aqui.
+        // Compartilhado entre todos os SWD da mesma ECM (não é possível
+        // saber com certeza qual SWA/SWP pertence a qual SWD só pelo
+        // DocumentNumber/ChangeNumber), então o download é melhor-esforço:
+        // baixa todos pra pasta da ECM, e o SolidWorks resolve por nome de
+        // arquivo o que for referenciado de verdade.
+        public List<DocumentoEncontrado> ComponentesEcm { get; } = new List<DocumentoEncontrado>();
+
         // Diagnóstico temporário -- linha por Original, com os campos
         // brutos que o SAP devolveu, pra ajudar a descobrir por que
         // CaminhosOriginais está vindo vazio em algum caso real.

@@ -1388,7 +1388,7 @@ namespace WDC.VIEWMODEL
                     // Diagnóstico temporário: mostra o que o SAP devolveu de
                     // "Original" pra cada documento, pra descobrir por que
                     // o caminho não está vindo em alguns casos.
-                    AddLog($"{documento.DocumentNumber} ({documento.Type}, versão {documento.Version}): {documento.CaminhosOriginais.Count} original(is), {documento.Estrutura.Count} componente(s) na estrutura.");
+                    AddLog($"{documento.DocumentNumber} ({documento.Type}, versão {documento.Version}): {documento.CaminhosOriginais.Count} original(is), {documento.Estrutura.Count} componente(s) na estrutura, {documento.ComponentesEcm.Count} componente(s) SWA/SWP na ECM.");
 
                     AddLog(documento.DocumentoSuperior != null
                         ? $"  SuperiorDocument: {documento.DocumentoSuperior.DocumentNumber} ({documento.DocumentoSuperior.Type}, versão {documento.DocumentoSuperior.Version})"
@@ -1430,6 +1430,7 @@ namespace WDC.VIEWMODEL
                             : null,
                         DocumentoEcm = ecm,
                         DocumentoEstruturaRaizes = documento.Estrutura.ToList(),
+                        DocumentoComponentesDiretos = documento.ComponentesEcm.ToList(),
                     });
                 }
 
@@ -1624,23 +1625,42 @@ namespace WDC.VIEWMODEL
         // suprimidos se algum componente não puder ser resolvido/baixado).
         private void BaixarEstruturaCompleta(BatchFileResult item, string pastaDestino)
         {
-            if (item.DocumentoEstruturaRaizes.Count == 0)
+            if (item.DocumentoComponentesDiretos.Count == 0 && item.DocumentoEstruturaRaizes.Count == 0)
                 return;
 
-            AddLog($"{item.DocumentoNumero} — baixando estrutura ({item.DocumentoEstruturaRaizes.Count} componente(s) direto(s))...");
+            // DocumentoComponentesDiretos (SWA/SWP achados na própria busca
+            // por ECM, já com URL etc.) não precisa de round-trip nenhum no
+            // SAP. DocumentoEstruturaRaizes (DocumentStructureList/
+            // SuperiorDocument -- só chaves) continua sendo resolvido à
+            // parte, caso essa informação venha preenchida em alguma ECM no
+            // futuro. As duas fontes são combinadas (sem duplicar, por
+            // DocumentNumber+Type+Part+Version) antes de baixar.
+            List<DocumentoEncontrado> componentes = new List<DocumentoEncontrado>(item.DocumentoComponentesDiretos);
 
-            List<DocumentoEncontrado> componentes;
-
-            try
+            if (item.DocumentoEstruturaRaizes.Count > 0)
             {
-                componentes = DocumentSearchService.ResolverEstruturaCompleta(
-                    item.DocumentoEstruturaRaizes, UsuarioSap, msg => AddLog("  " + msg));
+                AddLog($"{item.DocumentoNumero} — resolvendo estrutura adicional ({item.DocumentoEstruturaRaizes.Count} componente(s) via DocumentStructureList)...");
+
+                try
+                {
+                    List<DocumentoEncontrado> resolvidos = DocumentSearchService.ResolverEstruturaCompleta(
+                        item.DocumentoEstruturaRaizes, UsuarioSap, msg => AddLog("  " + msg));
+
+                    HashSet<string> jaIncluidos = new HashSet<string>(
+                        componentes.Select(ChaveComponenteEcm), StringComparer.OrdinalIgnoreCase);
+
+                    componentes.AddRange(resolvidos.Where(r => jaIncluidos.Add(ChaveComponenteEcm(r))));
+                }
+                catch (Exception ex)
+                {
+                    AddLog($"{item.DocumentoNumero} — falha ao resolver a estrutura: {DocumentSearchService.DescreverErroCompleto(ex)}");
+                }
             }
-            catch (Exception ex)
-            {
-                AddLog($"{item.DocumentoNumero} — falha ao resolver a estrutura: {DocumentSearchService.DescreverErroCompleto(ex)}");
+
+            if (componentes.Count == 0)
                 return;
-            }
+
+            AddLog($"{item.DocumentoNumero} — baixando {componentes.Count} componente(s) relacionado(s) (SWA/SWP da ECM)...");
 
             int disponiveis = 0;
 
@@ -1690,6 +1710,11 @@ namespace WDC.VIEWMODEL
             }
 
             AddLog($"{item.DocumentoNumero} — estrutura: {disponiveis}/{componentes.Count} componente(s) disponível(is) localmente.");
+        }
+
+        private static string ChaveComponenteEcm(DocumentoEncontrado componente)
+        {
+            return $"{componente.DocumentNumber}|{componente.Type}|{componente.Part}|{componente.Version}";
         }
 
         // O nome do arquivo local do componente precisa bater com o que a
